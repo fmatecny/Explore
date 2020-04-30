@@ -7,13 +7,14 @@ package com.mygdx.game.world;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
+import com.mygdx.game.screens.GameScreen;
 
 /**
  *
  * @author Fery
  */
 public class Block extends Rectangle{
-    public static int size = 40;
+    public static float size = 40.0f/GameScreen.PPM;
  
         
     public int id;

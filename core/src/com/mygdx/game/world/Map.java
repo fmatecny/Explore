@@ -5,9 +5,12 @@
  */
 package com.mygdx.game.world;
 
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.world.water.Water;
 import static java.lang.Math.abs;
 
 /**
@@ -16,7 +19,7 @@ import static java.lang.Math.abs;
  */
 public class Map {
     
-    private Block[][] blockArray;
+    private Body[][] bodiesArray;
     private Block[][] groundBckArr;
     
     private int width;
@@ -26,18 +29,17 @@ public class Map {
     private int groundIndexY = 0;
 
     public Map(int width, int height) {
-        
         this.width = width;
         this.height = height;
-        blockArray = new Block[width][height];        
+        bodiesArray = new Body[width][height];        
         
         Ground ground = new Ground(width, height-10);
-        Block[][] groundArr = ground.getBlockArray();
+        Body[][] groundBodiesArr = ground.getBlockArray();
         groundBckArr = new Block[width][height];
        
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height-10; j++) {
-                blockArray[i][j] = groundArr[i][j];
+                bodiesArray[i][j] = groundBodiesArr[i][j];
                 groundBckArr[i][j] = ground.getBlockBckArray()[i][j];
             }
         } 
@@ -47,7 +49,7 @@ public class Map {
         while (groundIndexX < width-20) 
         {            
             for (int j = 0; j < height-10; j++) {
-                if (groundArr[groundIndexX][j] == null)
+                if (groundBodiesArr[groundIndexX][j] == null)
                 {
                     groundIndexY = j;
                     break;
@@ -56,15 +58,16 @@ public class Map {
             
             int typeOfCreation = (int )(Math.random() * 100);
             if (typeOfCreation > 70) {
-                createHouses(groundArr);
+                createHouses(groundBodiesArr);
             }
             else{
                 createTrees();
             }
-        }        
+            //TODO createWater();
+        } 
     }
     
-    private void createHouses(Block[][] groundArr) {
+    private void createHouses(Body[][] groundBodiesArr) {
         int houseWidth = 0;
         int houseHeight = 0;
         int diff = 0;
@@ -73,7 +76,7 @@ public class Map {
 
         
         for (int j = 0; j < height-10; j++) {
-            if (groundArr[groundIndexX+houseWidth-1][j] == null)
+            if (groundBodiesArr[groundIndexX+houseWidth-1][j] == null)
             {
                 diff = abs(j-groundIndexY);
                 groundIndexY = (j+groundIndexY)/2;
@@ -84,13 +87,13 @@ public class Map {
         if (diff < 2)
         {
             houseHeight = (int )(Math.random() * 2 + 6);
-            House house = new House(houseWidth,houseHeight);
-            Block[][] houseArr = house.getHouse();
+            House house = new House(houseWidth,houseHeight,groundIndexX,groundIndexY);
+            Body[][] houseArr = house.getHouse();
 
             for (int i = 0; i < houseWidth; i++) {
                 for (int j = 0; j < houseHeight; j++) {
                     if (houseArr[i][j] != null){
-                        blockArray[i+groundIndexX-1][j+groundIndexY] = houseArr[i][j];}
+                        bodiesArray[i+groundIndexX-1][j+groundIndexY] = houseArr[i][j];}
                 }
             }
             groundIndexX += (int )(Math.random() * 15 + houseWidth);
@@ -108,51 +111,62 @@ public class Map {
             treeWidth++;
 
         treeHeight = (int )(Math.random() * 5 + 5);
-        Tree tree = new Tree(treeWidth,treeHeight);
-        Block[][] treeArr = tree.getTree();
+        Tree tree = new Tree(treeWidth,treeHeight, groundIndexX, groundIndexY);
+        Body[][] treeArr = tree.getTree();
 
         for (int i = 0; i < treeWidth; i++) {
             for (int j = 0; j < treeHeight; j++) {
-                if (treeArr[i][j] != null && (blockArray[i+groundIndexX-treeWidth/2][j+groundIndexY] == null)){
-                    blockArray[i+groundIndexX-treeWidth/2][j+groundIndexY] = treeArr[i][j];}
+                if (treeArr[i][j] != null && (bodiesArray[i+groundIndexX-treeWidth/2][j+groundIndexY] == null)){
+                    bodiesArray[i+groundIndexX-treeWidth/2][j+groundIndexY] = treeArr[i][j];}
             }
         }
         groundIndexX += (int )(Math.random() * 15 + treeWidth);
     
     }
     
+    private void createWater(){
+        Water water = new Water();
+        //water.createBody(world, 0, 2, 10, 10); //world, x, y, width, height
+        //water.setDebugMode(true);
+    }
     
-    public Block getBlock(int x, int y){
-        if ((y/Block.size) <= 0)
+    
+    public Block getBlock(float x, float y){
+        if ((int)(y/Block.size) <= 0)
             y = Block.size;
         
-        return blockArray[x/Block.size][y/Block.size];
+        return (Block) bodiesArray[(int)(x/Block.size)][(int)(y/Block.size)].getUserData();
     
     }
     
     public Block getBlockByIdx(IntVector2 v){
-        return blockArray[v.X][v.Y];
+        return (Block) bodiesArray[v.X][v.Y].getUserData();
+    
+    }
+    
+    public Block getBlockByIdx(int x, int y){
+        return (Block) bodiesArray[x][y].getUserData();
     
     }
 
-    public Block[][] getBlockArray() {
-        return blockArray;
+    public Body[][] getBodiesArray() {
+        return bodiesArray;
     }
     
-    public void removeBlock(int x, int y){
-        blockArray[x][y] = AllBlocks.empty;
+    /*public void removeBlock(int x, int y){
+        bodiesArray[x][y] = AllBlocks.empty;
     }
     
     public void removeBlock(IntVector2 v){
-        blockArray[v.X][v.Y] = AllBlocks.empty;
-    }
+        bodiesArray[v.X][v.Y] = AllBlocks.empty;
+    }*/
     
-    public IntVector2 getBlockIdxFromMouseXY(int x, int y, IntVector2 cam){
+    public IntVector2 getBlockIdxFromMouseXY(int x, int y, Vector2 cam){
         
         IntVector2 v = new IntVector2();
         
-        v.X = (x+(cam.X-MyGdxGame.width/2))/Block.size;
-        v.Y = (MyGdxGame.height-(y-(cam.Y-MyGdxGame.height/2)))/Block.size;
+        v.X = (int)((x+(cam.x-MyGdxGame.width/2))/Block.size);
+        v.Y = (int)((MyGdxGame.height-(y-(cam.y-MyGdxGame.height/2)))/Block.size);
         
         return v;
     
@@ -166,29 +180,30 @@ public class Map {
     
     }
     
-    public void draw(Stage stage){
+    public void draw(SpriteBatch spriteBatch){
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                if (blockArray[i][j] != AllBlocks.empty && blockArray[i][j] != null)
-                    //stage.getBatch().draw( blockArray[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
-                    drawWithRotation(stage, i, j);
+                if (bodiesArray[i][j] != null)
+                    //stage.getBatch().draw( bodiesArray[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                    drawWithRotation(spriteBatch, i, j);
                 else if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
-                    stage.getBatch().draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                    spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
             }
 
         }
     }
 
-    private void drawWithRotation(Stage stage, int i, int j) {
-       stage.getBatch().draw(blockArray[i][j].texture, 
+    private void drawWithRotation(SpriteBatch spriteBatch, int i, int j) {
+       Block b = (Block)bodiesArray[i][j].getUserData();
+       spriteBatch.draw(b.texture, 
                             i*Block.size, j*Block.size, 
                             Block.size/2, Block.size/2, 
                             Block.size, Block.size, 
                             1.0f, 1.0f, 
-                            blockArray[i][j].textureRotation, 
+                            b.textureRotation, 
                             0, 0, 
-                            blockArray[i][j].texture.getWidth(), blockArray[i][j].texture.getHeight(),  
+                            b.texture.getWidth(), b.texture.getHeight(),  
                             false, false); 
     }
-    
+        
 }

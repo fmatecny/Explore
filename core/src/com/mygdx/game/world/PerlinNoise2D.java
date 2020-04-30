@@ -15,7 +15,7 @@ import static java.lang.Math.abs;
 public class PerlinNoise2D {
 	private double time = 0;
         private int noise = 0;
-        private int[] noiseArr = new int[MyGdxGame.width];
+        private int[] noiseArr = new int[(int)MyGdxGame.width];
         
     public int[] getNoiseArr(int height){
         double noise;

@@ -6,8 +6,8 @@ import com.mygdx.game.screens.PauseScreen;
 
 public class MyGdxGame extends Game {
     
-    public static int width = 1280;
-    public static int height = 720;
+    public static float width = 1280.0f;
+    public static float height = 720.0f;
     
     private MenuScreen menuScreen;
     private NewGameScreen newGameScreen;
@@ -29,7 +29,8 @@ public class MyGdxGame extends Game {
     
     public boolean resolutionChanged = false;
     
-    public void changeScreen(int screen){
+    public void changeScreen(int screen)
+    {
             switch(screen){
                     case MENU:
                             if(menuScreen == null) menuScreen = new MenuScreen(this);
@@ -69,14 +70,16 @@ public class MyGdxGame extends Game {
             }
     }
 
-    public AppPreferences getPreferences(){
+    public AppPreferences getPreferences()
+    {
             return this.preferences;
     }
 
     
     
     @Override
-    public void create() {
+    public void create() 
+    {
         Inputs.instance = new Inputs();
         
         Skins.instance = new Skins();
