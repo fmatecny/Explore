@@ -6,13 +6,19 @@
 package com.mygdx.game.entities;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
 import java.util.ArrayList;
@@ -32,11 +38,8 @@ public class Villager {
     private int idx = 0;
 
     private boolean turned = false;
-    private Vector2 position;
     
     private final float SCALE = 4f;
-    private final int LDoffsetX = 14*(int)SCALE;
-    private final int RDoffsetX = 25*(int)SCALE;
     private final int downOffset = (int) (7.8f*SCALE);
     
     
@@ -47,7 +50,9 @@ public class Villager {
     private boolean isJumping = false;
     
     
-    private long counter = 0;
+    private long counter = 170;
+    
+    private Body b2body;
 
     public Villager(Stage stage) {
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
@@ -58,7 +63,7 @@ public class Villager {
         textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("player/Jump/jump.txt");
         
         addSprites();
-        position =  new Vector2(450, MyGdxGame.height);
+        defineVillager();
         
     }
 
@@ -97,127 +102,93 @@ public class Villager {
 
         
     }
-    
-    public void updatePosition(Map map, IntVector2 cam){
-        currentTOM = typeOfMovement.stand;
+    public void defineVillager(){
+        BodyDef bdef = new BodyDef();
+        bdef.position.set(450.0f/GameScreen.PPM, MyGdxGame.height/GameScreen.PPM);
+        bdef.type = BodyDef.BodyType.DynamicBody;
+        b2body = GameScreen.world.createBody(bdef);
+
+        FixtureDef fdef = new FixtureDef();
+        //fdef.friction = 1.0f;
+        //fdef.restitution = 0.0f;
+        //fdef.density = 5.0f;
+        /*PolygonShape square = new PolygonShape();
+        square.setAsBox(Block.size, Block.size);*/
+        CircleShape square = new CircleShape();
+        square.setRadius(Block.size/2.0f + 2.0f/GameScreen.PPM);
+        //square.
+        //fdef.filter.categoryBits = MarioBros.MARIO_BIT;
+        /*fdef.filter.maskBits = MarioBros.GROUND_BIT |
+                MarioBros.COIN_BIT |
+                MarioBros.BRICK_BIT |
+                MarioBros.ENEMY_BIT |
+                MarioBros.OBJECT_BIT |
+                MarioBros.ENEMY_HEAD_BIT |
+                MarioBros.ITEM_BIT;*/
+
+        fdef.shape = square;
+        b2body.createFixture(fdef);//.setUserData(this);
+
+        /*EdgeShape head = new EdgeShape();
+        head.set(new Vector2(-1, 2), new Vector2(3, 2));
+        fdef.shape = head;
+        fdef.isSensor = true;*/
+        
+        square.setRadius(Block.size/2.0f + 6.0f/GameScreen.PPM);
+        square.setPosition(new Vector2(0, (Block.size/2.0f + 1.0f/GameScreen.PPM)*2.0f));
+        b2body.createFixture(fdef);
+        /*
+        fdef.filter.categoryBits = MarioBros.MARIO_HEAD_BIT;
+        fdef.shape = head;
+        fdef.isSensor = true;*/
+
+        //b2body.createFixture(fdef);//.setUserData(this);
+        square.dispose();
+    }
+
+    public void updatePosition(){
+        if (b2body.getLinearVelocity().x == 0)
+            currentTOM = typeOfMovement.stand;
+        
         speed = 2;
-       /*if (Inputs.instance.run){
+        /*if (Inputs.instance.run){
             speed *= 2;
             //currentTOM = typeOfMovement.run;
         }*/
-        
-        if ((isJumping && counterJump > 5) || (!isJumping))
-            checkGround(map);
-        
 
-
-        if (doLeft()){
-            checkLeftCollission(map);
-            turned = true;
-            //position.x -= speed;
+        if (doRight() && b2body.getLinearVelocity().x <= speed){
+            b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
-        }
-        
-        if (doRight()){
-            checkRightCollission(map);
             turned = false;
-            //position.x += speed;
+        }
+        
+        if (doLeft() && b2body.getLinearVelocity().x >= -speed){
+            b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
+            turned = true;
+        }
+        
+        /*if (b2body.getLinearVelocity().y < 0 && isJumping )
+            isFalling = true;
+        
+        if (b2body.getLinearVelocity().y == 0 && isFalling){
+            isJumping = false;
+            isFalling = false;
+        }
+        
+        if (Inputs.instance.up && !isJumping && !isFalling){
+            b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
+            currentTOM = typeOfMovement.jump;
+            isJumping = true;
         }
 
-       /* if (Inputs.instance.run){
+        if (Inputs.instance.run){
             //speed *= 2;
             currentTOM = typeOfMovement.run;
         }*/
-
-        /*if (Inputs.instance.up && !isJumping){
-            jump = true;
-            isJumping = true;
-        }*/
-        
-        if (isJumping)
-            currentTOM = typeOfMovement.jump;
-        
-        if (jump){
-            if (counterJump < 6.8){
-                counterJump += 0.1;}
-
-            if (counterJump >= 6.8)
-                jump = false;
-
-            position.y = position.y - (int) ((Math.sin(counterJump) + Math.cos(counterJump)) * 6);
-            //System.out.println(counterJump + "aaa" + position.y);
-        }
-        else if(!fallDown){
-            counterJump = 4;
-            isJumping = false;
-            //System.out.println( "1 " + position.y);
-            if (position.y%Block.size > Block.size/2)
-                position.y = position.y + Block.size - position.y%Block.size;
-            else{
-                position.y = position.y - position.y%Block.size;
-            }
-            //System.out.println("2 "+ position.y + "\n");
-        }
-        
-        /*if (Inputs.instance.mouseX < position.x+70-(cam.X-MyGdxGame.width/2))
-            turned = true;
-        
-        if (Inputs.instance.mouseX > position.x+89-(cam.X-MyGdxGame.width/2))
-            turned = false;*/
             
                 
 
-    }
-    
-    private void checkGround(Map map){
-        fallDown = false;
-        boolean RD = false;
-        boolean LD = false;
-        if (map.getBlock((int) position.x+RDoffsetX, (int) position.y-speed) == null){
-            RD = true;
-        }
-        else if (map.getBlock((int) position.x+RDoffsetX, (int) position.y-speed).blocked == false)
-        {
-            RD = true;
-        }
-   
-        if (map.getBlock((int) position.x+LDoffsetX, (int) position.y-speed) == null){
-            LD = true;
-        }
-        else if (map.getBlock((int) position.x+LDoffsetX, (int) position.y-speed).blocked == false)
-        {
-            LD = true;
-        }
-        
-        
-        if (RD && LD){
-            fallDown = true;
-            if (!jump) position.y-=4;
-        }
-        else{
-            jump = false;
-        } 
-    }
-    
-    private void checkRightCollission(Map map){
-        if (map.getBlock((int) position.x+RDoffsetX+speed, (int) position.y) == null){
-            position.x+=speed;
-        }
-        else if (map.getBlock((int) position.x+RDoffsetX+speed, (int) position.y).blocked == false)
-        {
-            position.x+=speed;
-        }
-    }
-    
-    private void checkLeftCollission(Map map){
-        if (map.getBlock((int) position.x+LDoffsetX+speed, (int) position.y) == null){
-            position.x-=speed;
-        }
-        else if (map.getBlock((int) position.x+LDoffsetX+speed, (int) position.y).blocked == false)
-        {
-            position.x-=speed;
-        }
     }
     
     private int getScaleOfMovement(){
@@ -235,7 +206,7 @@ public class Villager {
     }
     
     
-    public void draw(Stage stage){
+    public void draw(SpriteBatch spriteBatch){
         
         counter++;
         
@@ -250,15 +221,15 @@ public class Villager {
         }
         else {sprite = sprites.get(currentTOM.ordinal()).get(0).get(idx/getScaleOfMovement());}
         
-        sprite.setPosition(position.x, position.y-downOffset);
+        sprite.setPosition(b2body.getPosition().x - Block.size*2, b2body.getPosition().y-(Block.size/2.0f + 7.0f/GameScreen.PPM)*2.0f);
 
-        sprite.draw(stage.getBatch());
+        sprite.draw(spriteBatch);
         if (currentTOM != typeOfMovement.jump)
         {
             //backwalk
-            /*if ((turned && Inputs.instance.right) || (!turned && Inputs.instance.left))
+            if ((turned && doRight()) || (!turned && doLeft()))
                 idx--;
-            else*/
+            else
                 idx++;
         }
         
@@ -275,12 +246,12 @@ public class Villager {
     }
     
     
-    public int getX(){
-        return (int) position.x;
+    public float getX(){
+        return b2body.getPosition().x;
     }
     
-    public int getY(){
-        return (int) position.y;
+    public float getY(){
+        return b2body.getPosition().y;
     }
 
     public int getSpeed() {

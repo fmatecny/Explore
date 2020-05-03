@@ -7,23 +7,28 @@ package com.mygdx.game.inventory;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Skins;
 import com.mygdx.game.screens.GameScreen;
+import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
 
 /**
  *
  * @author Fery
  */
-public class Inventory {
+public class Inventory implements Disposable{
     
     public static int numOfCol = 9;
     public static int numOfRow = 3;
@@ -46,24 +51,29 @@ public class Inventory {
     private boolean wasInventoryOpen = false;
     private boolean dragSlotInBar = false;
     private boolean dragSlotInPackage = false;
+    
+    private Stage stageInventory;
+    
 
-    public Inventory(Stage stage) {
+    public Inventory(SpriteBatch spriteBatch) {
+        
+        stageInventory = new Stage(new FitViewport(MyGdxGame.width,MyGdxGame.height,new OrthographicCamera()),spriteBatch);
         
         multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(Inputs.instance);
-        multiplexer.addProcessor(stage);
+        multiplexer.addProcessor(stageInventory);
         
         Gdx.input.setInputProcessor(multiplexer);
         mock = new Table(skin);
         mock.setFillParent(true);
-        //mock.setDebug(true);
-        //mock.center().top();
+        mock.setDebug(true);
+        mock.center().top();
 
         window = new Window("", skin);
         window.add(new Label("Inventory", skin)).left().padLeft(15.0f);
         window.row();
         table = new Table();
-        //table.setDebug(true);
+        table.setDebug(true);
         table.setTouchable(Touchable.enabled);
 
         inventoryAvatar = new InventoryAvatar();
@@ -83,9 +93,9 @@ public class Inventory {
         table.add(inventoryBar).colspan(3);
 
         window.add(table).pad(20.0f);
-        mock.add(window).colspan(2).expandY().padTop(100.0f);
+        mock.add(window).colspan(2).expandY();
         
-        stage.addActor(mock);
+        //stageInventory.addActor(mock);
 
     }
     
@@ -132,6 +142,13 @@ public class Inventory {
         for (int i = 0; i < numOfCol; i++) {
             inventoryBarHUD.inventoryBar[i].setItem(inventoryBar.inventoryBar[i].getItem());
             inventoryBarHUD.inventoryBar[i].numOfItem = inventoryBar.inventoryBar[i].numOfItem;
+        }
+    }
+    
+    private void synchronizeInventoryBar(){
+        for (int i = 0; i < numOfCol; i++) {
+            inventoryBar.inventoryBar[i].setItem(inventoryBarHUD.inventoryBar[i].getItem());
+            inventoryBar.inventoryBar[i].numOfItem = inventoryBarHUD.inventoryBar[i].numOfItem;
         }
     }
     
@@ -216,8 +233,7 @@ public class Inventory {
         return dropSlot;
     }
     
-    public void draw(Stage stage){
-
+    public void draw(){
         Gdx.input.setInputProcessor(multiplexer);
         mock.setVisible(Inputs.instance.showInventory);
 
@@ -234,12 +250,16 @@ public class Inventory {
                 else
                     inventoryBarHUD.setNonActiveBckForSlot(i);
             }
-
-            inventoryBarHUD.setPosition(GameScreen.camera.position.x, GameScreen.camera.position.y - MyGdxGame.height/2 + 50);
-            stage.addActor(inventoryBarHUD);
+            inventoryBarHUD.setPosition(MyGdxGame.width/2,100);//(GameScreen.camera.position.x, GameScreen.camera.position.y - MyGdxGame.height/2 + 50);
+            stageInventory.addActor(inventoryBarHUD);
         }
         else
         {
+            if (wasInventoryOpen == false){
+                wasInventoryOpen = true;
+                synchronizeInventoryBar();
+            }
+
             if (inventoryBar.isDragInBar()){
                 inventoryPackage.setZIndex(0);
                 inventoryBar.setZIndex(10);
@@ -248,9 +268,7 @@ public class Inventory {
                 inventoryPackage.setZIndex(10);
                 inventoryBar.setZIndex(0);
             }
-                
-            
-                wasInventoryOpen = true;
+
                 InventorySlot dragSlot = getDragInventorySlot();
                 InventorySlot dropSlot = getDropInventorySlot();
                 
@@ -274,17 +292,25 @@ public class Inventory {
 
                     }
                 }
-            mock.setPosition(GameScreen.camera.position.x - MyGdxGame.width/2, 
-                             GameScreen.camera.position.y - mock.getHeight()/2 + 100);
-            stage.addActor(mock);
+            //mock.setPosition(MyGdxGame.width/2- mock.getWidth()/2, MyGdxGame.height - mock.getHeight() + 100);
+            stageInventory.addActor(mock);
         }
-        
+
+        stageInventory.draw();
     }
 
     public InventoryBar getInventoryBarHUD() {
         return inventoryBarHUD;
     }
     
+    public Stage getStageInventory(){
+        return stageInventory;
+    }
+
+    @Override
+    public void dispose() {
+        stageInventory.dispose();
+    }
     
     
 

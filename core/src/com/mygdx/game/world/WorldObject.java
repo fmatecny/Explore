@@ -37,9 +37,9 @@ public abstract class WorldObject {
         // Create a fixture definition to apply our shape to
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = square;
-        fixtureDef.density = 0.5f;
-        fixtureDef.friction = 0.5f;
-        fixtureDef.restitution = 0.5f;
+        //fixtureDef.density = 0.5f;
+        //fixtureDef.friction = 0.5f;
+        //fixtureDef.restitution = 0.5f;
 
         // Create our fixture and attach it to the body
         body.createFixture(fixtureDef);

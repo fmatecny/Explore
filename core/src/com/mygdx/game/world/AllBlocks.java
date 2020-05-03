@@ -7,6 +7,7 @@ package com.mygdx.game.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import java.util.ArrayList;
 
 /**
  *
@@ -56,7 +57,7 @@ public class AllBlocks {
     
     public static Texture heard;
     
-    
+    private ArrayList<Block> blockList = new ArrayList<>();
     
     public AllBlocks() {
         
@@ -76,7 +77,8 @@ public class AllBlocks {
         coal.textureRotation = 0;
         coal.isRotationAllowed = false;
         coal.texture = new Texture(Gdx.files.internal("block/coal.png"));
-
+        blockList.add(coal);
+        
         door_down = new Block();
         door_down.id = 1;
         door_down.blocked = false;
@@ -84,6 +86,7 @@ public class AllBlocks {
         door_down.textureRotation = 0;
         door_down.isRotationAllowed = false;
         door_down.texture = new Texture(Gdx.files.internal("block/door_down.jpg"));
+        blockList.add(door_down);
         
         door_up = new Block();
         door_up.id = 2;
@@ -92,6 +95,7 @@ public class AllBlocks {
         door_up.textureRotation = 0;
         door_up.isRotationAllowed = false;
         door_up.texture = new Texture(Gdx.files.internal("block/door_up.jpg"));
+        blockList.add(door_up);
 
         empty = new Block();
         empty.id = 0;
@@ -99,6 +103,7 @@ public class AllBlocks {
         empty.hardness = 0;
         empty.textureRotation = 0;
         empty.texture = null;
+        blockList.add(empty);
         
         grassy_ground = new Block();
         grassy_ground.id = 3;
@@ -106,6 +111,7 @@ public class AllBlocks {
         grassy_ground.hardness = 5;
         grassy_ground.textureRotation = 0;
         grassy_ground.texture = new Texture(Gdx.files.internal("block/leafy_ground.png"));
+        blockList.add(grassy_ground);
 
         gravel = new Block();
         gravel.id = 4;
@@ -113,6 +119,7 @@ public class AllBlocks {
         gravel.hardness = 5;
         gravel.textureRotation = 0;
         gravel.texture = new Texture(Gdx.files.internal("block/gravel.jpg"));
+        blockList.add(gravel);
         
         ground = new Block();
         ground.id = 5;
@@ -120,6 +127,7 @@ public class AllBlocks {
         ground.hardness = 5;
         ground.textureRotation = 0;
         ground.texture = new Texture(Gdx.files.internal("block/ground.png"));
+        blockList.add(ground);
         
         groundBck = new Block();
         groundBck.id = 6;
@@ -127,7 +135,8 @@ public class AllBlocks {
         groundBck.hardness = 5;
         groundBck.textureRotation = 0;
         groundBck.texture = new Texture(Gdx.files.internal("block/groundBck.png"));
-
+        blockList.add(groundBck);
+        
         /*houseStone = new Block();
         houseStone.blocked = false;
         houseStone.blocked = false;
@@ -140,7 +149,8 @@ public class AllBlocks {
         leaf.blocked = true;
         leaf.hardness = 5;
         leaf.textureRotation = 0;
-        leaf.texture = new Texture(Gdx.files.internal("block/leaf.png"));        
+        leaf.texture = new Texture(Gdx.files.internal("block/leaf.png"));
+        blockList.add(leaf);
 
         plank = new Block();
         plank.id = 8;
@@ -184,6 +194,15 @@ public class AllBlocks {
         smoothstone.hardness = 5;
         smoothstone.textureRotation = 0;
 */
-    }   
+    }
+    
+    public Block getBlockById(int id){
+        for (int i = 0; i < blockList.size(); i++) {
+            if (blockList.get(i).id == id)
+                return blockList.get(i);
+        }
+       
+       return empty;
+    }
     
 }

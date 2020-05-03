@@ -5,25 +5,21 @@
  */
 package com.mygdx.game.entities;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.mygdx.game.inventory.Inventory;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
-import com.badlogic.gdx.graphics.g3d.utils.shapebuilders.EllipseShapeBuilder;
-import com.badlogic.gdx.math.Ellipse;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Inputs;
-import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.Block;
@@ -49,22 +45,18 @@ public class Player {
 
     private boolean turned = false;
     
-    private final float SCALE = 4f;
-    private final int LDoffsetX = 14*(int)SCALE;
-    private final int RDoffsetX = 25*(int)SCALE;
-    private final int downOffset = (int) (7.8f*SCALE);
-    
+    private final float SCALE = 4f;    
     
     private float speed = 0.4f;//2/GameScreen.PPM;
-    private boolean fallDown = false;
-    private double counterJump = 4;
-    private boolean jump = false;
+
     private boolean isFalling = false;
     private boolean isJumping = false;
     
     public Body b2body;
+    
+    private Vector3 v3 = new Vector3();
 
-    public Player(Stage stage) {
+    public Player(Stage stage, SpriteBatch spriteBatch) {
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
         //System.out.println(typeOfMovement.stand.ordinal());
         textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("player/Stand/stand.txt");
@@ -74,7 +66,7 @@ public class Player {
         
         addSprites();
         definePlayer();
-        inventory = new Inventory(stage);
+        inventory = new Inventory(spriteBatch);
         hud = new HUD();
         
     }
@@ -125,6 +117,7 @@ public class Player {
         FixtureDef fdef = new FixtureDef();
         //fdef.friction = 1.0f;
         //fdef.restitution = 0.0f;
+        //fdef.density = 5.0f;
         /*PolygonShape square = new PolygonShape();
         square.setAsBox(Block.size, Block.size);*/
         CircleShape square = new CircleShape();
@@ -143,7 +136,7 @@ public class Player {
         b2body.createFixture(fdef);//.setUserData(this);
 
         /*EdgeShape head = new EdgeShape();
-        head.set(new Vector2(-1, 2), new Vector2(3, 4));
+        head.set(new Vector2(-1, 2), new Vector2(3, 2));
         fdef.shape = head;
         fdef.isSensor = true;*/
         
@@ -155,28 +148,28 @@ public class Player {
         fdef.shape = head;
         fdef.isSensor = true;*/
 
-        b2body.createFixture(fdef);//.setUserData(this);
+        //b2body.createFixture(fdef);//.setUserData(this);
         square.dispose();
     }
 
     
-    public void updatePosition(Map map, Vector2 cam){
+    public void updatePosition(OrthographicCamera camera){
         
         if (b2body.getLinearVelocity().x == 0)
             currentTOM = typeOfMovement.stand;
         
         speed = 2;
-        if (Inputs.instance.run){
+        if (Inputs.instance.run && currentTOM != typeOfMovement.stand){
             speed *= 2;
             //currentTOM = typeOfMovement.run;
         }
 
-        if (Inputs.instance.right && b2body.getLinearVelocity().x <= 2){
+        if (Inputs.instance.right && b2body.getLinearVelocity().x <= speed){
             b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
         }
         
-        if (Inputs.instance.left && b2body.getLinearVelocity().x >= -2){
+        if (Inputs.instance.left && b2body.getLinearVelocity().x >= -speed){
             b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
         }
@@ -190,75 +183,25 @@ public class Player {
         }
         
         if (Inputs.instance.up && !isJumping && !isFalling){
-            b2body.applyLinearImpulse(new Vector2(0, 4f), b2body.getWorldCenter(), true);
+            b2body.applyLinearImpulse(new Vector2(0, 3.3f), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.jump;
             isJumping = true;
         }
 
-        if (Inputs.instance.run){
+        if (Inputs.instance.run && currentTOM != typeOfMovement.stand){
             //speed *= 2;
             currentTOM = typeOfMovement.run;
         }
-        /*
-        if (Inputs.instance.mouseX < position.x+70-(cam.X-MyGdxGame.width/2))
+        
+        camera.unproject(v3.set(Inputs.instance.mouseX, Inputs.instance.mouseY, 0f));
+        
+        //System.out.println(v3.x + "|" + b2body.getPosition().x);
+        if (v3.x < b2body.getPosition().x)
             turned = true;
         
-        if (Inputs.instance.mouseX > position.x+89-(cam.X-MyGdxGame.width/2))
-            turned = false;*/
-            
-                
-
+        if (v3.x > b2body.getPosition().x)
+            turned = false;
     }
-    
-    /*private void checkGround(Map map){
-        fallDown = false;
-        boolean RD = false;
-        boolean LD = false;
-        if (map.getBlock(position.x+RDoffsetX, position.y-speed) == null){
-            RD = true;
-        }
-        else if (map.getBlock( position.x+RDoffsetX, position.y-speed).blocked == false)
-        {
-            RD = true;
-        }
-   
-        if (map.getBlock( position.x+LDoffsetX, position.y-speed) == null){
-            LD = true;
-        }
-        else if (map.getBlock( position.x+LDoffsetX, position.y-speed).blocked == false)
-        {
-            LD = true;
-        }
-        
-        
-        if (RD && LD){
-            fallDown = true;
-            if (!jump) position.y-=4;
-        }
-        else{
-            jump = false;
-        } 
-    }*/
-    
-    /*private void checkRightCollission(Map map){
-        if (map.getBlock( position.x+RDoffsetX+speed, position.y) == null){
-            position.x+=speed;
-        }
-        else if (map.getBlock( position.x+RDoffsetX+speed, position.y).blocked == false)
-        {
-            position.x+=speed;
-        }
-    }*/
-    
-   /* private void checkLeftCollission(Map map){
-        if (map.getBlock( position.x+LDoffsetX+speed, position.y) == null){
-            position.x-=speed;
-        }
-        else if (map.getBlock(position.x+LDoffsetX+speed, position.y).blocked == false)
-        {
-            position.x-=speed;
-        }
-    }*/
     
     private int getScaleOfMovement(){
         
@@ -290,7 +233,6 @@ public class Player {
         
         
         sprite.setPosition(b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 7.0f/GameScreen.PPM)*2.0f);
-        //sprite.setPosition(position.x, position.y-downOffset);
 
         sprite.draw(spriteBatch);
         if (currentTOM != typeOfMovement.jump)
@@ -306,7 +248,7 @@ public class Player {
         
         
         //System.out.println(b2body.getLinearVelocity().y);
-        //inventory.draw(stage);
+        //inventory.draw();
     
     }
     

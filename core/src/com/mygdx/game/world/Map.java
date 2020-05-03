@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.water.Water;
 import static java.lang.Math.abs;
 
@@ -17,7 +18,7 @@ import static java.lang.Math.abs;
  *
  * @author Fery
  */
-public class Map {
+public class Map extends WorldObject{
     
     private Body[][] bodiesArray;
     private Block[][] groundBckArr;
@@ -129,22 +130,29 @@ public class Map {
         //water.createBody(world, 0, 2, 10, 10); //world, x, y, width, height
         //water.setDebugMode(true);
     }
+
+    public void rotateBlock(Body b){
+        getBlockByIdx((int)(b.getPosition().x/Block.size),(int)(b.getPosition().y/Block.size)).textureRotation -= 90;
+    }
     
     
     public Block getBlock(float x, float y){
         if ((int)(y/Block.size) <= 0)
             y = Block.size;
         
+        if ((int)(x/Block.size) <= 0)
+            x = Block.size;
+        
         return (Block) bodiesArray[(int)(x/Block.size)][(int)(y/Block.size)].getUserData();
     
     }
     
-    public Block getBlockByIdx(IntVector2 v){
+    private Block getBlockByIdx(IntVector2 v){
         return (Block) bodiesArray[v.X][v.Y].getUserData();
     
     }
     
-    public Block getBlockByIdx(int x, int y){
+    private Block getBlockByIdx(int x, int y){
         return (Block) bodiesArray[x][y].getUserData();
     
     }
@@ -153,13 +161,25 @@ public class Map {
         return bodiesArray;
     }
     
-    /*public void removeBlock(int x, int y){
-        bodiesArray[x][y] = AllBlocks.empty;
+    
+    public void removeBodyFromWorld(Body b){
+        removeBody((int)(b.getPosition().x/Block.size), (int)(b.getPosition().y/Block.size));
+        GameScreen.world.destroyBody(b);
     }
     
-    public void removeBlock(IntVector2 v){
-        bodiesArray[v.X][v.Y] = AllBlocks.empty;
-    }*/
+    public void addBodyToIdx(int x, int y, Block b){
+        bodiesArray[x][y] = createBodie(GameScreen.world, x, y, b); 
+    }
+    
+    public void removeBody(int x, int y){
+        bodiesArray[x][y].setUserData(null);
+        bodiesArray[x][y] = null;
+        
+    }
+    
+    public void removeBody(IntVector2 v){
+        removeBody(v.X, v.Y);
+    }
     
     public IntVector2 getBlockIdxFromMouseXY(int x, int y, Vector2 cam){
         

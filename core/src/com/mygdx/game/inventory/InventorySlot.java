@@ -84,9 +84,9 @@ public class InventorySlot extends Table{
             {
                 this.setZIndex(50);
                 batch.draw(item.texture, 
-                Inputs.instance.mouseX-400, 550-Inputs.instance.mouseY,  
+                Inputs.instance.mouseX-400, 600-Inputs.instance.mouseY,  
                 getWidth()-15, getHeight()-15);
-                font.draw(batch, Integer.toString(numOfItem), Inputs.instance.mouseX-375, 560-Inputs.instance.mouseY);
+                font.draw(batch, Integer.toString(numOfItem), Inputs.instance.mouseX-375, 610-Inputs.instance.mouseY);
             }
             else 
             {
