@@ -121,7 +121,7 @@ public class Water implements Disposable {
 		// Create a fixture definition to apply our shape to
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = square;
-		
+                
 		// Must be a sensor
 		fixtureDef.isSensor = true;
 

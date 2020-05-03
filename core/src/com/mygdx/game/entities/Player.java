@@ -16,10 +16,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Inputs;
+import com.mygdx.game.MyContactListener;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.Block;
@@ -48,6 +50,7 @@ public class Player {
     private final float SCALE = 4f;    
     
     private float speed = 0.4f;//2/GameScreen.PPM;
+    private float powerOfImpuls = 0.2f;
 
     private boolean isFalling = false;
     private boolean isJumping = false;
@@ -113,11 +116,12 @@ public class Player {
         bdef.position.set(250.0f/GameScreen.PPM, MyGdxGame.height/GameScreen.PPM);
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
+        b2body.setFixedRotation(true);
 
         FixtureDef fdef = new FixtureDef();
-        //fdef.friction = 1.0f;
+        //fdef.friction = 5.0f;
         //fdef.restitution = 0.0f;
-        //fdef.density = 5.0f;
+        fdef.density = 0.5f;
         /*PolygonShape square = new PolygonShape();
         square.setAsBox(Block.size, Block.size);*/
         CircleShape square = new CircleShape();
@@ -134,14 +138,15 @@ public class Player {
 
         fdef.shape = square;
         b2body.createFixture(fdef);//.setUserData(this);
-
-        /*EdgeShape head = new EdgeShape();
-        head.set(new Vector2(-1, 2), new Vector2(3, 2));
-        fdef.shape = head;
-        fdef.isSensor = true;*/
         
         square.setRadius(Block.size/2.0f + 6.0f/GameScreen.PPM);
         square.setPosition(new Vector2(0, (Block.size/2.0f + 1.0f/GameScreen.PPM)*2.0f));
+        b2body.createFixture(fdef);
+        
+        EdgeShape head = new EdgeShape();
+        head.set(new Vector2(0, -0.1f), new Vector2(0, 0.5f));
+        fdef.shape = head;
+        fdef.isSensor = true;
         b2body.createFixture(fdef);
         /*
         fdef.filter.categoryBits = MarioBros.MARIO_HEAD_BIT;
@@ -159,18 +164,25 @@ public class Player {
             currentTOM = typeOfMovement.stand;
         
         speed = 2;
+        powerOfImpuls = 0.2f;
+        
+        if (MyContactListener.swim){
+            speed /=4;
+            powerOfImpuls = 0.05f;
+        }
+        
         if (Inputs.instance.run && currentTOM != typeOfMovement.stand){
             speed *= 2;
             //currentTOM = typeOfMovement.run;
         }
 
         if (Inputs.instance.right && b2body.getLinearVelocity().x <= speed){
-            b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
+            b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
         }
         
         if (Inputs.instance.left && b2body.getLinearVelocity().x >= -speed){
-            b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
+            b2body.applyLinearImpulse(new Vector2(-powerOfImpuls, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
         }
         
@@ -183,7 +195,7 @@ public class Player {
         }
         
         if (Inputs.instance.up && !isJumping && !isFalling){
-            b2body.applyLinearImpulse(new Vector2(0, 3.3f), b2body.getWorldCenter(), true);
+            b2body.applyLinearImpulse(new Vector2(0, 0.7f), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.jump;
             isJumping = true;
         }
@@ -277,7 +289,5 @@ public class Player {
     public Inventory getInventory() {
         return inventory;
     }
-    
-
 
 }

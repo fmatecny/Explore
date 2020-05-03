@@ -12,7 +12,9 @@ import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.water.Water;
+import com.sun.org.apache.bcel.internal.generic.AALOAD;
 import static java.lang.Math.abs;
+import java.util.ArrayList;
 
 /**
  *
@@ -28,6 +30,8 @@ public class Map extends WorldObject{
     
     private int groundIndexX = 0;
     private int groundIndexY = 0;
+    
+    private ArrayList<Water> waterList = new ArrayList<>();
 
     public Map(int width, int height) {
         this.width = width;
@@ -49,7 +53,8 @@ public class Map extends WorldObject{
         
         while (groundIndexX < width-20) 
         {            
-            for (int j = 0; j < height-10; j++) {
+            for (int j = 0; j < height-10; j++) 
+            {
                 if (groundBodiesArr[groundIndexX][j] == null)
                 {
                     groundIndexY = j;
@@ -61,11 +66,14 @@ public class Map extends WorldObject{
             if (typeOfCreation > 70) {
                 createHouses(groundBodiesArr);
             }
-            else{
+            else if (typeOfCreation > 40){
                 createTrees();
             }
-            //TODO createWater();
-        } 
+            else{
+                createWater();
+            } 
+        }
+        
     }
     
     private void createHouses(Body[][] groundBodiesArr) {
@@ -126,9 +134,28 @@ public class Map extends WorldObject{
     }
     
     private void createWater(){
+        int idxY = groundIndexY;
+        
+        for (int i = groundIndexY; i > 0; i--) {
+           if (groundBckArr[groundIndexX][i] != null){
+              idxY = i-1; 
+              break;
+           }
+        }
+        
         Water water = new Water();
-        //water.createBody(world, 0, 2, 10, 10); //world, x, y, width, height
-        //water.setDebugMode(true);
+        water.createBody(GameScreen.world, 0.4f*5f + groundIndexX*Block.size, 0.4f*1+idxY*Block.size, 10*0.4f, 2*0.4f); //world, x, y, width, height
+        water.setDebugMode(false);
+        waterList.add(water);
+        
+        for (int i = groundIndexX; i < groundIndexX+10; i++) {
+            for (int j = idxY; j < idxY+2; j++) {
+                removeBodyFromWorld(bodiesArray[i][j]);
+            }  
+        }
+
+        
+        groundIndexX += (int )(Math.random() * 15 + 10);
     }
 
     public void rotateBlock(Body b){
@@ -163,8 +190,10 @@ public class Map extends WorldObject{
     
     
     public void removeBodyFromWorld(Body b){
-        removeBody((int)(b.getPosition().x/Block.size), (int)(b.getPosition().y/Block.size));
-        GameScreen.world.destroyBody(b);
+        if (b != null){
+            removeBody((int)(b.getPosition().x/Block.size), (int)(b.getPosition().y/Block.size));
+            GameScreen.world.destroyBody(b);
+        }
     }
     
     public void addBodyToIdx(int x, int y, Block b){
@@ -201,6 +230,8 @@ public class Map extends WorldObject{
     }
     
     public void draw(SpriteBatch spriteBatch){
+
+        
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 if (bodiesArray[i][j] != null)
@@ -211,6 +242,16 @@ public class Map extends WorldObject{
             }
 
         }
+        spriteBatch.end();
+        
+        
+        for (Water water : waterList){
+            water.update();
+            water.draw(GameScreen.camera);
+        }
+
+        
+        spriteBatch.begin();
     }
 
     private void drawWithRotation(SpriteBatch spriteBatch, int i, int j) {

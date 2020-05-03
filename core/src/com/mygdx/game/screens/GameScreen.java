@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
+import com.mygdx.game.MyContactListener;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.entities.Villager;
@@ -31,6 +32,7 @@ import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Background;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
+import com.mygdx.game.world.water.Water;
 
 /**
  *
@@ -54,7 +56,7 @@ public class GameScreen implements Screen{
     private final Map map;
     public static AllBlocks allBlocks = new AllBlocks();
     private final Player player;
-    private final Villager villager;
+    //private final Villager villager;
     private final DebugHUD debugHUD;
     
     private final int mapWidth = 100;
@@ -105,7 +107,7 @@ public class GameScreen implements Screen{
         // Create player
         player = new Player(stage, spriteBatch);
         
-        villager = new Villager(stage);
+        //villager = new Villager(stage);
         
         // Create debug HUD
         debugHUD = new DebugHUD(spriteBatch);
@@ -114,7 +116,8 @@ public class GameScreen implements Screen{
     @Override
     public void show() {
         stage.clear();
-        Gdx.input.setInputProcessor(Inputs.instance);  
+        Gdx.input.setInputProcessor(Inputs.instance);
+        world.setContactListener(new MyContactListener());
     }
     
     @Override
@@ -134,28 +137,8 @@ public class GameScreen implements Screen{
         // tell our stage to do actions and draw itself
         //stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
 
-        if (player.getX()-cam.x + MyGdxGame.width/2/PPM > MyGdxGame.width/PPM-4) {
-            //cam.x+=0.01;
-            cam.x = player.getX()-(MyGdxGame.width/PPM-4 - MyGdxGame.width/2/PPM);
-        }
-        if (player.getX()-cam.x + MyGdxGame.width/2/PPM < 4) {
-            //cam.x-=0.01;//player.getSpeed();
-            cam.x= MyGdxGame.width/2/PPM +player.getX() - 4;
-        }
-        
-        if (player.getY()-cam.y + MyGdxGame.height/2/PPM < 2) {
-            //cam.y-=0.01;//player.getSpeed()*2;
-            cam.y = player.getY() + MyGdxGame.height/2/PPM - 2;
-        }
-        
-        if (player.getY()-cam.y + MyGdxGame.height/2/PPM > 3) {
-            //cam.y+=0.01;//player.getSpeed()*2;
-            cam.y = player.getY() + MyGdxGame.height/2/PPM - 3;
-        }
-       
-        camera.position.set(cam.x ,cam.y, camera.position.z);
-        camera.update();
-        
+        updateCamera();
+
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
 
@@ -163,8 +146,8 @@ public class GameScreen implements Screen{
 
         map.draw(spriteBatch);
 
-        villager.updatePosition();
-        villager.draw(spriteBatch);
+        //villager.updatePosition();
+        //villager.draw(spriteBatch);
 
         player.updatePosition(camera);
         player.draw(spriteBatch);
@@ -179,12 +162,15 @@ public class GameScreen implements Screen{
             // take block to inventory
             if (Inputs.instance.mouseLeft && hitBody != null)
             {
-                Block b = (Block)hitBody.getUserData();
-                //System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v3.x + "|" + hitBody.getPosition());
-                if (b != null){
-                    map.removeBodyFromWorld(hitBody);
-                    b.textureRotation = 0;
-                    player.getInventory().addItemToInvenotry(b);
+                if (hitBody.getUserData() instanceof Water == false)
+                {
+                    Block b = (Block)hitBody.getUserData();
+                    //System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v3.x + "|" + hitBody.getPosition());
+                    if (b != null){
+                        map.removeBodyFromWorld(hitBody);
+                        b.textureRotation = 0;
+                        player.getInventory().addItemToInvenotry(b);
+                    }
                 }
             }
             else if (Inputs.instance.mouseMiddle &&  hitBody != null && allowRotation)
@@ -219,15 +205,39 @@ public class GameScreen implements Screen{
             spriteBatch.setProjectionMatrix(debugHUD.getStageHUD().getCamera().combined);
             debugHUD.draw(player, spriteBatch,cam);
         }
-	
-        //water.update();
-        //water.draw(camera);
+
 
         debugRenderer.render(world, camera.combined);
 
         stage.draw();
     }
 
+    private void updateCamera(){
+        
+        if (player.getX()-cam.x + MyGdxGame.width/2/PPM > MyGdxGame.width/PPM-4) {
+            //cam.x+=0.01;
+            cam.x = player.getX()-(MyGdxGame.width/PPM-4 - MyGdxGame.width/2/PPM);
+        }
+        if (player.getX()-cam.x + MyGdxGame.width/2/PPM < 4) {
+            //cam.x-=0.01;//player.getSpeed();
+            cam.x= MyGdxGame.width/2/PPM +player.getX() - 4;
+        }
+        
+        if (player.getY()-cam.y + MyGdxGame.height/2/PPM < 2) {
+            //cam.y-=0.01;//player.getSpeed()*2;
+            cam.y = player.getY() + MyGdxGame.height/2/PPM - 2;
+        }
+        
+        if (player.getY()-cam.y + MyGdxGame.height/2/PPM > 3) {
+            //cam.y+=0.01;//player.getSpeed()*2;
+            cam.y = player.getY() + MyGdxGame.height/2/PPM - 3;
+        }
+        
+        camera.position.set(cam.x ,cam.y, camera.position.z);
+        camera.update();
+    }
+    
+    
     @Override
     public void resize(int width, int height) {
         // change the stage's viewport when the screen size is changed

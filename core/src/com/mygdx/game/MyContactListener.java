@@ -16,6 +16,8 @@ import java.util.AbstractMap;
 
 public class MyContactListener implements ContactListener {
 
+    
+    public static boolean swim = false;
 	@Override
 	public void beginContact(Contact contact) {
 		 Fixture fixtureA = contact.getFixtureA();
@@ -25,11 +27,16 @@ public class MyContactListener implements ContactListener {
 			 Water water = (Water) fixtureA.getBody().getUserData();
 			 //water.getFixturePairs().add(new Pair<Fixture, Fixture>(fixtureA, fixtureB));
                          water.getFixturePairs().add(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureA, fixtureB));
+                         if (fixtureB.isSensor())
+                            swim = true;
 		 }
 		 else if(fixtureB.getBody().getUserData() instanceof Water && fixtureA.getBody().getType() == BodyDef.BodyType.DynamicBody){
 			 Water water = (Water) fixtureB.getBody().getUserData();
 			 water.getFixturePairs().add(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureB, fixtureA));
+                         if (fixtureB.isSensor())swim = true;
 		 }
+                 
+                 System.out.println(swim);
 	}
 
 	@Override
@@ -40,11 +47,14 @@ public class MyContactListener implements ContactListener {
 		if(fixtureA.getBody().getUserData() instanceof Water && fixtureB.getBody().getType() == BodyDef.BodyType.DynamicBody){
 			Water water = (Water) fixtureA.getBody().getUserData();
 			 water.getFixturePairs().remove(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureA, fixtureB));
+                         if (fixtureB.isSensor())swim = false;
 		}
 		else if(fixtureB.getBody().getUserData() instanceof Water && fixtureA.getBody().getType() == BodyDef.BodyType.DynamicBody){
 			Water water = (Water) fixtureB.getBody().getUserData();
 			 water.getFixturePairs().add(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureA, fixtureB));
+                         if (fixtureB.isSensor())swim = false;
 		}
+                System.out.println(swim + "end");
 	}
 
 	@Override

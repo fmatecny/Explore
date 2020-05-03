@@ -32,7 +32,7 @@ public abstract class WorldObject {
 
         // Create a circle shape and set its radius to 6
         PolygonShape square = new PolygonShape();
-        square.setAsBox(Block.size/2, Block.size/2);
+        square.setAsBox(Block.size/2.0f, Block.size/2.0f);
 
         // Create a fixture definition to apply our shape to
         FixtureDef fixtureDef = new FixtureDef();
