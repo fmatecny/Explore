@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 
 /**
  *
@@ -29,7 +30,7 @@ public abstract class WorldObject {
 
         // Create our body in the world using our body definition
         Body body = world.createBody(bodyDef);
-
+        
         // Create a circle shape and set its radius to 6
         PolygonShape square = new PolygonShape();
         square.setAsBox(Block.size/2.0f, Block.size/2.0f);
@@ -37,6 +38,7 @@ public abstract class WorldObject {
         // Create a fixture definition to apply our shape to
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = square;
+        fixtureDef.isSensor = !blocked;
         //fixtureDef.density = 0.5f;
         //fixtureDef.friction = 0.5f;
         //fixtureDef.restitution = 0.5f;

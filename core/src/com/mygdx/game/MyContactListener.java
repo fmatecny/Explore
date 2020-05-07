@@ -20,23 +20,23 @@ public class MyContactListener implements ContactListener {
     public static boolean swim = false;
 	@Override
 	public void beginContact(Contact contact) {
-		 Fixture fixtureA = contact.getFixtureA();
-		 Fixture fixtureB = contact.getFixtureB();
+            Fixture fixtureA = contact.getFixtureA();
+            Fixture fixtureB = contact.getFixtureB();
 		 
-		 if(fixtureA.getBody().getUserData() instanceof Water && fixtureB.getBody().getType() == BodyDef.BodyType.DynamicBody){
-			 Water water = (Water) fixtureA.getBody().getUserData();
-			 //water.getFixturePairs().add(new Pair<Fixture, Fixture>(fixtureA, fixtureB));
-                         water.getFixturePairs().add(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureA, fixtureB));
-                         if (fixtureB.isSensor())
-                            swim = true;
-		 }
-		 else if(fixtureB.getBody().getUserData() instanceof Water && fixtureA.getBody().getType() == BodyDef.BodyType.DynamicBody){
-			 Water water = (Water) fixtureB.getBody().getUserData();
-			 water.getFixturePairs().add(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureB, fixtureA));
-                         if (fixtureB.isSensor())swim = true;
-		 }
+            if(fixtureA.getBody().getUserData() instanceof Water && fixtureB.getBody().getType() == BodyDef.BodyType.DynamicBody){
+                Water water = (Water) fixtureA.getBody().getUserData();
+                //water.getFixturePairs().add(new Pair<Fixture, Fixture>(fixtureA, fixtureB));
+                water.getFixturePairs().add(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureA, fixtureB));
+                if (fixtureB.isSensor())
+                   swim = true;
+            }
+            else if(fixtureB.getBody().getUserData() instanceof Water && fixtureA.getBody().getType() == BodyDef.BodyType.DynamicBody){
+                Water water = (Water) fixtureB.getBody().getUserData();
+                water.getFixturePairs().add(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureB, fixtureA));
+                if (fixtureB.isSensor())swim = true;
+            }
                  
-                 System.out.println(swim);
+            System.out.println(swim);
 	}
 
 	@Override

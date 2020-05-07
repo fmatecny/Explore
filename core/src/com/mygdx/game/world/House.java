@@ -26,16 +26,16 @@ public class House extends WorldObject{
         for (int i = 1; i < w-1; i++) {
             for (int j = 0; j < h/2; j++) {
                     if (i == w/2 && j == 0){
-                        this.house[i][j] = createBodie(GameScreen.world, x+i-1, y+j, AllBlocks.door_down);//AllBlocks.door_down;
+                        this.house[i][j] = createBodie(GameScreen.world, x+i-1, y+j, AllBlocks.door_down, false);//AllBlocks.door_down;
                     }
                     else if (i == w/2 && j == 1){
-                        this.house[i][j] = createBodie(GameScreen.world, x+i-1, y+j, AllBlocks.door_up);//AllBlocks.door_up;
+                        this.house[i][j] = createBodie(GameScreen.world, x+i-1, y+j, AllBlocks.door_up, false);//AllBlocks.door_up;
                     }
                     else if ((i == w/2-2 || i == w/2+2) && j == 1){
-                        this.house[i][j] = createBodie(GameScreen.world, x+i-1, y+j, AllBlocks.window);//AllBlocks.window;
+                        this.house[i][j] = createBodie(GameScreen.world, x+i-1, y+j, AllBlocks.window, false);//AllBlocks.window;
                     }
                     else{
-                    this.house[i][j] = createBodie(GameScreen.world, x+i-1, y+j, AllBlocks.stone, false);//new Block(AllBlocks.stone);
+                        this.house[i][j] = createBodie(GameScreen.world, x+i-1, y+j, AllBlocks.stone, false);//new Block(AllBlocks.stone);
                    }
             }
             

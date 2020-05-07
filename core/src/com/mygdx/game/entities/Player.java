@@ -119,7 +119,7 @@ public class Player {
         b2body.setFixedRotation(true);
 
         FixtureDef fdef = new FixtureDef();
-        //fdef.friction = 5.0f;
+        fdef.friction = 5.0f;
         //fdef.restitution = 0.0f;
         fdef.density = 0.5f;
         /*PolygonShape square = new PolygonShape();

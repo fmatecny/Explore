@@ -20,8 +20,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Skins;
-import com.mygdx.game.screens.GameScreen;
-import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
 
 /**
@@ -67,7 +65,7 @@ public class Inventory implements Disposable{
         mock = new Table(skin);
         mock.setFillParent(true);
         mock.setDebug(true);
-        mock.center().top();
+        mock.center().top().padTop(50);
 
         window = new Window("", skin);
         window.add(new Label("Inventory", skin)).left().padLeft(15.0f);
@@ -93,7 +91,7 @@ public class Inventory implements Disposable{
         table.add(inventoryBar).colspan(3);
 
         window.add(table).pad(20.0f);
-        mock.add(window).colspan(2).expandY();
+        mock.add(window);//.colspan(2);//.expandY();
         
         //stageInventory.addActor(mock);
 

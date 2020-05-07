@@ -33,17 +33,17 @@ public class Map extends WorldObject{
     
     private ArrayList<Water> waterList = new ArrayList<>();
 
-    public Map(int width, int height) {
-        this.width = width;
-        this.height = height;
+    public Map(int w, int h) {
+        this.width = w;
+        this.height = h;
         bodiesArray = new Body[width][height];        
         
-        Ground ground = new Ground(width, height-10);
+        Ground ground = new Ground(width, height-30);
         Body[][] groundBodiesArr = ground.getBlockArray();
         groundBckArr = new Block[width][height];
        
         for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height-10; j++) {
+            for (int j = 0; j < height-30; j++) {
                 bodiesArray[i][j] = groundBodiesArr[i][j];
                 groundBckArr[i][j] = ground.getBlockBckArray()[i][j];
             }
@@ -232,26 +232,17 @@ public class Map extends WorldObject{
     public void draw(SpriteBatch spriteBatch){
 
         
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) 
+        {
+            for (int j = 0; j < height; j++) 
+            {
                 if (bodiesArray[i][j] != null)
                     //stage.getBatch().draw( bodiesArray[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
                     drawWithRotation(spriteBatch, i, j);
                 else if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
                     spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
             }
-
         }
-        spriteBatch.end();
-        
-        
-        for (Water water : waterList){
-            water.update();
-            water.draw(GameScreen.camera);
-        }
-
-        
-        spriteBatch.begin();
     }
 
     private void drawWithRotation(SpriteBatch spriteBatch, int i, int j) {
@@ -265,6 +256,15 @@ public class Map extends WorldObject{
                             0, 0, 
                             b.texture.getWidth(), b.texture.getHeight(),  
                             false, false); 
+    }
+    
+    public void drawWater(){
+        for (Water water : waterList)
+        {
+            water.update();
+            water.draw(GameScreen.camera);
+        }
+    
     }
         
 }

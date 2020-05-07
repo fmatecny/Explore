@@ -60,7 +60,7 @@ public class GameScreen implements Screen{
     private final DebugHUD debugHUD;
     
     private final int mapWidth = 100;
-    private final int mapHeight = 50;
+    private final int mapHeight = 100;
     
     private boolean allowRotation = true;
     
@@ -149,8 +149,16 @@ public class GameScreen implements Screen{
         //villager.updatePosition();
         //villager.draw(spriteBatch);
 
-        player.updatePosition(camera);
+        if (!Inputs.instance.showInventory)
+            player.updatePosition(camera);
+        
         player.draw(spriteBatch);
+        
+        spriteBatch.end();
+        
+        map.drawWater();
+        
+        spriteBatch.begin();
 
        
         if (!Inputs.instance.showInventory)
@@ -223,14 +231,14 @@ public class GameScreen implements Screen{
             cam.x= MyGdxGame.width/2/PPM +player.getX() - 4;
         }
         
-        if (player.getY()-cam.y + MyGdxGame.height/2/PPM < 2) {
+        if (player.getY()-cam.y + MyGdxGame.height/2/PPM < 4) {
             //cam.y-=0.01;//player.getSpeed()*2;
-            cam.y = player.getY() + MyGdxGame.height/2/PPM - 2;
+            cam.y = player.getY() + MyGdxGame.height/2/PPM - 4;
         }
         
-        if (player.getY()-cam.y + MyGdxGame.height/2/PPM > 3) {
+        if (player.getY()-cam.y + MyGdxGame.height/2/PPM > 5) {
             //cam.y+=0.01;//player.getSpeed()*2;
-            cam.y = player.getY() + MyGdxGame.height/2/PPM - 3;
+            cam.y = player.getY() + MyGdxGame.height/2/PPM - 5;
         }
         
         camera.position.set(cam.x ,cam.y, camera.position.z);
