@@ -10,27 +10,22 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyContactListener;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
-import com.mygdx.game.entities.Villager;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Background;
-import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
 import com.mygdx.game.world.water.Water;
 
@@ -47,20 +42,16 @@ public class GameScreen implements Screen{
     public static OrthographicCamera camera;
     private Vector2 cam =  new Vector2(MyGdxGame.width/PPM/2.0f, MyGdxGame.height/PPM/2.0f);
     private Vector3 v3 = new Vector3();
-        
-    private ExtendViewport viewport;
-    private final Stage stage;
+    
+    private Stage stage;
     private SpriteBatch spriteBatch;
     
+    public static AllBlocks allBlocks = new AllBlocks();
     private final Background bck;
     private final Map map;
-    public static AllBlocks allBlocks = new AllBlocks();
     private final Player player;
     //private final Villager villager;
     private final DebugHUD debugHUD;
-    
-    private final int mapWidth = 100;
-    private final int mapHeight = 100;
     
     private boolean allowRotation = true;
     
@@ -99,7 +90,7 @@ public class GameScreen implements Screen{
         debugRenderer = new Box2DDebugRenderer();   
         
         // Create map - blocks, houses, trees...
-        map = new Map(mapWidth, mapHeight);
+        map = new Map();
         
         // Create background
         bck = new Background();
@@ -122,9 +113,7 @@ public class GameScreen implements Screen{
     
     @Override
     public void render(float f) {
-        
-        world.step(1 / 60f, 6, 2);
-        
+
         if (Inputs.instance.pause){
             parent.changeScreen(MyGdxGame.PAUSE);
             return;
@@ -134,6 +123,7 @@ public class GameScreen implements Screen{
         Gdx.gl.glClearColor(0f, 0f, 0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        world.step(1 / 60f, 6, 2);
         // tell our stage to do actions and draw itself
         //stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
 
@@ -144,7 +134,7 @@ public class GameScreen implements Screen{
 
         bck.drawBackground(spriteBatch);
 
-        map.draw(spriteBatch);
+        map.draw(spriteBatch, cam);
 
         //villager.updatePosition();
         //villager.draw(spriteBatch);
@@ -172,26 +162,27 @@ public class GameScreen implements Screen{
             {
                 if (hitBody.getUserData() instanceof Water == false)
                 {
-                    Block b = (Block)hitBody.getUserData();
+                    IntVector2 v = (IntVector2)hitBody.getUserData();
                     //System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v3.x + "|" + hitBody.getPosition());
-                    if (b != null){
-                        map.removeBodyFromWorld(hitBody);
-                        b.textureRotation = 0;
-                        player.getInventory().addItemToInvenotry(b);
+                    if (v != null){
+                        if (map.getBlock(v.X, v.Y) != null){
+                            map.getBlock(v.X, v.Y).textureRotation = 0;
+                            player.getInventory().addItemToInvenotry(map.getBlock(v.X, v.Y));
+                            map.removeBlock(v.X, v.Y);
+                        }
                     }
                 }
             }
             else if (Inputs.instance.mouseMiddle &&  hitBody != null && allowRotation)
             {
                 allowRotation = false;
-                map.rotateBlock(hitBody);
-                
+                map.rotateBlock(hitBody);   
             }
             else if (Inputs.instance.mouseRight && hitBody == null)
             {
                 if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isEmpty() == false){
                     player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
-                    map.addBodyToIdx((int)(v3.x*100/40), (int)(v3.y*100/40), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getItem());      
+                    map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getItem());      
                 }
             }
             else if (!Inputs.instance.mouseMiddle){
@@ -243,6 +234,7 @@ public class GameScreen implements Screen{
         
         camera.position.set(cam.x ,cam.y, camera.position.z);
         camera.update();
+        
     }
     
     

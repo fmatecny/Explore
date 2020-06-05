@@ -5,20 +5,17 @@
  */
 package com.mygdx.game.world;
 
-import com.badlogic.gdx.physics.box2d.Body;
-import com.mygdx.game.screens.GameScreen;
-
 /**
  *
  * @author Fery
  */
-public class Tree extends WorldObject{
+public class Tree{
 
-    private Body[][] tree;
+    private Block[][] tree;
     
     public Tree(int width, int height, int x, int y) {
         
-        this.tree = new Body[width][height];
+        this.tree = new Block[width][height];
         createTrunk(width,height, x, y);
         createCrown(width,height, x, y);
 
@@ -31,7 +28,8 @@ public class Tree extends WorldObject{
             for (int j = 0; j < h/2; j++) {
                 if (i == middle)
                 {
-                    this.tree[i][j] = createBodie(GameScreen.world, x+i-w/2, y+j, AllBlocks.wood, false);//AllBlocks.wood;
+                    this.tree[i][j] = new Block(AllBlocks.wood);
+                    this.tree[i][j].blocked = false;
                 }
             }
             
@@ -43,14 +41,15 @@ public class Tree extends WorldObject{
         
         for (int j = h/2; j < h; j++, offset++) {
             for (int i = offset; i < w-offset; i++) {
-                this.tree[i][j] = createBodie(GameScreen.world, x+i-w/2, y+j, AllBlocks.leaf, false);//AllBlocks.leaf;
+                this.tree[i][j] = new Block(AllBlocks.leaf);
+                this.tree[i][j].blocked = false;
             }
         }
     }
     
     
 
-    public Body[][] getTree() {
+    public Block[][] getTree() {
         return this.tree;
     }
     

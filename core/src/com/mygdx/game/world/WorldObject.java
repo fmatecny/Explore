@@ -10,7 +10,8 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
+import com.mygdx.game.Constants;
+import com.mygdx.game.IntVector2;
 
 /**
  *
@@ -20,7 +21,7 @@ public abstract class WorldObject {
     
     
     
-    protected Body createBodie(World world, int x, int y, Block b, Boolean blocked) {
+    protected Body createBodie(World world, int x, int y, Boolean blocked) {
         
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -39,23 +40,23 @@ public abstract class WorldObject {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = square;
         fixtureDef.isSensor = !blocked;
+        if (blocked)
+            fixtureDef.filter.categoryBits = Constants.BLOCK_BIT;
         //fixtureDef.density = 0.5f;
         //fixtureDef.friction = 0.5f;
         //fixtureDef.restitution = 0.5f;
 
         // Create our fixture and attach it to the body
         body.createFixture(fixtureDef);
-        Block bAsUserData = new Block(b);
-        bAsUserData.blocked = blocked;
-        body.setUserData(bAsUserData);
+        body.setUserData(new IntVector2(x, y));
 
         square.dispose();
         
         return body; 
     }
+
     
-    
-    protected Body createBodie(World world, int x, int y, Block b) {
-        return createBodie(world, x, y, b, true);
+    protected Body createBodie(World world, int idxX, int idxY) {
+        return createBodie(world, idxX, idxY, true);
     }
 }

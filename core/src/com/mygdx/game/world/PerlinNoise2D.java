@@ -5,7 +5,7 @@
  */
 package com.mygdx.game.world;
 
-import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.Constants;
 import static java.lang.Math.abs;
 
 /**
@@ -15,12 +15,12 @@ import static java.lang.Math.abs;
 public class PerlinNoise2D {
 	private double time = 0;
         private int noise = 0;
-        private int[] noiseArr = new int[(int)MyGdxGame.width];
+        private int[] noiseArr = new int[Constants.WIDTH_OF_MAP];
         
     public int[] getNoiseArr(int height){
         double noise;
     	time += 0.01;
-        for(int x = 0; x < MyGdxGame.width; x++){
+        for(int x = 0; x < Constants.WIDTH_OF_MAP; x++){
             double dx = (double) x / height;
             double frequency = 1;
             noise = noise((dx * frequency) + time, 0.5)+0.8;

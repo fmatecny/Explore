@@ -5,7 +5,7 @@ import com.badlogic.gdx.Game;
 import com.mygdx.game.screens.PauseScreen;
 
 public class MyGdxGame extends Game {
-    
+       
     public static float width = 1280.0f;
     public static float height = 720.0f;
     

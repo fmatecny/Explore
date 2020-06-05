@@ -8,11 +8,11 @@ package com.mygdx.game.world;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.water.Water;
-import com.sun.org.apache.bcel.internal.generic.AALOAD;
 import static java.lang.Math.abs;
 import java.util.ArrayList;
 
@@ -22,111 +22,155 @@ import java.util.ArrayList;
  */
 public class Map extends WorldObject{
     
-    private Body[][] bodiesArray;
-    private Block[][] groundBckArr;
+    private Block[][] mapArray;
     
-    private int width;
-    private int height;
+    
+    private int width = Constants.WIDTH_OF_MAP;
+    private int height = Constants.HEIGHT_OF_MAP;
+    
+    // Ground 
+    private Block[][] groundBckArr;
+    private PerlinNoise2D perlinNoise2D;
+    private int[] noiseArr;
     
     private int groundIndexX = 0;
     private int groundIndexY = 0;
     
     private ArrayList<Water> waterList = new ArrayList<>();
+    
+    int previousLeft = 0;
+    int previousRight = width;
+    int previousDown = 0;
+    int previousUp = height;
 
-    public Map(int w, int h) {
-        this.width = w;
-        this.height = h;
-        bodiesArray = new Body[width][height];        
+    public Map() {
+        mapArray = new Block[width][height];        
         
-        Ground ground = new Ground(width, height-30);
-        Body[][] groundBodiesArr = ground.getBlockArray();
+        generateMap();  
+    }
+    
+    private void generateMap() {
+        
+        generateGround(width, height-Constants.HEIGHT_OF_SKY);
+        
+        /*Ground ground = new Ground(width, height-Constants.HEIGHT_OF_SKY);
+        Block[][] groundBlocksArr = ground.getGroundBlocksArray();
         groundBckArr = new Block[width][height];
        
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height-30; j++) {
-                bodiesArray[i][j] = groundBodiesArr[i][j];
-                groundBckArr[i][j] = ground.getBlockBckArray()[i][j];
+        for (int x = 0; x < width; x++) 
+        {
+            for (int y = 0; y < height-Constants.HEIGHT_OF_SKY; y++) 
+            {
+                mapArray[x][y] = groundBlocksArr[x][y];
+                groundBckArr[x][y] = ground.getBackgroundBlocksArray()[x][y];
             }
-        } 
+        } */
         
+        // initial value - [10, 20)
         groundIndexX = (int )(Math.random() * 10 + 10);
         
+        // generate objects 
         while (groundIndexX < width-20) 
-        {            
-            for (int j = 0; j < height-10; j++) 
+        {    
+            // find top of the ground
+            for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
             {
-                if (groundBodiesArr[groundIndexX][j] == null)
+                if (mapArray[groundIndexX][j] == null)
                 {
                     groundIndexY = j;
                     break;
                 }
             }           
             
-            int typeOfCreation = (int )(Math.random() * 100);
-            if (typeOfCreation > 70) {
-                createHouses(groundBodiesArr);
+            // based on percent generates object
+            int percent = (int )(Math.random() * 100);
+            if (percent > 70) {
+                generateHouse();
             }
-            else if (typeOfCreation > 40){
+            else if (percent > 40){
                 createTrees();
             }
             else{
                 createWater();
             } 
         }
-        
     }
     
-    private void createHouses(Body[][] groundBodiesArr) {
-        int houseWidth = 0;
-        int houseHeight = 0;
-        int diff = 0;
+    
+    private void generateGround(int w, int h){
+        perlinNoise2D = new PerlinNoise2D();
+        noiseArr = perlinNoise2D.getNoiseArr(h);
         
-        houseWidth = (int )(Math.random() * 2 + 9);
+        groundBckArr = new Block[w][h];
 
-        
-        for (int j = 0; j < height-10; j++) {
-            if (groundBodiesArr[groundIndexX+houseWidth-1][j] == null)
+        for (int i = 0; i < w; i++) 
+        {
+            for (int j = 0; j < h; j++) 
             {
-                diff = abs(j-groundIndexY);
+                if (j == noiseArr[i/2]){
+                    mapArray[i][j] = new Block(AllBlocks.ground);
+                    groundBckArr[i][j] = AllBlocks.groundBck;
+                }
+                else if (j-1 == noiseArr[i/2]){
+                    mapArray[i][j] = new Block(AllBlocks.grassy_ground);
+                }
+                else if (j < noiseArr[i/2]){
+                    mapArray[i][j] = new Block(AllBlocks.stone);
+                    groundBckArr[i][j] = AllBlocks.groundBck;
+                }      
+            }
+        }
+    }
+    
+    private void generateHouse() {
+        int houseWidth = (int )(Math.random() * 2 + 9);
+        int houseHeight = 0;
+        int verticalMetre = 0;
+
+        for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
+        {
+            if (mapArray[groundIndexX+houseWidth-1][j] == null)
+            {
+                verticalMetre = abs(j-groundIndexY);
+                // avarage of left and right ground indexes
                 groundIndexY = (j+groundIndexY)/2;
                 break;
             }
         }
         
-        if (diff < 2)
+        // maximal vertical metre must be lower than 2 for generating of house
+        if (verticalMetre < 2)
         {
             houseHeight = (int )(Math.random() * 2 + 6);
             House house = new House(houseWidth,houseHeight,groundIndexX,groundIndexY);
-            Body[][] houseArr = house.getHouse();
+            Block[][] houseArr = house.getHouse();
 
-            for (int i = 0; i < houseWidth; i++) {
-                for (int j = 0; j < houseHeight; j++) {
-                    if (houseArr[i][j] != null){
-                        bodiesArray[i+groundIndexX-1][j+groundIndexY] = houseArr[i][j];}
+            for (int x = 0; x < houseWidth; x++) 
+            {
+                for (int y = 0; y < houseHeight; y++) 
+                {
+                    if (houseArr[x][y] != null)
+                        mapArray[x+groundIndexX-1][y+groundIndexY] = houseArr[x][y];
                 }
             }
             groundIndexX += (int )(Math.random() * 15 + houseWidth);
         }
-        
-
     }
     
     private void createTrees(){
-        int treeWidth = 0;
-        int treeHeight = 0;
-        
-        treeWidth = (int )(Math.random() * 5 + 4);
+        int treeWidth = (int )(Math.random() * 5 + 4);
+        int treeHeight = (int )(Math.random() * 5 + 5);
+
         if (treeWidth%2 == 0)
             treeWidth++;
 
-        treeHeight = (int )(Math.random() * 5 + 5);
         Tree tree = new Tree(treeWidth,treeHeight, groundIndexX, groundIndexY);
-        Body[][] treeArr = tree.getTree();
+        Block[][] treeArr = tree.getTree();
 
         for (int i = 0; i < treeWidth; i++) {
             for (int j = 0; j < treeHeight; j++) {
-                if (treeArr[i][j] != null && (bodiesArray[i+groundIndexX-treeWidth/2][j+groundIndexY] == null)){
-                    bodiesArray[i+groundIndexX-treeWidth/2][j+groundIndexY] = treeArr[i][j];}
+                if (treeArr[i][j] != null && (mapArray[i+groundIndexX-treeWidth/2][j+groundIndexY] == null)){
+                    mapArray[i+groundIndexX-treeWidth/2][j+groundIndexY] = treeArr[i][j];}
             }
         }
         groundIndexX += (int )(Math.random() * 15 + treeWidth);
@@ -148,62 +192,68 @@ public class Map extends WorldObject{
         water.setDebugMode(false);
         waterList.add(water);
         
-        for (int i = groundIndexX; i < groundIndexX+10; i++) {
-            for (int j = idxY; j < idxY+2; j++) {
-                removeBodyFromWorld(bodiesArray[i][j]);
+        for (int i = groundIndexX; i < groundIndexX+10; i++) 
+        {
+            for (int j = idxY; j < idxY+2; j++) 
+            {
+                if (mapArray[i][j] != null)
+                    removeBlock(i, j);
             }  
         }
 
         
         groundIndexX += (int )(Math.random() * 15 + 10);
     }
-
+    
     public void rotateBlock(Body b){
         getBlockByIdx((int)(b.getPosition().x/Block.size),(int)(b.getPosition().y/Block.size)).textureRotation -= 90;
     }
     
     
-    public Block getBlock(float x, float y){
-        if ((int)(y/Block.size) <= 0)
-            y = Block.size;
+    public Block getBlock(int x, int y){
+        if (y < 0)
+            y = 0;
         
-        if ((int)(x/Block.size) <= 0)
-            x = Block.size;
+        if (x < 0)
+            x = 0;
         
-        return (Block) bodiesArray[(int)(x/Block.size)][(int)(y/Block.size)].getUserData();
+        return mapArray[x][y];
     
     }
     
     private Block getBlockByIdx(IntVector2 v){
-        return (Block) bodiesArray[v.X][v.Y].getUserData();
+        return mapArray[v.X][v.Y];
     
     }
     
     private Block getBlockByIdx(int x, int y){
-        return (Block) bodiesArray[x][y].getUserData();
+        return mapArray[x][y];
     
     }
 
-    public Body[][] getBodiesArray() {
-        return bodiesArray;
-    }
-    
-    
-    public void removeBodyFromWorld(Body b){
-        if (b != null){
-            removeBody((int)(b.getPosition().x/Block.size), (int)(b.getPosition().y/Block.size));
-            GameScreen.world.destroyBody(b);
-        }
+    public Block[][] getBlockArray() {
+        return mapArray;
+    }    
+        
+    public void removeBlock(int x, int y){
+            removeBody(x, y);
+            mapArray[x][y] = null;
     }
     
     public void addBodyToIdx(int x, int y, Block b){
-        bodiesArray[x][y] = createBodie(GameScreen.world, x, y, b); 
+        mapArray[x][y] = b;
+        mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, b.blocked));
     }
     
     public void removeBody(int x, int y){
-        bodiesArray[x][y].setUserData(null);
-        bodiesArray[x][y] = null;
-        
+        if (mapArray[x][y] != null)
+        {
+            if (mapArray[x][y].getBody() != null)
+            {
+                GameScreen.world.destroyBody(mapArray[x][y].getBody());
+                mapArray[x][y].setBody(null);
+            }
+        }
     }
     
     public void removeBody(IntVector2 v){
@@ -229,24 +279,84 @@ public class Map extends WorldObject{
     
     }
     
-    public void draw(SpriteBatch spriteBatch){
-
+    public void draw(SpriteBatch spriteBatch, Vector2 cam){
         
-        for (int i = 0; i < width; i++) 
+        int left = (int) (((cam.x*100.0f)-640)/40)+Constants.SIZE_OF_CHUNK;
+        int right = (int) (((cam.x*100.0f)+640)/40);
+        int down = (int) (((cam.y*100.0f)-360)/40)+Constants.SIZE_OF_CHUNK;
+        int up = (int) (((cam.y*100.0f)+360)/40);
+        
+        if (left < 0)
+            left = 0;
+        left = (((int)(left/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);
+        
+        if (right > width)
+            right = width;
+        right = (((int)(right/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);
+        
+        
+        if (down < 0)
+            down = 0;
+        if (down > height)
+            down = height;
+        down = (((int)(down/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);
+        
+        if (up > height)
+            up = height;
+        if (up < 0)
+            up = 0;
+        up = (((int)(up/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);
+        
+        // create bodies -> one chunck on left side - when player is going to the left
+        if (previousLeft > left)
+            createBodyToMap(left, previousLeft, down, up);
+        
+        // remove bodies -> one chunck on left side - when player is going to the right
+        if (previousLeft < left)
+            removeBodyFromMap(previousLeft, left, down, up);
+        
+        
+        if (previousRight < right)
+            createBodyToMap(previousRight, right, down, up);
+        
+        if (previousRight > right)
+            removeBodyFromMap(right, previousRight, down, up);
+        
+        
+        if (previousDown > down)
+            createBodyToMap(left, right, down, previousDown);
+        
+        if (previousDown < down)
+            removeBodyFromMap(left, right, previousDown, down);
+        
+        if (previousUp > up )
+            removeBodyFromMap(left, right, up, previousUp);
+        
+        if (previousUp < up)
+            createBodyToMap(left, right, previousUp, up);
+        
+        previousLeft = left;
+        previousRight = right;
+        previousDown = down;
+        previousUp = up;
+                
+        for (int i = left; i < right; i++)
         {
-            for (int j = 0; j < height; j++) 
+            for (int j = down; j < up; j++) 
             {
-                if (bodiesArray[i][j] != null)
-                    //stage.getBatch().draw( bodiesArray[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                if (mapArray[i][j] != null)
+                    //stage.getBatch().draw( mapArray[x][y].texture, x*Block.size, y*Block.size, Block.size, Block.size);
                     drawWithRotation(spriteBatch, i, j);
-                else if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
+                else if(j < height-Constants.HEIGHT_OF_SKY) {
+                    if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
                     spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                }
             }
         }
     }
 
     private void drawWithRotation(SpriteBatch spriteBatch, int i, int j) {
-       Block b = (Block)bodiesArray[i][j].getUserData();
+       Block b = mapArray[i][j];
        spriteBatch.draw(b.texture, 
                             i*Block.size, j*Block.size, 
                             Block.size/2, Block.size/2, 
@@ -266,5 +376,27 @@ public class Map extends WorldObject{
         }
     
     }
-        
+
+    private void createBodyToMap(int fromX, int toX, int fromY, int toY) {
+        for (int x = fromX; x < toX; x++) 
+        {
+            for (int y = fromY; y < toY; y++) 
+            {
+                if (mapArray[x][y] != null)
+                    mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, mapArray[x][y].blocked));
+            }
+        }
+    }
+
+    private void removeBodyFromMap(int fromX, int toX, int fromY, int toY) {
+        for (int x = fromX; x < toX; x++) 
+                {
+                    for (int y = fromY; y < toY; y++) 
+                    {
+                        if (mapArray[x][y] != null)
+                            removeBody(x, y);
+                    }
+                }
+    }
+      
 }

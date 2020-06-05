@@ -7,6 +7,7 @@ package com.mygdx.game.world;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.screens.GameScreen;
 
 /**
@@ -24,6 +25,7 @@ public class Block extends Rectangle{
     public boolean isRotationAllowed;
     public int textureRotation;
 
+    private Body body = null;
     
 
     public Block(Block b) {
@@ -37,6 +39,14 @@ public class Block extends Rectangle{
     }
 
     public Block() {
+    }
+
+    public Body getBody() {
+        return body;
+    }
+
+    public void setBody(Body body) {
+        this.body = body;
     }
 
     

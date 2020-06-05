@@ -20,6 +20,7 @@ import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
+import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.MyContactListener;
 import com.mygdx.game.MyGdxGame;
@@ -113,7 +114,7 @@ public class Player {
 
     public void definePlayer(){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(250.0f/GameScreen.PPM, MyGdxGame.height/GameScreen.PPM);
+        bdef.position.set(250.0f/GameScreen.PPM, 40);
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
         b2body.setFixedRotation(true);
@@ -139,22 +140,27 @@ public class Player {
         fdef.shape = square;
         b2body.createFixture(fdef);//.setUserData(this);
         
-        square.setRadius(Block.size/2.0f + 6.0f/GameScreen.PPM);
+        square.setRadius(Block.size/2.0f + 4.0f/GameScreen.PPM);
         square.setPosition(new Vector2(0, (Block.size/2.0f + 1.0f/GameScreen.PPM)*2.0f));
         b2body.createFixture(fdef);
         
-        EdgeShape head = new EdgeShape();
-        head.set(new Vector2(0, -0.1f), new Vector2(0, 0.5f));
-        fdef.shape = head;
+        EdgeShape right = new EdgeShape();
+        right.set(new Vector2(0.15f, -0.1f), new Vector2(0.23f, -0.1f));
+        fdef.filter.categoryBits = Constants.PLAYER_RIGHT_BIT;
+        fdef.shape = right;
         fdef.isSensor = true;
         b2body.createFixture(fdef);
-        /*
-        fdef.filter.categoryBits = MarioBros.MARIO_HEAD_BIT;
-        fdef.shape = head;
-        fdef.isSensor = true;*/
-
-        //b2body.createFixture(fdef);//.setUserData(this);
+        
+        EdgeShape left = new EdgeShape();
+        left.set(new Vector2(-0.15f, -0.1f), new Vector2(-0.23f, -0.1f));
+        fdef.filter.categoryBits = Constants.PLAYER_LEFT_BIT;
+        fdef.shape = left;
+        fdef.isSensor = true;
+        b2body.createFixture(fdef);
+        
         square.dispose();
+        right.dispose();
+        left.dispose();
     }
 
     
@@ -176,12 +182,12 @@ public class Player {
             //currentTOM = typeOfMovement.run;
         }
 
-        if (Inputs.instance.right && b2body.getLinearVelocity().x <= speed){
+        if (Inputs.instance.right && b2body.getLinearVelocity().x <= speed && MyContactListener.blockOnRight==0){
             b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
         }
         
-        if (Inputs.instance.left && b2body.getLinearVelocity().x >= -speed){
+        if (Inputs.instance.left && b2body.getLinearVelocity().x >= -speed && MyContactListener.blockOnLeft==0){
             b2body.applyLinearImpulse(new Vector2(-powerOfImpuls, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
         }
