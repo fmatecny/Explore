@@ -6,8 +6,8 @@ import com.mygdx.game.screens.PauseScreen;
 
 public class MyGdxGame extends Game {
        
-    public static float width = 1280.0f;
-    public static float height = 720.0f;
+    public static int width = 1280;
+    public static int height = 720;
     
     private MenuScreen menuScreen;
     private NewGameScreen newGameScreen;

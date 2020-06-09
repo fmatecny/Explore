@@ -14,7 +14,7 @@ public final class Constants {
     public static final int WIDTH_OF_MAP = 500;
     public static final int HEIGHT_OF_MAP = 100;
     public static final int HEIGHT_OF_SKY = 30;
-    public static final int SIZE_OF_CHUNK = 2;
+    public static final int SIZE_OF_CHUNK = 8;
     public static final float PPM = 100.0f;
     
     public static final int PLAYER_LEFT_BIT = 8;

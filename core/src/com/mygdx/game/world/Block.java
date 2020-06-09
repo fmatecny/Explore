@@ -15,7 +15,8 @@ import com.mygdx.game.screens.GameScreen;
  * @author Fery
  */
 public class Block extends Rectangle{
-    public static float size = 40.0f/GameScreen.PPM;
+    public static final int size_in_pixels = 40;
+    public static final float size = size_in_pixels/GameScreen.PPM;
  
         
     public int id;

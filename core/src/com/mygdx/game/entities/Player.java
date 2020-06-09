@@ -201,7 +201,7 @@ public class Player {
         }
         
         if (Inputs.instance.up && !isJumping && !isFalling){
-            b2body.applyLinearImpulse(new Vector2(0, 0.7f), b2body.getWorldCenter(), true);
+            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.jump;
             isJumping = true;
         }

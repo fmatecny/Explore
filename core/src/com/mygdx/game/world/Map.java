@@ -7,6 +7,7 @@ package com.mygdx.game.world;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
@@ -38,10 +39,11 @@ public class Map extends WorldObject{
     
     private ArrayList<Water> waterList = new ArrayList<>();
     
-    int previousLeft = 0;
-    int previousRight = width;
-    int previousDown = 0;
-    int previousUp = height;
+    private int left, right, down, up, left_cam_edge, down_cam_edge;
+    private int previousLeft = 0;
+    private int previousRight = width;
+    private int previousDown = 0;
+    private int previousUp = height;
 
     public Map() {
         mapArray = new Block[width][height];        
@@ -281,10 +283,19 @@ public class Map extends WorldObject{
     
     public void draw(SpriteBatch spriteBatch, Vector2 cam){
         
+        left_cam_edge = (int) (cam.x/Block.size - MyGdxGame.width/2/Block.size_in_pixels);
+        down_cam_edge = (int) (cam.y/Block.size - MyGdxGame.height/2/Block.size_in_pixels);
+        
+        left = left_cam_edge - Constants.SIZE_OF_CHUNK;
+        right = left_cam_edge + (MyGdxGame.width/Block.size_in_pixels) + Constants.SIZE_OF_CHUNK;
+        down = down_cam_edge;// + Constants.SIZE_OF_CHUNK;
+        up = down_cam_edge + MyGdxGame.height/Block.size_in_pixels + Constants.SIZE_OF_CHUNK;
+        
+        /*
         int left = (int) (((cam.x*100.0f)-640)/40)+Constants.SIZE_OF_CHUNK;
-        int right = (int) (((cam.x*100.0f)+640)/40);
-        int down = (int) (((cam.y*100.0f)-360)/40)+Constants.SIZE_OF_CHUNK;
-        int up = (int) (((cam.y*100.0f)+360)/40);
+        right = (int) (((cam.x*100.0f)+640)/40);
+        down = (int) (((cam.y*100.0f)-360)/40)+Constants.SIZE_OF_CHUNK;
+        up = (int) (((cam.y*100.0f)+360)/40);*/
         
         if (left < 0)
             left = 0;
