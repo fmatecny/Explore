@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.MyGdxGame;
+import jdk.javadoc.internal.doclets.toolkit.util.DocPath;
 
 
 /**
@@ -51,17 +52,23 @@ public class PreferencesScreen extends ExploreMenuScreen{
 
         // Sound on/off
         final TextButton soundEffectsButton = new TextButton("Sound: ON", skin);
+        soundEffectsButton.setChecked(getParent().getPreferences().isSoundEffectsEnabled());
+        if (!getParent().getPreferences().isSoundEffectsEnabled())
+            soundEffectsButton.setText("Sound: OFF");
+
         soundEffectsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 if (!soundEffectsButton.isChecked()) {
+                    getParent().getPreferences().setSoundEffectsEnabled(false);
                     soundEffectsButton.setText("Sound: OFF");
                 } else {
+                    getParent().getPreferences().setSoundEffectsEnabled(true);
                     soundEffectsButton.setText("Sound: ON");
                 }
             }
         });
-        soundEffectsButton.setChecked(true);
+        //soundEffectsButton.setChecked(true);
         
         // sound volume        
         Stack volumeSoundStack = new Stack();
@@ -70,29 +77,52 @@ public class PreferencesScreen extends ExploreMenuScreen{
         label.setAlignment(Align.center);
         label.setTouchable(Touchable.disabled);
         volumeSoundStack.add(label);
+
         
         
         // Music on/off
         final TextButton musicButton = new TextButton("Music: ON", skin);
+        if (!getParent().getPreferences().isMusicEnabled())
+            musicButton.setText("Music: OFF");
+        
+        musicButton.setChecked(getParent().getPreferences().isMusicEnabled());
         musicButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 if (!musicButton.isChecked()) {
+                    getParent().getPreferences().setMusicEnabled(false);
+                    getParent().stopMenuMusic();
                     musicButton.setText("Music: OFF");
                 } else {
+                    getParent().getPreferences().setMusicEnabled(true);
+                    getParent().playMenuMusic();
                     musicButton.setText("Music: ON");
                 }
             }
         });
-        musicButton.setChecked(true);        
+                
         
         // Music volume
         Stack volumeMusicStack = new Stack();
-        volumeMusicStack.add(new Slider(0, 100, 1, false, skin));
-        Label MusicLabel = new Label("Volume", skin);
-        MusicLabel.setAlignment(Align.center);
-        MusicLabel.setTouchable(Touchable.disabled);
-        volumeMusicStack.add(MusicLabel);
+        
+        final Label musicLabel = new Label(Integer.toString((int)(getParent().getPreferences().getMusicVolume()*100))+"%", skin);
+        musicLabel.setAlignment(Align.center);
+        musicLabel.setTouchable(Touchable.disabled);
+        
+        
+        final Slider volumeMusicSlider  = new Slider(0, 1, 0.1f, false, skin);
+        volumeMusicSlider.setValue(getParent().getPreferences().getMusicVolume());
+        volumeMusicSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent ce, Actor actor) {
+                getParent().getPreferences().setMusicVolume(volumeMusicSlider.getValue());
+                getParent().setMenuMusicVolume(volumeMusicSlider.getValue());
+                musicLabel.setText(Integer.toString((int)(volumeMusicSlider.getValue()*100))+"%");
+            }
+        });
+        volumeMusicStack.add(volumeMusicSlider);
+        volumeMusicStack.add(musicLabel);
+
 
         
         // Resolution

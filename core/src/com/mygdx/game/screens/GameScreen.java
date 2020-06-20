@@ -203,10 +203,11 @@ public class GameScreen implements Screen{
         {
             spriteBatch.setProjectionMatrix(debugHUD.getStageHUD().getCamera().combined);
             debugHUD.draw(player, spriteBatch,cam);
+            debugRenderer.render(world, camera.combined);
         }
 
 
-        debugRenderer.render(world, camera.combined);
+        
 
         stage.draw();
     }

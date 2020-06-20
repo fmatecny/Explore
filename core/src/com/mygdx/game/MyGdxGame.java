@@ -2,6 +2,9 @@ package com.mygdx.game;
 
 import com.mygdx.game.screens.*;
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.mygdx.game.screens.PauseScreen;
 
 public class MyGdxGame extends Game {
@@ -28,6 +31,8 @@ public class MyGdxGame extends Game {
     public final static int PAUSE = 6;
     
     public boolean resolutionChanged = false;
+    
+    private Music menuMusic;
     
     public void changeScreen(int screen)
     {
@@ -70,11 +75,22 @@ public class MyGdxGame extends Game {
             }
     }
 
-    public AppPreferences getPreferences()
-    {
-            return this.preferences;
+    public AppPreferences getPreferences(){
+        return this.preferences;
     }
 
+    public void playMenuMusic(){
+        menuMusic.setLooping(true);
+        menuMusic.play();
+    }
+    
+    public void stopMenuMusic(){
+        menuMusic.stop();
+    }
+    
+    public void setMenuMusicVolume(float volume){
+        menuMusic.setVolume(volume);
+    }
     
     
     @Override
@@ -84,6 +100,14 @@ public class MyGdxGame extends Game {
         
         Skins.instance = new Skins();
         preferences = new AppPreferences();
+        
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/LonelyMountain.mp3"));
+        
+        if (preferences.isMusicEnabled()){
+            setMenuMusicVolume(preferences.getMusicVolume());
+            playMenuMusic();  
+        }
+        
         menuScreen = new MenuScreen(this);
         setScreen(menuScreen);
         

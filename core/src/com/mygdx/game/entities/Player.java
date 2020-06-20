@@ -145,7 +145,8 @@ public class Player {
         b2body.createFixture(fdef);
         
         EdgeShape right = new EdgeShape();
-        right.set(new Vector2(0.15f, -0.1f), new Vector2(0.23f, -0.1f));
+        //right.set(new Vector2(0.15f, -0.1f), new Vector2(0.23f, -0.1f));
+        right.set(new Vector2(0.23f, -0.15f), new Vector2(0.23f, 0.5f));
         fdef.filter.categoryBits = Constants.PLAYER_RIGHT_BIT;
         fdef.shape = right;
         fdef.isSensor = true;
