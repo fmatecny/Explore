@@ -32,8 +32,6 @@ public class MyGdxGame extends Game {
     
     public boolean resolutionChanged = false;
     
-    private Music menuMusic;
-    
     public void changeScreen(int screen)
     {
             switch(screen){
@@ -79,33 +77,19 @@ public class MyGdxGame extends Game {
         return this.preferences;
     }
 
-    public void playMenuMusic(){
-        menuMusic.setLooping(true);
-        menuMusic.play();
-    }
-    
-    public void stopMenuMusic(){
-        menuMusic.stop();
-    }
-    
-    public void setMenuMusicVolume(float volume){
-        menuMusic.setVolume(volume);
-    }
-    
-    
     @Override
     public void create() 
     {
         Inputs.instance = new Inputs();
         
         Skins.instance = new Skins();
+
         preferences = new AppPreferences();
         
-        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/LonelyMountain.mp3"));
-        
+        MyMusic.instance = new MyMusic(preferences);
+
         if (preferences.isMusicEnabled()){
-            setMenuMusicVolume(preferences.getMusicVolume());
-            playMenuMusic();  
+            MyMusic.instance.playMenuMusic();  
         }
         
         menuScreen = new MenuScreen(this);

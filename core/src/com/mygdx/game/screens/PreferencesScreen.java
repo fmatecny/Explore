@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.MyMusic;
 import jdk.javadoc.internal.doclets.toolkit.util.DocPath;
 
 
@@ -72,11 +73,23 @@ public class PreferencesScreen extends ExploreMenuScreen{
         
         // sound volume        
         Stack volumeSoundStack = new Stack();
-        volumeSoundStack.add(new Slider(0, 100, 1, false, skin));
-        Label label = new Label("Volume", skin);
-        label.setAlignment(Align.center);
-        label.setTouchable(Touchable.disabled);
-        volumeSoundStack.add(label);
+        
+        final Label soundLabel = new Label(Integer.toString((int)(getParent().getPreferences().getSoundVolume()*100))+"%", skin);
+        soundLabel.setAlignment(Align.center);
+        soundLabel.setTouchable(Touchable.disabled);
+        
+        final Slider volumeSoundSlider = new Slider(0, 1, 0.1f, false, skin);
+        volumeSoundSlider.setValue(getParent().getPreferences().getSoundVolume());
+        volumeSoundSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent ce, Actor actor) {
+                getParent().getPreferences().setSoundVolume(volumeSoundSlider.getValue());
+                MyMusic.instance.setSoundVolume(volumeSoundSlider.getValue());
+                soundLabel.setText(Integer.toString((int)(volumeSoundSlider.getValue()*100))+"%");
+            }
+        });
+        volumeSoundStack.add(volumeSoundSlider);
+        volumeSoundStack.add(soundLabel);
 
         
         
@@ -91,11 +104,11 @@ public class PreferencesScreen extends ExploreMenuScreen{
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 if (!musicButton.isChecked()) {
                     getParent().getPreferences().setMusicEnabled(false);
-                    getParent().stopMenuMusic();
+                    MyMusic.instance.stopMenuMusic();
                     musicButton.setText("Music: OFF");
                 } else {
                     getParent().getPreferences().setMusicEnabled(true);
-                    getParent().playMenuMusic();
+                    MyMusic.instance.playMenuMusic();
                     musicButton.setText("Music: ON");
                 }
             }
@@ -110,13 +123,13 @@ public class PreferencesScreen extends ExploreMenuScreen{
         musicLabel.setTouchable(Touchable.disabled);
         
         
-        final Slider volumeMusicSlider  = new Slider(0, 1, 0.1f, false, skin);
+        final Slider volumeMusicSlider = new Slider(0, 1, 0.1f, false, skin);
         volumeMusicSlider.setValue(getParent().getPreferences().getMusicVolume());
         volumeMusicSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent ce, Actor actor) {
                 getParent().getPreferences().setMusicVolume(volumeMusicSlider.getValue());
-                getParent().setMenuMusicVolume(volumeMusicSlider.getValue());
+                MyMusic.instance.setMenuMusicVolume(volumeMusicSlider.getValue());
                 musicLabel.setText(Integer.toString((int)(volumeMusicSlider.getValue()*100))+"%");
             }
         });
@@ -127,8 +140,29 @@ public class PreferencesScreen extends ExploreMenuScreen{
         
         // Resolution
         final TextButton resolutionButton = new TextButton("Resolution: 1280x720", skin);
+        
+        switch (getParent().getPreferences().getResolution()) {
+            case 0: resolutionButton.setText("Resolution: 640x480");
+                    MyGdxGame.width = 640;
+                    MyGdxGame.height = 480;
+                    break;
+            case 1: resolutionButton.setText("Resolution: 960x540");
+                    MyGdxGame.width = 960;
+                    MyGdxGame.height = 540;
+                    break;
+            case 2: resolutionButton.setText("Resolution: 1280x720");
+                    MyGdxGame.width = 1280;
+                    MyGdxGame.height = 720;
+                    break;
+            case 3: resolutionButton.setText("Resolution: 1920x1080");
+                    MyGdxGame.width = 1920;
+                    MyGdxGame.height = 1080;
+                    break;
+            default:
+                throw new AssertionError();
+        }
         resolutionButton.addListener(new ChangeListener() {
-            private int state = 2;
+            private int state = getParent().getPreferences().getResolution();
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 getParent().resolutionChanged = true;
@@ -153,6 +187,7 @@ public class PreferencesScreen extends ExploreMenuScreen{
                     default:
                         throw new AssertionError();
                 }
+                getParent().getPreferences().setResolution(state);
             }
         });
         //resolutionButton.setChecked(true); 
