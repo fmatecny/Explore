@@ -243,7 +243,8 @@ public class Map extends WorldObject{
     }
     
     public void addBodyToIdx(int x, int y, Block b){
-        mapArray[x][y] = b;
+        //create new body beacuse in Inventar is only one body 
+        mapArray[x][y] = new Block(b);
         mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, b.blocked));
     }
     

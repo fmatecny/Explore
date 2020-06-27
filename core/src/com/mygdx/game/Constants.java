@@ -5,6 +5,8 @@
  */
 package com.mygdx.game;
 
+import com.mygdx.game.screens.GameScreen;
+
 /**
  *
  * @author Fery
@@ -16,6 +18,8 @@ public final class Constants {
     public static final int HEIGHT_OF_SKY = 30;
     public static final int SIZE_OF_CHUNK = 8;
     public static final float PPM = 100.0f;
+    public static final float W_IN_M = MyGdxGame.width/PPM;
+    public static final float H_IN_M = MyGdxGame.height/PPM;
     
     public static final int PLAYER_LEFT_BIT = 8;
     public static final int PLAYER_RIGHT_BIT = 2;

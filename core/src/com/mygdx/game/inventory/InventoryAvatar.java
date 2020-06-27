@@ -22,7 +22,7 @@ public class InventoryAvatar extends Table{
             invenotryItem.setName(Integer.toString(0));
             invenotryItem.setTouchable(Touchable.enabled);
             invenotryItem.setBackground(Skins.skin.getDrawable("cell"));
-            this.add(invenotryItem).width(3*50).height(4*50);
+            this.add(invenotryItem).width(3*Inventory.sizeOfSlot).height(4*Inventory.sizeOfSlot);
         
         
     }

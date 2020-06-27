@@ -5,7 +5,6 @@
  */
 package com.mygdx.game.inventory;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -14,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
-import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
 
 /**
@@ -40,7 +38,7 @@ public class InventorySlot extends Table{
         addListener(new DragListener(){
         @Override
         public void drag(InputEvent event, float x, float y, int pointer) {
-            System.out.println(getName() + " aa " + x + " aa " + y );
+            //System.out.println(getName() + " aa " + x + " aa " + y );
             if (touchDown)
                 drag = true;
         }
@@ -50,7 +48,7 @@ public class InventorySlot extends Table{
         addListener(new ClickListener() {
         @Override
         public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            System.out.println(getName() + "   " + getX() + "m" + x + "," + y);
+            //System.out.println(getName() + "   " + getX() + "m" + x + "," + y);
             if (numOfItem > 0 && Inputs.instance.showInventory)
                 touchDown = true;
 
@@ -59,7 +57,7 @@ public class InventorySlot extends Table{
 
         @Override
         public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-            System.out.println(getName() + "   " + getX()+ "m" + x + "," + y);
+            //System.out.println(getName() + "   " + getX()+ "m" + x + "," + y);
             if (touchDown)
             {
                 drop = true;
@@ -84,9 +82,9 @@ public class InventorySlot extends Table{
             {
                 this.setZIndex(50);
                 batch.draw(item.texture, 
-                Inputs.instance.mouseX-400, 600-Inputs.instance.mouseY,  
+                Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
                 getWidth()-15, getHeight()-15);
-                font.draw(batch, Integer.toString(numOfItem), Inputs.instance.mouseX-375, 610-Inputs.instance.mouseY);
+                font.draw(batch, Integer.toString(numOfItem), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
             }
             else 
             {

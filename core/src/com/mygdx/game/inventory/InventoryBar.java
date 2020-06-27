@@ -23,7 +23,7 @@ public class InventoryBar extends Table{
         for (int i = 0; i < numOfCol; i++) 
         {
             final InventorySlot invenotryItem =  new InventorySlot();
-            invenotryItem.setDebug(true);
+            //invenotryItem.setDebug(true);
             invenotryItem.setName(Integer.toString(i));
             invenotryItem.setTouchable(Touchable.enabled);
             invenotryItem.setBackground(Skins.invenotrySlotBck);//Skins.skin.getDrawable("cell"));

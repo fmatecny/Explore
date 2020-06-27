@@ -8,6 +8,7 @@ package com.mygdx.game.world;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.mygdx.game.Constants;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.GameScreen;
 
@@ -23,6 +24,8 @@ public class Background {
     private Texture bgHill;
     private Texture bgBushes;
     
+    private float x,y;
+    
     public Background() {
         
         bgImg = new Texture(Gdx.files.internal("background/11_background.png"));
@@ -36,11 +39,14 @@ public class Background {
     
     
     public void drawBackground(Batch batch){
-        batch.draw(bgImg, GameScreen.camera.position.x-MyGdxGame.width/2, GameScreen.camera.position.y-MyGdxGame.height/2+0, MyGdxGame.width, MyGdxGame.height);
-        batch.draw(bgClouds, GameScreen.camera.position.x-MyGdxGame.width/2, GameScreen.camera.position.y-MyGdxGame.height/2+90, MyGdxGame.width, MyGdxGame.height);
-        batch.draw(bgHugeClouds, GameScreen.camera.position.x-MyGdxGame.width/2, GameScreen.camera.position.y-MyGdxGame.height/2+100, MyGdxGame.width, MyGdxGame.height);
-        batch.draw(bgHill, GameScreen.camera.position.x-MyGdxGame.width/2, GameScreen.camera.position.y-MyGdxGame.height/2+100, MyGdxGame.width, MyGdxGame.height);
-        batch.draw(bgBushes, GameScreen.camera.position.x-MyGdxGame.width/2, GameScreen.camera.position.y-MyGdxGame.height/2+70, MyGdxGame.width, MyGdxGame.height);
+        x = GameScreen.camera.position.x-Constants.W_IN_M/2.0f;
+        y = GameScreen.camera.position.y-Constants.H_IN_M/2.0f;
+       
+        batch.draw(bgImg, x, y, Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgClouds, x, y+0.9f, Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHugeClouds, x, y+1, Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHill, x, y+1, Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgBushes, x, y+0.7f, Constants.W_IN_M, Constants.H_IN_M);
     
     }
     

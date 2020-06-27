@@ -2,9 +2,6 @@ package com.mygdx.game;
 
 import com.mygdx.game.screens.*;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.mygdx.game.screens.PauseScreen;
 
 public class MyGdxGame extends Game {
@@ -21,14 +18,13 @@ public class MyGdxGame extends Game {
     private GameScreen gameScreen;
     private PauseScreen pauseScreen;
     
-    public final static int MENU = 0;
-    public final static int NEWGAME = 1;
-    public final static int LOADGAME = 2;
-    public final static int SETTINGS = 3;
-    public final static int EXIT = 4;
-    
-    public final static int GAME = 5;
-    public final static int PAUSE = 6;
+    public final static int MENU        = 0;
+    public final static int NEWGAME     = 1;
+    public final static int LOADGAME    = 2;
+    public final static int SETTINGS    = 3;
+    public final static int EXIT        = 4; 
+    public final static int GAME        = 5;
+    public final static int PAUSE       = 6;
     
     public boolean resolutionChanged = false;
     

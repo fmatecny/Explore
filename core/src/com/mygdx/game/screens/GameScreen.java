@@ -160,10 +160,10 @@ public class GameScreen implements Screen{
             // take block to inventory
             if (Inputs.instance.mouseLeft && hitBody != null)
             {
-                if (hitBody.getUserData() instanceof Water == false)
+                if (hitBody.getUserData() instanceof IntVector2)
                 {
                     IntVector2 v = (IntVector2)hitBody.getUserData();
-                    //System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v3.x + "|" + hitBody.getPosition());
+                    System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v.X + "|" + v.Y);
                     if (v != null){
                         if (map.getBlock(v.X, v.Y) != null){
                             map.getBlock(v.X, v.Y).textureRotation = 0;
@@ -223,14 +223,14 @@ public class GameScreen implements Screen{
             cam.x= MyGdxGame.width/2/PPM +player.getX() - 4;
         }
         
-        if (player.getY()-cam.y + MyGdxGame.height/2/PPM < 4) {
+        if (player.getY()-cam.y + MyGdxGame.height/2/PPM < 3) {
             //cam.y-=0.01;//player.getSpeed()*2;
-            cam.y = player.getY() + MyGdxGame.height/2/PPM - 4;
+            cam.y = player.getY() + MyGdxGame.height/2/PPM - 3;
         }
         
-        if (player.getY()-cam.y + MyGdxGame.height/2/PPM > 5) {
+        if (player.getY()-cam.y + MyGdxGame.height/2/PPM > 4) {
             //cam.y+=0.01;//player.getSpeed()*2;
-            cam.y = player.getY() + MyGdxGame.height/2/PPM - 5;
+            cam.y = player.getY() + MyGdxGame.height/2/PPM - 4;
         }
         
         camera.position.set(cam.x ,cam.y, camera.position.z);

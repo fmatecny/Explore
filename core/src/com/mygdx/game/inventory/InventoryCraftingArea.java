@@ -38,7 +38,7 @@ public class InventoryCraftingArea extends Table{
                 invenotryItem.setTouchable(Touchable.enabled);
                 invenotryItem.setBackground(Skins.skin.getDrawable("cell"));
 
-                invenotryItem.addListener(new ClickListener() {
+                /*invenotryItem.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     System.out.println(invenotryItem.getName() + "   " + invenotryItem.getX() + " " + invenotryItem.getX());
@@ -52,16 +52,16 @@ public class InventoryCraftingArea extends Table{
                     System.out.println(invenotryItem.getName() + " aa " + x + " aa " + y + getDeltaX());
                     invenotryItem.drag = true;
                 }
-                });
+                });*/
 
                 craftingSlots[x][y] = invenotryItem;
                 
                 if (x == 2 && (y == 0 || y == 2))
-                    this.add(invenotryItem).size(50).colspan(2).left();
+                    this.add(invenotryItem).size(Inventory.sizeOfSlot).colspan(2).left();
                 else if (x == 2 && y == 1)
-                    this.add(invenotryItem).size(50).colspan(1).left().padRight(25);
+                    this.add(invenotryItem).size(Inventory.sizeOfSlot).colspan(1).left().padRight(Inventory.sizeOfSlot/2);
                 else
-                    this.add(invenotryItem).size(50);
+                    this.add(invenotryItem).size(Inventory.sizeOfSlot);
                 
                 if (x == 2 && y == 1)
                 {
@@ -71,7 +71,7 @@ public class InventoryCraftingArea extends Table{
                     invenotryCraftedItem.setTouchable(Touchable.enabled);
                     invenotryCraftedItem.setBackground(Skins.skin.getDrawable("cell"));
 
-                    invenotryCraftedItem.addListener(new ClickListener() {
+                    /*invenotryCraftedItem.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         System.out.println(invenotryCraftedItem.getName() + "   " + invenotryCraftedItem.getX() + " " + invenotryCraftedItem.getX());
@@ -85,18 +85,30 @@ public class InventoryCraftingArea extends Table{
                         System.out.println(invenotryCraftedItem.getName() + " aa " + x + " aa " + y + getDeltaX());
                         invenotryCraftedItem.drag = true;
                     }
-                    });
+                    });*/
                     
                     craftedItem = invenotryCraftedItem;
-                    this.add(craftedItem).size(50);
+                    this.add(craftedItem).size(Inventory.sizeOfSlot);
                     
-                }
-                    
-                   
+                }  
             }
-            
             this.row();
         }
+    }
+    
+    public InventorySlot getDragInventorySlot(){
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (craftingSlots[i][j].drop)
+                    return craftingSlots[i][j]; 
+            }
+        }
+        
+        if (craftedItem.drop)
+            return craftedItem;
+        
+        return null;
     }
     
     

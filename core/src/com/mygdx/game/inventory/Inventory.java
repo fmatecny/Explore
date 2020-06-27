@@ -49,6 +49,7 @@ public class Inventory implements Disposable{
     private boolean wasInventoryOpen = false;
     private boolean dragSlotInBar = false;
     private boolean dragSlotInPackage = false;
+    private boolean dragSlotInCraftingArea = false;
     
     private Stage stageInventory;
     
@@ -64,14 +65,14 @@ public class Inventory implements Disposable{
         Gdx.input.setInputProcessor(multiplexer);
         mock = new Table(skin);
         mock.setFillParent(true);
-        mock.setDebug(true);
+        //mock.setDebug(true);
         mock.center().top().padTop(50);
 
         window = new Window("", skin);
         window.add(new Label("Inventory", skin)).left().padLeft(15.0f);
         window.row();
         table = new Table();
-        table.setDebug(true);
+        //table.setDebug(true);
         table.setTouchable(Touchable.enabled);
 
         inventoryAvatar = new InventoryAvatar();
@@ -153,6 +154,7 @@ public class Inventory implements Disposable{
     private InventorySlot getDragInventorySlot(){
         dragSlotInBar = false;
         dragSlotInPackage = false;
+        dragSlotInCraftingArea = false;
         
         InventorySlot dragSlot = inventoryBar.getDragInventorySlot();
         
@@ -162,50 +164,109 @@ public class Inventory implements Disposable{
         }
         
         dragSlot = inventoryPackage.getDragInventorySlot();
-        if (dragSlot != null)
+        if (dragSlot != null){
             dragSlotInPackage = true;
+            return dragSlot;
+        }
+        
+        dragSlot = inventoryCraftingArea.getDragInventorySlot();
+        if (dragSlot != null)
+            dragSlotInCraftingArea = true;
         
         
         return dragSlot;
     }
     
     private InventorySlot getDropInventorySlot(){
+        // from inventory bar to inventory bar
         InventorySlot dropSlot = inventoryBar.getDropInventorSlot();
         
         if (dropSlot != null)
             return dropSlot;
 
-        
+        // from inventory bar to invenotry package/craftig area/armor slots
         if (dragSlotInBar)
         {
             int yPos = inventoryBar.getDragInventorySlot().getDropPosition().Y;
             int xPos = inventoryBar.getDragInventorySlot().getDropPosition().X;
-    
-            yPos -= (sizeOfSlot + 10);
+            System.err.println(xPos + "|" + yPos);
             
-            if (yPos < 0)
+            /////////////// y position  ////////////////
+            //0-50 - inventory bar
+            //50-60 - space
+            //60-210 - invetory package
+            //210-220 - space
+            //220-420 - armor slots
+            //245-395 - crafting area
+            //295-345 - crafting slot
+            
+            //////////// x position ///////////////////
+            //0-450 - inventory
+            //0-50 - armor slots
+            //225-375 - crafting area
+            //400 - 450 - crafting slot
+            
+            if (yPos < sizeOfSlot + 10 || yPos > 2*10 + sizeOfSlot*(numOfRow + 5))
                 return null;
             
-            yPos /= sizeOfSlot;
-            yPos = numOfRow - yPos - 1;
-            
+            // moving of item from right to left
             if (xPos < 0)
                 xPos -= sizeOfSlot;
             
-            xPos /= sizeOfSlot;
-            xPos += Integer.valueOf(inventoryBar.getDragInventorySlot().getName());
-            
-            if (yPos < 0 || yPos >= numOfRow || xPos < 0 || xPos >= numOfCol)
-                return null;
-            
-            if (inventoryPackage.inventoryPackageArray[xPos][yPos].getItem() == null)
-                return inventoryPackage.inventoryPackageArray[xPos][yPos];
+            // from inventory bar to invenotry package
+            if (yPos <= sizeOfSlot + 10 + sizeOfSlot*numOfRow)
+            {
+                // get y zero pos of invenotry package
+                yPos -= (sizeOfSlot + 10);
+
+                // get y index of row (from bottom to top)
+                yPos /= sizeOfSlot;
+                // get y index of row (from top to bottom)
+                yPos = numOfRow - yPos - 1;
+
+                if (yPos >= numOfRow)
+                    return null;
+
+                xPos /= sizeOfSlot;
+                xPos += Integer.valueOf(inventoryBar.getDragInventorySlot().getName());
+
+                if (xPos < 0 || xPos >= numOfCol)
+                    return null;
+
+                if (inventoryPackage.inventoryPackageArray[xPos][yPos].getItem() == null)
+                    return inventoryPackage.inventoryPackageArray[xPos][yPos];
+            }
+            // from inventory bar to craftig area/armor slots
+            else if (yPos >= 2*10 + sizeOfSlot*(numOfRow+1))
+            {
+                xPos /= sizeOfSlot;
+                xPos += Integer.valueOf(inventoryBar.getDragInventorySlot().getName());
+                
+                if (xPos < 0 || xPos >= numOfCol)
+                    return null;
+                
+                // from inventory armor slots
+                if (xPos == 0)
+                {
+                
+                }
+                // from inventory craftig slot
+                else if (xPos == numOfCol)
+                {
+                
+                }
+                // from inventory craftig area
+                else 
+                {
+                
+                }
+            }
             
         }
             
-            
+        // from inventory package to inventory package  
         dropSlot = inventoryPackage.getDropInventorySlot();
-
+        // from inventory package to inventory bar
         if(dragSlotInPackage && dropSlot == null)
         {
             int yPos = inventoryPackage.getDragInventorySlot().getDropPosition().Y;
