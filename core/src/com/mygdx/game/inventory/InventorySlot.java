@@ -5,6 +5,7 @@
  */
 package com.mygdx.game.inventory;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.world.Block;
+import java.awt.event.MouseEvent;
 
 /**
  *
@@ -24,10 +26,11 @@ public class InventorySlot extends Table{
     public int numOfItem;
     private BitmapFont font;
     private Block item = null;
-    
+
     public boolean drag = false;
     public boolean drop = false;
     public boolean touchDown = false;
+    public boolean splitItems = false;
     private IntVector2 dropPos = new IntVector2();
     
 
@@ -49,15 +52,22 @@ public class InventorySlot extends Table{
         @Override
         public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
             //System.out.println(getName() + "   " + getX() + "m" + x + "," + y);
-            if (numOfItem > 0 && Inputs.instance.showInventory)
+            if (numOfItem > 0 && Inputs.instance.showInventory && button == Input.Buttons.LEFT){
+                splitItems = false;
+                touchDown = true;}
+            else if (numOfItem >= 2 && Inputs.instance.showInventory && button == Input.Buttons.RIGHT){
+                if (touchDown == false)
+                    splitItems = true;
+                
                 touchDown = true;
-
+            }
+                
             return touchDown;
         }
 
         @Override
         public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-            //System.out.println(getName() + "   " + getX()+ "m" + x + "," + y);
+            //System.out.println(getName() + "   " + getX()+ "mmm" + x + "," + y);
             if (touchDown)
             {
                 drop = true;
@@ -78,17 +88,36 @@ public class InventorySlot extends Table{
         
         if (isEmpty() == false)
         {
+            
             if (touchDown)
             {
-                this.setZIndex(50);
-                batch.draw(item.texture, 
-                Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
-                getWidth()-15, getHeight()-15);
-                font.draw(batch, Integer.toString(numOfItem), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
+                
+                if (splitItems)
+                {
+                    
+                    batch.draw(item.texture, 
+                            getX()+10, getY()+10,  
+                            getWidth()-20, getHeight()-20);
+                    font.draw(batch, Integer.toString(numOfItem/2 + numOfItem%2), getX()+30, getY()+20);
+                    this.setZIndex(50);
+                    batch.draw(item.texture, 
+                            Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
+                            getWidth()-15, getHeight()-15);
+                    font.draw(batch, Integer.toString(numOfItem/2), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
+                }
+                else{
+                    this.setZIndex(50);
+                    batch.draw(item.texture, 
+                            Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
+                            getWidth()-15, getHeight()-15);
+                    font.draw(batch, Integer.toString(numOfItem), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
+                }
+                
+                
             }
-            else 
+            else
             {
-                    this.setZIndex(1);
+                this.setZIndex(1);
                 batch.draw(item.texture, 
                         getX()+10, getY()+10,  
                         getWidth()-20, getHeight()-20);

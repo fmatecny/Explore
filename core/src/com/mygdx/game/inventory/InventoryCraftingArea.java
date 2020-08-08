@@ -5,18 +5,17 @@
  */
 package com.mygdx.game.inventory;
 
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
+import com.mygdx.game.IntVector2;
 import com.mygdx.game.Skins;
+import com.mygdx.game.world.AllBlocks;
+import com.mygdx.game.world.Block;
 
 /**
  *
  * @author Fery
  */
-public class InventoryCraftingArea extends Table{
+public class InventoryCraftingArea extends InventoryPack{
     
     private final int size = 3;
     
@@ -34,7 +33,7 @@ public class InventoryCraftingArea extends Table{
             {
                 final InventorySlot invenotryItem =  new InventorySlot();
                 //invenotryItem.setDebug(true);
-                invenotryItem.setName(Integer.toString(x+y*size));
+                invenotryItem.setName("craftingArea");//(Integer.toString(x+y*size));
                 invenotryItem.setTouchable(Touchable.enabled);
                 invenotryItem.setBackground(Skins.skin.getDrawable("cell"));
 
@@ -67,7 +66,7 @@ public class InventoryCraftingArea extends Table{
                 {
                     final InventorySlot invenotryCraftedItem =  new InventorySlot();
                     //invenotryItem.setDebug(true);
-                    invenotryCraftedItem.setName(Integer.toString(100));
+                    invenotryCraftedItem.setName("craftSlot");
                     invenotryCraftedItem.setTouchable(Touchable.enabled);
                     invenotryCraftedItem.setBackground(Skins.skin.getDrawable("cell"));
 
@@ -96,7 +95,7 @@ public class InventoryCraftingArea extends Table{
         }
     }
     
-    public InventorySlot getDragInventorySlot(){
+    public InventorySlot getDragInventorySlotAfterDrop(){
         
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -110,7 +109,52 @@ public class InventoryCraftingArea extends Table{
         
         return null;
     }
+
+    public InventorySlot getDropInventorySlot(IntVector2 pos){
+        
+        int x = (int)((pos.X-getX())/Inventory.sizeOfSlot);
+        int y = (int)((pos.Y-getY())/Inventory.sizeOfSlot);
+        //reverse idx
+        y = size - (y+1);
+        
+        return isInRange(x, y) ? craftingSlots[x][y] : null;
+    }
     
+    private boolean isInRange(int x, int y){
     
+        return x >= 0 && x < size &&
+               y >=0 && y < size;
+    }
+    
+    public boolean isDragInCraftingArea(){
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                if (craftingSlots[x][y].drag)
+                    return true;   
+            }
+        }
+        
+        return craftedItem.drag;
+    }
+
+    public void craft() {
+        if (craftedItem.getItem() == null)
+        {
+            if (craftingSlots[2][2].getItem() != null){
+                int n = craftingSlots[2][2].numOfItem;
+                Block item = craftingSlots[2][2].getItem();
+
+
+                craftingSlots[2][2].numOfItem--;
+                //craftingSlots[2][2].setItem(null);
+
+                craftedItem.numOfItem = 1;
+                craftedItem.setItem(item);
+
+            }
+        }
+
+            
+    }
     
 }

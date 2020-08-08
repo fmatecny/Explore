@@ -6,18 +6,22 @@
 package com.mygdx.game.inventory;
 
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.mygdx.game.IntVector2;
 import com.mygdx.game.Skins;
 
 /**
  *
  * @author Fery
  */
-public class InventoryBar extends Table{
+public class InventoryBar extends InventoryPack{
 
     public InventorySlot[] inventoryBar;
-
-    public InventoryBar(int numOfCol) {
+    
+    public InventoryBar(int numOfCol){
+        this(numOfCol, Touchable.enabled);
+    }
+    
+    public InventoryBar(int numOfCol, Touchable t) {
         inventoryBar =  new InventorySlot[numOfCol];
         
         for (int i = 0; i < numOfCol; i++) 
@@ -25,13 +29,14 @@ public class InventoryBar extends Table{
             final InventorySlot invenotryItem =  new InventorySlot();
             //invenotryItem.setDebug(true);
             invenotryItem.setName(Integer.toString(i));
-            invenotryItem.setTouchable(Touchable.enabled);
+            invenotryItem.setTouchable(t);
             invenotryItem.setBackground(Skins.invenotrySlotBck);//Skins.skin.getDrawable("cell"));
             inventoryBar[i] = invenotryItem;
             this.add(invenotryItem).size(Inventory.sizeOfSlot);
-        }
-        
+        } 
     }
+    
+
     
     public InventorySlot getInventorySlot(int index){
         return inventoryBar[index];  
@@ -49,7 +54,7 @@ public class InventoryBar extends Table{
         setBackground(Skins.invenotryActiveSlotBck);
     }
     
-    public InventorySlot getDragInventorySlot(){
+    public InventorySlot getDragInventorySlotAfterDrop(){
         for (int i = 0; i < Inventory.numOfCol; i++) {
             if (inventoryBar[i].drop)
                 return inventoryBar[i];
@@ -67,7 +72,7 @@ public class InventoryBar extends Table{
         return false;
     }
     
-    public InventorySlot getDropInventorSlot(){
+    public InventorySlot getDropInventorySlot(){
         int x = -1;
         int yPos = -1;
         for (int i = 0; i < Inventory.numOfCol; i++) 
@@ -89,6 +94,19 @@ public class InventoryBar extends Table{
             return inventoryBar[x];
         
         return null;
+    }
+    
+    public InventorySlot getDropInventorySlot(IntVector2 pos){
+        
+        int x = (int)((pos.X-getX())/Inventory.sizeOfSlot);
+        
+        return isInRange(x) ? inventoryBar[x] : null;
+
+    }
+    
+    private boolean isInRange(int x){
+        return (x >= 0 && x < Inventory.numOfCol);
+    
     }
     
 }

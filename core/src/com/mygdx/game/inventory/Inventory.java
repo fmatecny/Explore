@@ -18,9 +18,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Inputs;
+import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Skins;
 import com.mygdx.game.world.Block;
+import static java.lang.Math.abs;
 
 /**
  *
@@ -31,6 +33,7 @@ public class Inventory implements Disposable{
     public static int numOfCol = 9;
     public static int numOfRow = 3;
     public static int sizeOfSlot = 50;
+    private final int space = 10;
     
     public Table mock,table;
     Window window;
@@ -50,6 +53,11 @@ public class Inventory implements Disposable{
     private boolean dragSlotInBar = false;
     private boolean dragSlotInPackage = false;
     private boolean dragSlotInCraftingArea = false;
+    private boolean dragSlotInArmorSlots = false;
+     
+    private int dropPosOffsetY = 0;
+    private int dropPosOffsetX = 0;
+    IntVector2 realDropPos = new IntVector2();
     
     private Stage stageInventory;
     
@@ -80,15 +88,15 @@ public class Inventory implements Disposable{
         inventoryCraftingArea = new InventoryCraftingArea();
         inventoryPackage = new InventoryPackage(numOfCol, numOfRow);
         inventoryBar = new InventoryBar(numOfCol);
-        inventoryBarHUD = new InventoryBar(numOfCol);
+        inventoryBarHUD = new InventoryBar(numOfCol, Touchable.disabled);
          
         table.add(inventoryArmorSlots).left();
         table.add(inventoryAvatar).left();
         table.add(inventoryCraftingArea).right();
         //table.add().minWidth(2*50);
-        table.row().padTop(10);
+        table.row().padTop(space);
         table.add(inventoryPackage).colspan(3);
-        table.row().padTop(10);
+        table.row().padTop(space);
         table.add(inventoryBar).colspan(3);
 
         window.add(table).pad(20.0f);
@@ -151,145 +159,110 @@ public class Inventory implements Disposable{
         }
     }
     
-    private InventorySlot getDragInventorySlot(){
+    //get dra invenotry slot AFTER drop item
+    private InventorySlot getDragInventorySlotAfterDrop(){
         dragSlotInBar = false;
         dragSlotInPackage = false;
         dragSlotInCraftingArea = false;
+        dragSlotInArmorSlots = false;
         
-        InventorySlot dragSlot = inventoryBar.getDragInventorySlot();
-        
+        InventorySlot dragSlot = inventoryBar.getDragInventorySlotAfterDrop();
         if (dragSlot != null){
             dragSlotInBar = true;
             return dragSlot;
         }
         
-        dragSlot = inventoryPackage.getDragInventorySlot();
+        dragSlot = inventoryPackage.getDragInventorySlotAfterDrop();
         if (dragSlot != null){
             dragSlotInPackage = true;
             return dragSlot;
         }
         
-        dragSlot = inventoryCraftingArea.getDragInventorySlot();
-        if (dragSlot != null)
+        dragSlot = inventoryCraftingArea.getDragInventorySlotAfterDrop();
+        if (dragSlot != null){
             dragSlotInCraftingArea = true;
+            return dragSlot;
+        }
         
+        dragSlot = inventoryArmorSlots.getDragInventorySlotAfterDrop();
+        if (dragSlot != null){
+            dragSlotInArmorSlots = true;
+            return dragSlot;
+        }
         
-        return dragSlot;
+        return null;
     }
     
-    private InventorySlot getDropInventorySlot(){
-        // from inventory bar to inventory bar
-        InventorySlot dropSlot = inventoryBar.getDropInventorSlot();
+    private InventorySlot getDropInventorySlot(InventorySlot dragSlot){
         
-        if (dropSlot != null)
-            return dropSlot;
+        /*
+        /////////////// y position  ////////////////
+        //0-50 - inventory bar
+        //50-60 - space
+        //60-210 - invetory package
+        //210-220 - space
+        //220-420 - armor slots
+        //245-395 - crafting area
+        //295-345 - crafting slot
 
-        // from inventory bar to invenotry package/craftig area/armor slots
+        //////////// x position ///////////////////
+        //0-450 - inventory
+        //0-50 - armor slots
+        //225-375 - crafting area
+        //400 - 450 - crafting slot
+        */
+        
+        // set offset
         if (dragSlotInBar)
         {
-            int yPos = inventoryBar.getDragInventorySlot().getDropPosition().Y;
-            int xPos = inventoryBar.getDragInventorySlot().getDropPosition().X;
-            System.err.println(xPos + "|" + yPos);
-            
-            /////////////// y position  ////////////////
-            //0-50 - inventory bar
-            //50-60 - space
-            //60-210 - invetory package
-            //210-220 - space
-            //220-420 - armor slots
-            //245-395 - crafting area
-            //295-345 - crafting slot
-            
-            //////////// x position ///////////////////
-            //0-450 - inventory
-            //0-50 - armor slots
-            //225-375 - crafting area
-            //400 - 450 - crafting slot
-            
-            if (yPos < sizeOfSlot + 10 || yPos > 2*10 + sizeOfSlot*(numOfRow + 5))
-                return null;
-            
-            // moving of item from right to left
-            if (xPos < 0)
-                xPos -= sizeOfSlot;
-            
-            // from inventory bar to invenotry package
-            if (yPos <= sizeOfSlot + 10 + sizeOfSlot*numOfRow)
-            {
-                // get y zero pos of invenotry package
-                yPos -= (sizeOfSlot + 10);
-
-                // get y index of row (from bottom to top)
-                yPos /= sizeOfSlot;
-                // get y index of row (from top to bottom)
-                yPos = numOfRow - yPos - 1;
-
-                if (yPos >= numOfRow)
-                    return null;
-
-                xPos /= sizeOfSlot;
-                xPos += Integer.valueOf(inventoryBar.getDragInventorySlot().getName());
-
-                if (xPos < 0 || xPos >= numOfCol)
-                    return null;
-
-                if (inventoryPackage.inventoryPackageArray[xPos][yPos].getItem() == null)
-                    return inventoryPackage.inventoryPackageArray[xPos][yPos];
-            }
-            // from inventory bar to craftig area/armor slots
-            else if (yPos >= 2*10 + sizeOfSlot*(numOfRow+1))
-            {
-                xPos /= sizeOfSlot;
-                xPos += Integer.valueOf(inventoryBar.getDragInventorySlot().getName());
-                
-                if (xPos < 0 || xPos >= numOfCol)
-                    return null;
-                
-                // from inventory armor slots
-                if (xPos == 0)
-                {
-                
-                }
-                // from inventory craftig slot
-                else if (xPos == numOfCol)
-                {
-                
-                }
-                // from inventory craftig area
-                else 
-                {
-                
-                }
-            }
-            
+            dropPosOffsetX = 0;
+            dropPosOffsetY = 0;
         }
-            
-        // from inventory package to inventory package  
-        dropSlot = inventoryPackage.getDropInventorySlot();
-        // from inventory package to inventory bar
-        if(dragSlotInPackage && dropSlot == null)
+        else if (dragSlotInPackage)
         {
-            int yPos = inventoryPackage.getDragInventorySlot().getDropPosition().Y;
-            int xPos = inventoryPackage.getDragInventorySlot().getDropPosition().X;
-            
-            int yIdx = Integer.valueOf(inventoryPackage.getDragInventorySlot().getName())/numOfCol;
-            
-            if (!(yPos < -((numOfRow-yIdx-1)*sizeOfSlot+10) && yPos > -((numOfRow-yIdx)*sizeOfSlot+10)))
-                return null;
-            
-            if (xPos < 0)
-                xPos -= sizeOfSlot;
-
-            xPos /= sizeOfSlot;
-            xPos += (Integer.valueOf(inventoryPackage.getDragInventorySlot().getName())%numOfCol);
-            
-            
-            if (inventoryBar.inventoryBar[xPos].getItem() == null)
-                return inventoryBar.inventoryBar[xPos];
+            dropPosOffsetX = (int) inventoryPackage.getX();
+            dropPosOffsetY = (int) inventoryPackage.getY();            
         }
+        else if (dragSlotInCraftingArea)
+        {
+            dropPosOffsetX = (int) inventoryCraftingArea.getX();
+            dropPosOffsetY = (int) inventoryCraftingArea.getY();  
+        }
+        else if (dragSlotInArmorSlots)
+        {
+            dropPosOffsetX = (int) inventoryArmorSlots.getX();
+            dropPosOffsetY = (int) inventoryArmorSlots.getY();
+        }
+            
+        IntVector2 dropPos = dragSlot.getDropPosition();
+        System.out.println(dropPos.X + "|||" + dropPos.Y);
+        if (dropPos.X >= 0 && 
+            dropPos.X <= Inventory.sizeOfSlot && 
+            dropPos.Y >= 0 && 
+            dropPos.Y <= Inventory.sizeOfSlot)
+            return null;
         
         
-        return dropSlot;
+        realDropPos.X = (int) (dragSlot.getX() + dropPos.X + dropPosOffsetX);
+        realDropPos.Y = (int) (dragSlot.getY() + dropPos.Y + dropPosOffsetY);
+        
+        // from inventory bar to inventory bar
+        if (inventoryBar.includes(realDropPos))
+            return inventoryBar.getDropInventorySlot(realDropPos);
+
+        // from inventory bar to invenotry package
+        if (inventoryPackage.includes(realDropPos))
+            return inventoryPackage.getDropInventorySlot(realDropPos);
+
+        // from inventory bar to armor slots
+        if (inventoryArmorSlots.includes(realDropPos))
+            return inventoryArmorSlots.getDropInventorySlot(realDropPos);
+
+        // from inventory bar to craftig area
+        if (inventoryCraftingArea.includes(realDropPos))
+            return inventoryCraftingArea.getDropInventorySlot(realDropPos);
+
+        return null;
     }
     
     public void draw(){
@@ -319,20 +292,13 @@ public class Inventory implements Disposable{
                 synchronizeInventoryBar();
             }
 
-            if (inventoryBar.isDragInBar()){
-                inventoryPackage.setZIndex(0);
-                inventoryBar.setZIndex(10);
-            }
-            else if (inventoryPackage.isDragInPackage()){
-                inventoryPackage.setZIndex(10);
-                inventoryBar.setZIndex(0);
-            }
-
-                InventorySlot dragSlot = getDragInventorySlot();
-                InventorySlot dropSlot = getDropInventorySlot();
+                setZIndex();
+            
+                InventorySlot dragSlot = getDragInventorySlotAfterDrop();
                 
                 if (dragSlot != null)
                 {
+                    InventorySlot dropSlot = getDropInventorySlot(dragSlot);
                     dragSlot.drag = false;
                     dragSlot.drop = false;
                     dragSlot.touchDown = false;
@@ -343,12 +309,38 @@ public class Inventory implements Disposable{
                         Block item = dragSlot.getItem();
 
 
-                        dragSlot.numOfItem = 0;
-                        dragSlot.setItem(null);
-
-                        dropSlot.numOfItem = n;
-                        dropSlot.setItem(item);
-
+                        if (dropSlot.getItem() == null){
+                            if (dragSlot.splitItems)
+                            {
+                                n = dragSlot.numOfItem/2;
+                                dragSlot.numOfItem = n + dragSlot.numOfItem%2;
+                            }
+                            else
+                            {
+                                dragSlot.numOfItem = 0;
+                                dragSlot.setItem(null);
+                            }
+                            dropSlot.numOfItem = n;
+                            dropSlot.setItem(item);
+          
+                        }
+                        else if (dropSlot.getItem() == item){
+                            if (dragSlot.splitItems)
+                            {
+                                n = dragSlot.numOfItem/2;
+                                dragSlot.numOfItem = n + dragSlot.numOfItem%2;
+                            }
+                            else{
+                                dragSlot.numOfItem = 0;
+                                dragSlot.setItem(null);
+                            }
+                            dropSlot.numOfItem += n;
+                        }
+                        
+                        dragSlot.splitItems = false;
+                        
+                        if (dropSlot.getName() == "craftingArea")
+                            inventoryCraftingArea.craft();
                     }
                 }
             //mock.setPosition(MyGdxGame.width/2- mock.getWidth()/2, MyGdxGame.height - mock.getHeight() + 100);
@@ -369,6 +361,35 @@ public class Inventory implements Disposable{
     @Override
     public void dispose() {
         stageInventory.dispose();
+    }
+
+    private void setZIndex() {
+        //System.out.println(Inputs.instance.mouseX);
+        
+        if (inventoryBar.isDragInBar()){
+            inventoryBar.setZIndex(10);
+            inventoryPackage.setZIndex(0);
+            inventoryCraftingArea.setZIndex(0);
+            inventoryArmorSlots.setZIndex(0);
+        }
+        else if (inventoryPackage.isDragInPackage()){
+            inventoryBar.setZIndex(0);
+            inventoryPackage.setZIndex(10);
+            inventoryCraftingArea.setZIndex(0);
+            inventoryArmorSlots.setZIndex(0);
+        }
+        else if (inventoryCraftingArea.isDragInCraftingArea()){
+            inventoryBar.setZIndex(0);
+            inventoryPackage.setZIndex(0);
+            inventoryCraftingArea.setZIndex(10);
+            inventoryArmorSlots.setZIndex(0); 
+        }
+        else if (inventoryArmorSlots.isDragInArmorSlots()){
+            inventoryBar.setZIndex(0);
+            inventoryPackage.setZIndex(0);
+            inventoryCraftingArea.setZIndex(0);
+            inventoryArmorSlots.setZIndex(10);
+        }
     }
     
     

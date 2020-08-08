@@ -5,9 +5,7 @@
  */
 package com.mygdx.game.inventory;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.Skins;
 import com.mygdx.game.world.Block;
@@ -16,7 +14,7 @@ import com.mygdx.game.world.Block;
  *
  * @author Fery
  */
-public class InventoryPackage extends Table{
+public class InventoryPackage extends InventoryPack{
 
     
     public InventorySlot[][] inventoryPackageArray;
@@ -43,7 +41,7 @@ public class InventoryPackage extends Table{
         }
     }
     
-    public InventorySlot getDragInventorySlot(){
+    public InventorySlot getDragInventorySlotAfterDrop(){
         for (int y = 0; y < Inventory.numOfRow; y++) {
             for (int x = 0; x < Inventory.numOfCol; x++) {
                 if (inventoryPackageArray[x][y].drop)
@@ -86,6 +84,17 @@ public class InventoryPackage extends Table{
         return null;
     }
    
+    public InventorySlot getDropInventorySlot(IntVector2 pos){
+        
+        int x = (int)((pos.X-getX())/Inventory.sizeOfSlot);
+        int y = (int)((pos.Y-getY())/Inventory.sizeOfSlot);
+        //reverse idx
+        y = Inventory.numOfRow - (y+1);
+        
+        return isInRange(x, y) ? inventoryPackageArray[x][y] : null;
+
+    }
+    
     public boolean isDragInPackage(){
         for (int y = 0; y < Inventory.numOfRow; y++) {
             for (int x = 0; x < Inventory.numOfCol; x++) {
@@ -122,6 +131,4 @@ public class InventoryPackage extends Table{
         return (x >= 0 && x < Inventory.numOfCol && y >= 0 && y < Inventory.numOfRow);
     
     }
-    
-    
 }

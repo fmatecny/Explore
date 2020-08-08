@@ -7,16 +7,16 @@ package com.mygdx.game.inventory;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
+import com.mygdx.game.IntVector2;
 import com.mygdx.game.Skins;
 
 /**
  *
  * @author Fery
  */
-public class InventoryArmorSlots extends Table{
+public class InventoryArmorSlots extends InventoryPack{
 
     public InventorySlot[] inventoryArmorSlots;
     
@@ -54,13 +54,40 @@ public class InventoryArmorSlots extends Table{
             inventoryArmorSlots[i] = invenotryItem;
             this.add(invenotryItem).size(50);
             this.row();
-        }
-        
-        
-        
-        
+        }  
     }
     
+    public InventorySlot getDragInventorySlotAfterDrop(){
+        for (int i = 0; i < numOfSlots; i++) {
+            if (inventoryArmorSlots[i].drop)
+                return inventoryArmorSlots[i];
+        }
+        
+        return null;
+    }
     
+    public InventorySlot getDropInventorySlot(IntVector2 pos){
+        
+        int y = (int)((pos.Y-getY())/Inventory.sizeOfSlot);
+        //reverse idx
+        y = numOfSlots - (y+1);
+        
+        return isInRange(y) ? inventoryArmorSlots[y] : null;
+
+    }
+    
+    private boolean isInRange(int i){
+    
+        return i >= 0 && i < numOfSlots;
+    }
+    
+    public boolean isDragInArmorSlots(){
+        for (int y = 0; y < numOfSlots; y++) {
+            if (inventoryArmorSlots[y].drag)
+                return true;   
+        }
+        
+        return false;
+    }
     
 }
