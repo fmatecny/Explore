@@ -33,6 +33,8 @@ public class InventorySlot extends Table{
     public boolean splitItems = false;
     private IntVector2 dropPos = new IntVector2();
     
+    private int minItemsForSplit = 2;
+    
 
     public InventorySlot() {        
         font = new BitmapFont();
@@ -41,7 +43,6 @@ public class InventorySlot extends Table{
         addListener(new DragListener(){
         @Override
         public void drag(InputEvent event, float x, float y, int pointer) {
-            //System.out.println(getName() + " aa " + x + " aa " + y );
             if (touchDown)
                 drag = true;
         }
@@ -55,10 +56,10 @@ public class InventorySlot extends Table{
             if (numOfItem > 0 && Inputs.instance.showInventory && button == Input.Buttons.LEFT){
                 splitItems = false;
                 touchDown = true;}
-            else if (numOfItem >= 2 && Inputs.instance.showInventory && button == Input.Buttons.RIGHT){
+            else if (numOfItem >= minItemsForSplit && Inputs.instance.showInventory && button == Input.Buttons.RIGHT){
                 if (touchDown == false)
                     splitItems = true;
-                
+                drag = true;//drag function doeas not call for right button
                 touchDown = true;
             }
                 
@@ -151,6 +152,10 @@ public class InventorySlot extends Table{
 
     public void setItem(Block item) {
         this.item = item;
+    }
+
+    public void setMinItemsForSplit(int minItemsForSplit) {
+        this.minItemsForSplit = minItemsForSplit;
     }
 
     

@@ -24,6 +24,9 @@ public final class Constants {
     public static final int PLAYER_LEFT_BIT = 8;
     public static final int PLAYER_RIGHT_BIT = 2;
     public static final int BLOCK_BIT = 4;
+    
+    public static final int RECEPIE_PLANK = 1;
+    public static final int RECEPIE_HALF_PLANK = 2;
 
     private Constants() {
     }

@@ -30,8 +30,8 @@ public class Background {
         
         bgImg = new Texture(Gdx.files.internal("background/11_background.png"));
         bgClouds = new Texture(Gdx.files.internal("background/10_distant_clouds.png"));
-        bgHugeClouds = new Texture(Gdx.files.internal("background/07_huge_clouds.png"));
-        bgHill = new Texture(Gdx.files.internal("background/05_hill1.png"));
+        bgHugeClouds = new Texture(Gdx.files.internal("background/07_huge_clouds1.png"));
+        bgHill = new Texture(Gdx.files.internal("background/05_hill2.png"));
         bgBushes = new Texture(Gdx.files.internal("background/04_bushes.png"));
         
         
@@ -41,13 +41,19 @@ public class Background {
     public void drawBackground(Batch batch){
         x = GameScreen.camera.position.x-Constants.W_IN_M/2.0f;
         y = GameScreen.camera.position.y-Constants.H_IN_M/2.0f;
-       
+        
         batch.draw(bgImg, x, y, Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgClouds, x, y+0.9f, Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgHugeClouds, x, y+1, Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgHill, x, y+1, Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgBushes, x, y+0.7f, Constants.W_IN_M, Constants.H_IN_M);
-    
+        
+        batch.draw(bgClouds,        x*0.97f,                  y+0.9f,    Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHugeClouds,    x*0.95f,                  y+1,       Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHill,          x*0.91f,                  y+1,       Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgBushes,        x*0.87f,                  y+0.7f,    Constants.W_IN_M, Constants.H_IN_M);
+        
+        //TODO 
+        batch.draw(bgClouds,        x*0.97f+Constants.W_IN_M, y+0.9f,   Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHugeClouds,    x*0.95f+Constants.W_IN_M, y+1,      Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHill,          x*0.91f+Constants.W_IN_M, y+1,      Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgBushes,        x*0.87f+Constants.W_IN_M, y+0.7f,   Constants.W_IN_M, Constants.H_IN_M);    
     }
     
     

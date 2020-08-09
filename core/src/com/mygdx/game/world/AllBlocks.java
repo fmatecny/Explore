@@ -53,6 +53,7 @@ public class AllBlocks {
     public static Block window;
     
     public static Block plank;
+    public static Block half_plank;
     
     
     public static Texture heard;
@@ -144,6 +145,14 @@ public class AllBlocks {
         houseStone.textureRotation = 0;
         houseStone.texture = new Texture(Gdx.files.internal("block/rocky.png"));       */ 
 
+        half_plank = new Block();
+        half_plank.id = 14;
+        half_plank.blocked = false;
+        half_plank.hardness = 5;
+        half_plank.textureRotation = 0;
+        half_plank.texture = new Texture(Gdx.files.internal("block/plank_halfblock.png"));
+        
+        
         leaf = new Block();
         leaf.id = 7;
         leaf.blocked = true;

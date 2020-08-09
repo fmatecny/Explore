@@ -26,8 +26,8 @@ import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Background;
+import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
-import com.mygdx.game.world.water.Water;
 
 /**
  *
@@ -163,7 +163,7 @@ public class GameScreen implements Screen{
                 if (hitBody.getUserData() instanceof IntVector2)
                 {
                     IntVector2 v = (IntVector2)hitBody.getUserData();
-                    System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v.X + "|" + v.Y);
+                    //System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v.X + "|" + v.Y);
                     if (v != null){
                         if (map.getBlock(v.X, v.Y) != null){
                             map.getBlock(v.X, v.Y).textureRotation = 0;
@@ -190,7 +190,7 @@ public class GameScreen implements Screen{
             }
             
             if ( Inputs.instance.srdco )
-                spriteBatch.draw(AllBlocks.heard, 1, 1);
+                spriteBatch.draw(AllBlocks.heard, player.b2body.getPosition().x-Block.size/2, player.b2body.getPosition().y+Block.size*2, Block.size, Block.size);
         }       
         
         //spriteBatch.setProjectionMatrix(player.getInventory().getStageInventory().getCamera().combined);   

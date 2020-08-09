@@ -6,10 +6,10 @@
 package com.mygdx.game.inventory;
 
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.Skins;
 import com.mygdx.game.world.AllBlocks;
-import com.mygdx.game.world.Block;
 
 /**
  *
@@ -18,6 +18,7 @@ import com.mygdx.game.world.Block;
 public class InventoryCraftingArea extends InventoryPack{
     
     private final int size = 3;
+    private int recipies = 0;
     
     public InventorySlot[][] craftingSlots;
     public InventorySlot craftedItem;
@@ -70,23 +71,8 @@ public class InventoryCraftingArea extends InventoryPack{
                     invenotryCraftedItem.setTouchable(Touchable.enabled);
                     invenotryCraftedItem.setBackground(Skins.skin.getDrawable("cell"));
 
-                    /*invenotryCraftedItem.addListener(new ClickListener() {
-                    @Override
-                    public void clicked(InputEvent event, float x, float y) {
-                        System.out.println(invenotryCraftedItem.getName() + "   " + invenotryCraftedItem.getX() + " " + invenotryCraftedItem.getX());
-                        invenotryCraftedItem.drag = false;
-                    }
-                    }); 
-
-                    invenotryCraftedItem.addListener(new DragListener(){
-                    @Override
-                    public void drag(InputEvent event, float x, float y, int pointer) {
-                        System.out.println(invenotryCraftedItem.getName() + " aa " + x + " aa " + y + getDeltaX());
-                        invenotryCraftedItem.drag = true;
-                    }
-                    });*/
-                    
                     craftedItem = invenotryCraftedItem;
+                    craftedItem.setMinItemsForSplit(1000);
                     this.add(craftedItem).size(Inventory.sizeOfSlot);
                     
                 }  
@@ -138,23 +124,90 @@ public class InventoryCraftingArea extends InventoryPack{
     }
 
     public void craft() {
-        if (craftedItem.getItem() == null)
+        
+        recipies = getRecepies();
+        
+        switch (recipies) 
         {
-            if (craftingSlots[2][2].getItem() != null){
-                int n = craftingSlots[2][2].numOfItem;
-                Block item = craftingSlots[2][2].getItem();
-
-
-                craftingSlots[2][2].numOfItem--;
-                //craftingSlots[2][2].setItem(null);
-
-                craftedItem.numOfItem = 1;
-                craftedItem.setItem(item);
-
-            }
+            case Constants.RECEPIE_PLANK:
+                craftedItem.numOfItem = craftingSlots[1][1].numOfItem*4;
+                craftedItem.setItem(AllBlocks.plank);
+                //craftedItem.setMinItemsForSplit(8);
+                break;
+                
+            case Constants.RECEPIE_HALF_PLANK:
+                int n = Math.min(craftingSlots[1][2].numOfItem, craftingSlots[2][2].numOfItem);
+                craftedItem.numOfItem = n*2;
+                craftedItem.setItem(AllBlocks.half_plank);
+                //craftedItem.setMinItemsForSplit(8);
+                break; 
+                
+            default:
+                craftedItem.numOfItem = 0;
+                craftedItem.setItem(null);
+                //craftedItem.setMinItemsForSplit(2);
         }
+     
+    }
 
-            
+    public void updateCraft(int n) {
+        
+        switch (recipies) 
+        {
+            case Constants.RECEPIE_PLANK:
+                craftingSlots[1][1].numOfItem -= n/4;
+                break;
+                
+            case Constants.RECEPIE_HALF_PLANK:
+                craftingSlots[1][2].numOfItem -= n/2;
+                craftingSlots[2][2].numOfItem -= n/2;
+                break;
+                
+            default:
+                
+        }
+        
+    }
+
+    private int getRecepies() {
+       
+        if (
+            craftingSlots[0][0].getItem() == null &&
+            craftingSlots[0][1].getItem() == null &&
+            craftingSlots[0][2].getItem() == null &&
+            craftingSlots[1][0].getItem() == null &&
+            craftingSlots[1][1].getItem() != null &&
+            craftingSlots[1][2].getItem() == null &&
+            craftingSlots[2][0].getItem() == null &&
+            craftingSlots[2][1].getItem() == null &&
+            craftingSlots[2][2].getItem() == null
+            )
+            {
+            if (craftingSlots[1][1].getItem().id == AllBlocks.wood.id)
+                return Constants.RECEPIE_PLANK;
+            }
+        
+        if (
+            craftingSlots[0][0].getItem() == null &&
+            craftingSlots[0][1].getItem() == null &&
+            craftingSlots[0][2].getItem() == null &&
+            craftingSlots[1][0].getItem() == null &&
+            craftingSlots[1][1].getItem() == null &&
+            craftingSlots[1][2].getItem() != null &&
+            craftingSlots[2][0].getItem() == null &&
+            craftingSlots[2][1].getItem() == null &&
+            craftingSlots[2][2].getItem() != null
+            )
+            {
+            if (craftingSlots[1][2].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[2][2].getItem().id == AllBlocks.plank.id)
+                return Constants.RECEPIE_HALF_PLANK;
+            }
+        
+        
+        
+        
+        return -1;
     }
     
 }

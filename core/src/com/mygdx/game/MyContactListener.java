@@ -51,7 +51,7 @@ public class MyContactListener implements ContactListener {
             else if ( cDef == (Constants.PLAYER_RIGHT_BIT | Constants.BLOCK_BIT) ){
                 blockOnRight++;
             }
-            System.out.println(blockOnRight); 
+            //System.out.println(blockOnRight); 
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class MyContactListener implements ContactListener {
             else if ( cDef == (Constants.PLAYER_RIGHT_BIT | Constants.BLOCK_BIT) ){
                 blockOnRight--;
             }
-            System.out.println(blockOnRight);
+            //System.out.println(blockOnRight);
 	}
 
 	@Override

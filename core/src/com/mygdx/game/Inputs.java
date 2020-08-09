@@ -215,7 +215,7 @@ public class Inputs implements InputProcessor{
         if (scrollIdx > maxScrolIdx)
             scrollIdx = 0;
         
-        System.out.println(scrollIdx);
+        //System.out.println(scrollIdx);
         return false;
     }
     

@@ -38,7 +38,7 @@ public class InventoryArmorSlots extends InventoryPack{
             invenotryItem.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println(invenotryItem.getName() + "   " + invenotryItem.getX() + " " + invenotryItem.getX());
+                //System.out.println(invenotryItem.getName() + "   " + invenotryItem.getX() + " " + invenotryItem.getX());
                 invenotryItem.drag = false;
             }
             }); 
@@ -46,7 +46,7 @@ public class InventoryArmorSlots extends InventoryPack{
             invenotryItem.addListener(new DragListener(){
             @Override
             public void drag(InputEvent event, float x, float y, int pointer) {
-                System.out.println(invenotryItem.getName() + " aa " + x + " aa " + y + getDeltaX());
+                //System.out.println(invenotryItem.getName() + " aa " + x + " aa " + y + getDeltaX());
                 invenotryItem.drag = true;
             }
             });

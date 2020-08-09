@@ -235,7 +235,7 @@ public class Inventory implements Disposable{
         }
             
         IntVector2 dropPos = dragSlot.getDropPosition();
-        System.out.println(dropPos.X + "|||" + dropPos.Y);
+        //System.out.println(dropPos.X + "|||" + dropPos.Y);
         if (dropPos.X >= 0 && 
             dropPos.X <= Inventory.sizeOfSlot && 
             dropPos.Y >= 0 && 
@@ -339,8 +339,12 @@ public class Inventory implements Disposable{
                         
                         dragSlot.splitItems = false;
                         
-                        if (dropSlot.getName() == "craftingArea")
-                            inventoryCraftingArea.craft();
+                        if ("craftSlot".equals(dragSlot.getName()))
+                            inventoryCraftingArea.updateCraft(n);
+
+                        inventoryCraftingArea.craft();
+                        
+                            
                     }
                 }
             //mock.setPosition(MyGdxGame.width/2- mock.getWidth()/2, MyGdxGame.height - mock.getHeight() + 100);
