@@ -21,6 +21,7 @@ import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Skins;
+import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
 import static java.lang.Math.abs;
 
@@ -121,10 +122,16 @@ public class Inventory implements Disposable{
     }
     
     public void addItemToInvenotry(Block item){
-        if (item != null){
-            if (inventoryPackage.addItem(item) == false)
-                addItemToInvenotryBar(item);
+        if (item != null)
+        {
+            if (item.id == AllBlocks.door_down.id || item.id == AllBlocks.door_up.id)
+            {
+                //item.id = AllBlocks.door.id;
+                item.texture = AllBlocks.door.texture;
+            }
             
+            if (item.stackable == false || inventoryPackage.addItem(item) == false)
+                addItemToInvenotryBar(item);  
         }
     }
     
@@ -138,7 +145,7 @@ public class Inventory implements Disposable{
             slotItem = inventoryBarHUD.inventoryBar[i].getItem();
             if (slotItem == null)
                 emptySlot = i;
-            else if (slotItem.id == item.id)
+            else if (item.stackable && slotItem.id == item.id)
                 return i;
         }
 

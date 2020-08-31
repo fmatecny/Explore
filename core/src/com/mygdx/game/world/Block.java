@@ -25,7 +25,8 @@ public class Block extends Rectangle{
     public Texture texture;
     public boolean isRotationAllowed;
     public int textureRotation;
-
+    public boolean stackable;
+    
     private Body body = null;
     
 
@@ -36,7 +37,7 @@ public class Block extends Rectangle{
         this.texture = b.texture;
         this.textureRotation = b.textureRotation;
         this.isRotationAllowed = b.isRotationAllowed;
-        
+        this.stackable = b.stackable;
     }
 
     public Block() {

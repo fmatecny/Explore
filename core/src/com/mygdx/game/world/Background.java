@@ -9,7 +9,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.mygdx.game.Constants;
-import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.GameScreen;
 
 /**
@@ -41,6 +40,8 @@ public class Background {
     public void drawBackground(Batch batch){
         x = GameScreen.camera.position.x-Constants.W_IN_M/2.0f;
         y = GameScreen.camera.position.y-Constants.H_IN_M/2.0f;
+        
+        //System.err.println(x*0.87 + "aa" + GameScreen.camera.position.x);
         
         batch.draw(bgImg, x, y, Constants.W_IN_M, Constants.H_IN_M);
         

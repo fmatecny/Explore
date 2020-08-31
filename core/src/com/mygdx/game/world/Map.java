@@ -238,14 +238,38 @@ public class Map extends WorldObject{
     }    
         
     public void removeBlock(int x, int y){
+            if (mapArray[x][y].id == AllBlocks.door_down.id)
+                removeBody(x, y+1);
+            if (mapArray[x][y].id == AllBlocks.door_up.id)
+                removeBody(x, y-1);
             removeBody(x, y);
+            
+            if (mapArray[x][y].id == AllBlocks.door_down.id)
+                mapArray[x][y+1] = null;
+            if (mapArray[x][y].id == AllBlocks.door_up.id)
+                mapArray[x][y-1] = null;
+            
             mapArray[x][y] = null;
     }
     
-    public void addBodyToIdx(int x, int y, Block b){
+    public boolean addBodyToIdx(int x, int y, Block b){
         //create new body beacuse in Inventar is only one body 
-        mapArray[x][y] = new Block(b);
+        if (b.id == AllBlocks.door.id || b.id == AllBlocks.door_up.id || b.id == AllBlocks.door_down.id)
+        {
+            if (mapArray[x][y+1] != null)
+                return false;
+            
+            mapArray[x][y] = new Block(AllBlocks.door_down);
+            mapArray[x][y+1] = new Block(AllBlocks.door_up);
+            mapArray[x][y+1].setBody(createBodie(GameScreen.world, x, y+1, b.blocked));
+        }
+        else{
+            mapArray[x][y] = new Block(b);
+        }
+        
         mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, b.blocked));
+        
+        return true;
     }
     
     public void removeBody(int x, int y){

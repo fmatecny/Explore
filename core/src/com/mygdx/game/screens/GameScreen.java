@@ -173,16 +173,17 @@ public class GameScreen implements Screen{
                     }
                 }
             }
-            else if (Inputs.instance.mouseMiddle &&  hitBody != null && allowRotation)
+            else if (Inputs.instance.mouseMiddle &&  hitBody != null && hitBody.getUserData() instanceof IntVector2 && allowRotation)
             {
                 allowRotation = false;
                 map.rotateBlock(hitBody);   
             }
             else if (Inputs.instance.mouseRight && hitBody == null)
             {
-                if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isEmpty() == false){
-                    player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
-                    map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getItem());      
+                if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isEmpty() == false)
+                {
+                    if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getItem()))
+                       player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--; 
                 }
             }
             else if (!Inputs.instance.mouseMiddle){

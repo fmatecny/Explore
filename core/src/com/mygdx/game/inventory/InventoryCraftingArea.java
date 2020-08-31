@@ -126,6 +126,7 @@ public class InventoryCraftingArea extends InventoryPack{
     public void craft() {
         
         recipies = getRecepies();
+        int n;
         
         switch (recipies) 
         {
@@ -136,12 +137,33 @@ public class InventoryCraftingArea extends InventoryPack{
                 break;
                 
             case Constants.RECEPIE_HALF_PLANK:
-                int n = Math.min(craftingSlots[1][2].numOfItem, craftingSlots[2][2].numOfItem);
+                n = Math.min(craftingSlots[1][2].numOfItem, craftingSlots[2][2].numOfItem);
                 craftedItem.numOfItem = n*2;
                 craftedItem.setItem(AllBlocks.half_plank);
                 //craftedItem.setMinItemsForSplit(8);
                 break; 
                 
+            case Constants.RECEPIE_WOOD_STAIRS:
+                n = Math.min(craftingSlots[0][0].numOfItem, craftingSlots[0][1].numOfItem);
+                n = Math.min(n, craftingSlots[0][2].numOfItem);
+                n = Math.min(n, craftingSlots[1][1].numOfItem);
+                n = Math.min(n, craftingSlots[1][2].numOfItem);
+                n = Math.min(n, craftingSlots[2][2].numOfItem);
+                craftedItem.numOfItem = n*4;
+                craftedItem.setItem(AllBlocks.wood_stairs);
+                //craftedItem.setMinItemsForSplit(8);
+                break; 
+                
+            case Constants.RECEPIE_WOOD_DOOR:
+                n = Math.min(craftingSlots[0][0].numOfItem, craftingSlots[0][1].numOfItem);
+                n = Math.min(n, craftingSlots[0][2].numOfItem);
+                n = Math.min(n, craftingSlots[1][0].numOfItem);
+                n = Math.min(n, craftingSlots[1][1].numOfItem);
+                n = Math.min(n, craftingSlots[1][2].numOfItem);
+                craftedItem.numOfItem = n;
+                craftedItem.setItem(AllBlocks.door);
+                //craftedItem.setMinItemsForSplit(8);
+                break;     
             default:
                 craftedItem.numOfItem = 0;
                 craftedItem.setItem(null);
@@ -162,6 +184,25 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftingSlots[1][2].numOfItem -= n/2;
                 craftingSlots[2][2].numOfItem -= n/2;
                 break;
+                
+            case Constants.RECEPIE_WOOD_STAIRS:
+                craftingSlots[0][0].numOfItem -= n/4;
+                craftingSlots[0][1].numOfItem -= n/4;
+                craftingSlots[0][2].numOfItem -= n/4;
+                craftingSlots[1][1].numOfItem -= n/4;
+                craftingSlots[1][2].numOfItem -= n/4;
+                craftingSlots[2][2].numOfItem -= n/4;
+                break;
+                
+            case Constants.RECEPIE_WOOD_DOOR:
+                craftingSlots[0][0].numOfItem -= n;
+                craftingSlots[0][1].numOfItem -= n;
+                craftingSlots[0][2].numOfItem -= n;
+                craftingSlots[1][0].numOfItem -= n;
+                craftingSlots[1][1].numOfItem -= n;
+                craftingSlots[1][2].numOfItem -= n;
+                break;    
+                
                 
             default:
                 
@@ -204,8 +245,47 @@ public class InventoryCraftingArea extends InventoryPack{
                 return Constants.RECEPIE_HALF_PLANK;
             }
         
+        if (
+            craftingSlots[0][0].getItem() != null &&
+            craftingSlots[0][1].getItem() != null &&
+            craftingSlots[0][2].getItem() != null &&
+            craftingSlots[1][0].getItem() == null &&
+            craftingSlots[1][1].getItem() != null &&
+            craftingSlots[1][2].getItem() != null &&
+            craftingSlots[2][0].getItem() == null &&
+            craftingSlots[2][1].getItem() == null &&
+            craftingSlots[2][2].getItem() != null
+            )
+            {
+            if (craftingSlots[0][0].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[0][1].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[0][2].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[1][1].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[1][2].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[2][2].getItem().id == AllBlocks.plank.id)
+                return Constants.RECEPIE_WOOD_STAIRS;
+            }
         
-        
+        if (
+            craftingSlots[0][0].getItem() != null &&
+            craftingSlots[0][1].getItem() != null &&
+            craftingSlots[0][2].getItem() != null &&
+            craftingSlots[1][0].getItem() != null &&
+            craftingSlots[1][1].getItem() != null &&
+            craftingSlots[1][2].getItem() != null &&
+            craftingSlots[2][0].getItem() == null &&
+            craftingSlots[2][1].getItem() == null &&
+            craftingSlots[2][2].getItem() == null
+            )
+            {
+            if (craftingSlots[0][0].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[0][1].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[0][2].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[1][0].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[1][1].getItem().id == AllBlocks.plank.id &&
+                craftingSlots[1][2].getItem().id == AllBlocks.plank.id)
+                return Constants.RECEPIE_WOOD_DOOR;
+            }
         
         return -1;
     }
