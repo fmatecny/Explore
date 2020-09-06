@@ -25,6 +25,7 @@ import com.mygdx.game.MyContactListener;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.world.AllBlocks;
+import com.mygdx.game.inventory.AllItems;
 import com.mygdx.game.world.Background;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
@@ -47,6 +48,7 @@ public class GameScreen implements Screen{
     private SpriteBatch spriteBatch;
     
     public static AllBlocks allBlocks = new AllBlocks();
+    public static AllItems allItems = new AllItems();
     private final Background bck;
     private final Map map;
     private final Player player;
@@ -166,9 +168,9 @@ public class GameScreen implements Screen{
                     //System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v.X + "|" + v.Y);
                     if (v != null){
                         if (map.getBlock(v.X, v.Y) != null){
-                            map.getBlock(v.X, v.Y).textureRotation = 0;
-                            player.getInventory().addItemToInvenotry(map.getBlock(v.X, v.Y));
-                            map.removeBlock(v.X, v.Y);
+                            //map.getBlock(v.X, v.Y).textureRotation = 0;
+                            if (player.getInventory().addBlockToInvenotry(map.getBlock(v.X, v.Y)))
+                                map.removeBlock(v.X, v.Y);
                         }
                     }
                 }
@@ -180,9 +182,9 @@ public class GameScreen implements Screen{
             }
             else if (Inputs.instance.mouseRight && hitBody == null)
             {
-                if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isEmpty() == false)
+                if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isBlock())
                 {
-                    if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getItem()))
+                    if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock()))
                        player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--; 
                 }
             }

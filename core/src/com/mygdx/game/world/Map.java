@@ -89,7 +89,7 @@ public class Map extends WorldObject{
             if (percent > 70) {
                 generateHouse();
             }
-            else if (percent > 40){
+            else if (percent > 20){
                 createTrees();
             }
             else{

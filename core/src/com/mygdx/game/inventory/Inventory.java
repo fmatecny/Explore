@@ -107,46 +107,56 @@ public class Inventory implements Disposable{
 
     }
     
-    private void addItemToInvenotryBar(Block item){
-        if (item != null)
+    private boolean addBlockToInvenotryBar(Block block){
+        if (block != null)
         {
-            int i = getIdxOfItemInInventoryBar(item);
+            int i = getIdxOfBlockInInventoryBar(block);
             if (i != -1)
             {
-                inventoryBarHUD.inventoryBar[i].setItem(item);
+                inventoryBarHUD.inventoryBar[i].setObject(block);
                 inventoryBarHUD.inventoryBar[i].numOfItem++;
-                inventoryBar.inventoryBar[i].setItem(item);
+                inventoryBar.inventoryBar[i].setObject(block);
                 inventoryBar.inventoryBar[i].numOfItem++;
+                return true;
             }
+            return false;
         }
+        return true;
     }
     
-    public void addItemToInvenotry(Block item){
-        if (item != null)
+    public boolean addBlockToInvenotry(Block block){
+        if (block != null)
         {
-            if (item.id == AllBlocks.door_down.id || item.id == AllBlocks.door_up.id)
+            if (block.id == AllBlocks.door_down.id || block.id == AllBlocks.door_up.id)
             {
                 //item.id = AllBlocks.door.id;
-                item.texture = AllBlocks.door.texture;
+                block.texture = AllBlocks.door.texture;
             }
             
-            if (item.stackable == false || inventoryPackage.addItem(item) == false)
-                addItemToInvenotryBar(item);  
+            if (addBlockToInvenotryBar(block))
+                return true;
+            else{
+                return inventoryPackage.addItem(block);
+            }                
         }
+        return true;
     }
     
-    public int getIdxOfItemInInventoryBar(Block item){
+    public int getIdxOfBlockInInventoryBar(Block block){
         
         Block slotItem;
         int emptySlot = -1;
         
         for (int i = numOfCol-1; i >= 0; i--) 
         {
-            slotItem = inventoryBarHUD.inventoryBar[i].getItem();
-            if (slotItem == null)
+            slotItem = inventoryBarHUD.inventoryBar[i].getBlock();
+            if (inventoryBarHUD.inventoryBar[i].isEmpty())
                 emptySlot = i;
-            else if (item.stackable && slotItem.id == item.id)
-                return i;
+            else if (slotItem != null)
+            {
+                if (block.stackable && slotItem.id == block.id)
+                    return i;
+            }
         }
 
         return emptySlot;
@@ -154,15 +164,17 @@ public class Inventory implements Disposable{
     
     private void synchronizeHUDBar(){
         for (int i = 0; i < numOfCol; i++) {
-            inventoryBarHUD.inventoryBar[i].setItem(inventoryBar.inventoryBar[i].getItem());
-            inventoryBarHUD.inventoryBar[i].numOfItem = inventoryBar.inventoryBar[i].numOfItem;
+            //inventoryBarHUD.inventoryBar[i] = inventoryBar.inventoryBar[i];
+            inventoryBarHUD.inventoryBar[i].setObject(inventoryBar.inventoryBar[i]);
+            //inventoryBarHUD.inventoryBar[i].numOfItem = inventoryBar.inventoryBar[i].numOfItem;
         }
     }
     
     private void synchronizeInventoryBar(){
         for (int i = 0; i < numOfCol; i++) {
-            inventoryBar.inventoryBar[i].setItem(inventoryBarHUD.inventoryBar[i].getItem());
-            inventoryBar.inventoryBar[i].numOfItem = inventoryBarHUD.inventoryBar[i].numOfItem;
+            //inventoryBar.inventoryBar[i] = inventoryBarHUD.inventoryBar[i];
+            inventoryBar.inventoryBar[i].setObject(inventoryBarHUD.inventoryBar[i]);
+            //inventoryBar.inventoryBar[i].numOfItem = inventoryBarHUD.inventoryBar[i].numOfItem;
         }
     }
     
@@ -313,25 +325,28 @@ public class Inventory implements Disposable{
                     if (dropSlot != null)
                     { 
                         int n = dragSlot.numOfItem;
-                        Block item = dragSlot.getItem();
+                        //Block item = dragSlot.getBlock();
 
-
-                        if (dropSlot.getItem() == null){
+                        if (dropSlot.isEmpty())
+                        {
                             if (dragSlot.splitItems)
                             {
                                 n = dragSlot.numOfItem/2;
                                 dragSlot.numOfItem = n + dragSlot.numOfItem%2;
+                                dropSlot.setObject(dragSlot, n);
                             }
                             else
                             {
+                                dropSlot.setObject(dragSlot);
                                 dragSlot.numOfItem = 0;
-                                dragSlot.setItem(null);
+                                dragSlot.removeObject();
                             }
-                            dropSlot.numOfItem = n;
-                            dropSlot.setItem(item);
+                            //dropSlot.numOfItem = n;
+                            //dropSlot.setObject(dragSlot, n);
           
                         }
-                        else if (dropSlot.getItem() == item){
+                        else if (dropSlot.hasObject(dragSlot))
+                        {
                             if (dragSlot.splitItems)
                             {
                                 n = dragSlot.numOfItem/2;
@@ -339,7 +354,7 @@ public class Inventory implements Disposable{
                             }
                             else{
                                 dragSlot.numOfItem = 0;
-                                dragSlot.setItem(null);
+                                dragSlot.removeObject();
                             }
                             dropSlot.numOfItem += n;
                         }

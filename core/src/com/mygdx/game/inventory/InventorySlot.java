@@ -6,6 +6,7 @@
 package com.mygdx.game.inventory;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -14,8 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
+import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
-import java.awt.event.MouseEvent;
 
 /**
  *
@@ -24,9 +25,11 @@ import java.awt.event.MouseEvent;
 public class InventorySlot extends Table{
     
     public int numOfItem;
-    private BitmapFont font;
-    private Block item = null;
+    private Block block = null;
+    private Item item = null;
+    private Texture texture;
 
+    private BitmapFont font;
     public boolean drag = false;
     public boolean drop = false;
     public boolean touchDown = false;
@@ -61,8 +64,7 @@ public class InventorySlot extends Table{
                     splitItems = true;
                 drag = true;//drag function doeas not call for right button
                 touchDown = true;
-            }
-                
+            }  
             return touchDown;
         }
 
@@ -73,69 +75,15 @@ public class InventorySlot extends Table{
             {
                 drop = true;
                 dropPos.setXY((int) x, (int) y);
-            }
-                
+            }      
         }
         });
         
     }
-    
-    
-    @Override
-    public void draw(Batch batch, float parentAlpha){
-        super.draw(batch, parentAlpha);
-        
-        checkItem();
-        
-        if (isEmpty() == false)
-        {
-            
-            if (touchDown)
-            {
-                
-                if (splitItems)
-                {
-                    
-                    batch.draw(item.texture, 
-                            getX()+10, getY()+10,  
-                            getWidth()-20, getHeight()-20);
-                    font.draw(batch, Integer.toString(numOfItem/2 + numOfItem%2), getX()+30, getY()+20);
-                    this.setZIndex(50);
-                    batch.draw(item.texture, 
-                            Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
-                            getWidth()-15, getHeight()-15);
-                    font.draw(batch, Integer.toString(numOfItem/2), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
-                }
-                else{
-                    this.setZIndex(50);
-                    batch.draw(item.texture, 
-                            Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
-                            getWidth()-15, getHeight()-15);
-                    font.draw(batch, Integer.toString(numOfItem), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
-                }
-                
-                
-            }
-            else
-            {
-                this.setZIndex(1);
-                batch.draw(item.texture, 
-                        getX()+10, getY()+10,  
-                        getWidth()-20, getHeight()-20);
-                font.draw(batch, Integer.toString(numOfItem), getX()+30, getY()+20);
 
-            }
-        }
-        
-
-        
-
-    }
-    
-    
-    private void checkItem(){
+    private void checkObject(){
         if (numOfItem <= 0)
-            item = null;
+            removeObject();     
     }
     
     public IntVector2 getDropPosition(){
@@ -143,21 +91,122 @@ public class InventorySlot extends Table{
     }
 
     public boolean isEmpty(){
-        return (numOfItem <= 0 || item == null);
+        return (numOfItem <= 0 || (block == null && item == null) || texture == null);
     }
 
-    public Block getItem() {
+    public boolean isBlock(){
+        return (numOfItem > 0 && block != null && texture != null);
+    }
+    
+    public Block getBlock() {
+        return block;
+    }
+
+    public Item getItem() {
         return item;
     }
-
-    public void setItem(Block item) {
-        this.item = item;
+    
+    public void setObject(InventorySlot slot, int n){
+        this.numOfItem = n;
+        
+        if (slot.block != null)
+        {
+            setObject(slot.block);
+        }
+        else if(slot.item != null)
+        {
+            setObject(slot.item);
+        }
+        else{
+            removeObject();
+        }
+    }
+    
+    public void setObject(InventorySlot slot) {
+        setObject(slot, slot.numOfItem);
+    }
+    
+    public void setObject(Block block) {
+        if (block != null)
+        {
+            this.block = block;
+            this.texture = block.texture;
+            this.block.textureRotation = 0;
+        }
+    }
+    
+    public void setObject(Item item) {
+        if (item != null)
+        {
+            this.item = item;
+            this.texture = item.texture;
+        }  
     }
 
-    public void setMinItemsForSplit(int minItemsForSplit) {
+    public void removeObject() {
+        this.block = null;
+        this.item = null;
+        this.texture = null;
+    }
+    
+    public void setMinObjectsForSplit(int minItemsForSplit) {
         this.minItemsForSplit = minItemsForSplit;
     }
 
+    public boolean hasObject(InventorySlot dragSlot) {
+        if (this.block != null && dragSlot.getBlock() != null)
+        {
+            if (this.block == dragSlot.getBlock())
+                return true;
+        }
+        
+        if (this.item != null && dragSlot.getItem() != null)
+        {
+            if (this.item == dragSlot.getItem())
+                return true;
+        }
+        
+        return false;
+    }
     
-    
+    @Override
+    public void draw(Batch batch, float parentAlpha){
+        super.draw(batch, parentAlpha);
+        
+        checkObject();
+        
+        if (isEmpty() == false)
+        {
+            if (touchDown)
+            {
+                if (splitItems)
+                { 
+                    batch.draw(texture, 
+                            getX()+10, getY()+10,  
+                            getWidth()-20, getHeight()-20);
+                    font.draw(batch, Integer.toString(numOfItem/2 + numOfItem%2), getX()+30, getY()+20);
+                    this.setZIndex(50);
+                    batch.draw(texture, 
+                            Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
+                            getWidth()-15, getHeight()-15);
+                    font.draw(batch, Integer.toString(numOfItem/2), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
+                }
+                else{
+                    this.setZIndex(50);
+                    batch.draw(texture, 
+                            Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
+                            getWidth()-15, getHeight()-15);
+                    font.draw(batch, Integer.toString(numOfItem), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
+                }  
+            }
+            else
+            {
+                this.setZIndex(1);
+                batch.draw(texture, 
+                        getX()+10, getY()+10,  
+                        getWidth()-20, getHeight()-20);
+                font.draw(batch, Integer.toString(numOfItem), getX()+30, getY()+20);
+            }
+        }
+    } 
 }

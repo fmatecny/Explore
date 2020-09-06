@@ -5,24 +5,21 @@
  */
 package com.mygdx.game.world;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.mygdx.game.inventory.InventoryObject;
 import com.mygdx.game.screens.GameScreen;
 
 /**
  *
  * @author Fery
  */
-public class Block extends Rectangle{
+public class Block extends InventoryObject{
     public static final int size_in_pixels = 40;
     public static final float size = size_in_pixels/GameScreen.PPM;
  
         
-    public int id;
     public int hardness;
     public boolean blocked;
-    public Texture texture;
     public boolean isRotationAllowed;
     public int textureRotation;
     public boolean stackable;

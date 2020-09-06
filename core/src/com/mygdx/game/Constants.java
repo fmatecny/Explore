@@ -29,6 +29,7 @@ public final class Constants {
     public static final int RECEPIE_HALF_PLANK = 2;
     public static final int RECEPIE_WOOD_STAIRS = 3;
     public static final int RECEPIE_WOOD_DOOR = 4;
+    public static final int RECEPIE_STICK = 5;
 
     private Constants() {
     }

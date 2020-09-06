@@ -90,7 +90,7 @@ public class InventoryBar extends InventoryPack{
         }
         if (x >= 0 && x < Inventory.numOfCol && 
             yPos >= 0 && yPos < Inventory.sizeOfSlot && 
-            inventoryBar[x].getItem() == null)
+            inventoryBar[x].getBlock() == null)
             return inventoryBar[x];
         
         return null;

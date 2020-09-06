@@ -76,7 +76,7 @@ public class InventoryPackage extends InventoryPack{
                     
                     if (xIdx >= 0 && xIdx < Inventory.numOfCol && 
                         yIdx >= 0 && yIdx < Inventory.numOfRow && 
-                        inventoryPackageArray[xIdx][yIdx].getItem() == null)
+                        inventoryPackageArray[xIdx][yIdx].getBlock() == null)
                         return inventoryPackageArray[xIdx][yIdx];
                 }         
             } 
@@ -108,7 +108,7 @@ public class InventoryPackage extends InventoryPack{
     public boolean addItem(Block item){
         IntVector2 index = getSlotIdx(item);
         if (index != null){
-            inventoryPackageArray[index.X][index.Y].setItem(item);
+            inventoryPackageArray[index.X][index.Y].setObject(item);
             inventoryPackageArray[index.X][index.Y].numOfItem++;
             return true;
         } 
@@ -116,15 +116,32 @@ public class InventoryPackage extends InventoryPack{
     }
     
     public IntVector2 getSlotIdx(Block item){
-        for (int y = 0; y < Inventory.numOfRow; y++) {
-            for (int x = 0; x < Inventory.numOfCol; x++) {
-                if (inventoryPackageArray[x][y].getItem() != null)
-                    if (inventoryPackageArray[x][y].getItem().id == item.id)
-                        return (new IntVector2(x , y));   
+        IntVector2 idx = new IntVector2(-1,-1);
+        
+        for (int y = 0; y < Inventory.numOfRow; y++) 
+        {
+            for (int x = 0; x < Inventory.numOfCol; x++) 
+            {
+
+                if (inventoryPackageArray[x][y].getBlock() != null)
+                {
+                    if (inventoryPackageArray[x][y].getBlock().id == item.id)
+                    {
+                        idx.X = x;
+                        idx.Y = y;
+                        return idx;
+                    }        
+                }
+                else if (inventoryPackageArray[x][y].isEmpty()){
+                    idx.X = x;
+                    idx.Y = y;
+                }
             }
         }
-    
-        return null;
+        if (idx.X == -1)
+            return null;
+        
+        return idx;
     }
     
     private boolean isInRange(int x, int y){
