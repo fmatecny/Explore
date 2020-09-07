@@ -70,7 +70,8 @@ public class Player {
         
         addSprites();
         definePlayer();
-        inventory = new Inventory(spriteBatch);
+        //inventory = new Inventory(spriteBatch);
+        inventory = new Inventory();
         hud = new HUD();
         
     }

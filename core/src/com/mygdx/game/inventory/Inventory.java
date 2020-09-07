@@ -63,9 +63,9 @@ public class Inventory implements Disposable{
     private Stage stageInventory;
     
 
-    public Inventory(SpriteBatch spriteBatch) {
+    public Inventory() {
         
-        stageInventory = new Stage(new FitViewport(MyGdxGame.width,MyGdxGame.height,new OrthographicCamera()),spriteBatch);
+        stageInventory = new Stage(new FitViewport(MyGdxGame.width,MyGdxGame.height,new OrthographicCamera()),new SpriteBatch());
         
         multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(Inputs.instance);

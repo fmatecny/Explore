@@ -10,6 +10,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -29,6 +30,7 @@ import com.mygdx.game.inventory.AllItems;
 import com.mygdx.game.world.Background;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
+import com.mygdx.game.world.Shaders;
 
 /**
  *
@@ -62,7 +64,8 @@ public class GameScreen implements Screen{
     public static World world;
     
     private Box2DDebugRenderer debugRenderer;
-
+    
+    private Shaders shaders;
 
     QueryCallback callback = new QueryCallback() 
     {
@@ -86,6 +89,12 @@ public class GameScreen implements Screen{
 
         spriteBatch = new SpriteBatch();
         
+        // Create shaders
+        shaders = new Shaders();
+        
+        //shaders.setDefaultShader(spriteBatch);
+        //shaders.setVignetteShader(spriteBatch);
+            
         // Create box2d world
         world = new World(new Vector2(0, -10), true);
         //world.setContactListener(new MyContactListener());
@@ -110,7 +119,7 @@ public class GameScreen implements Screen{
     public void show() {
         stage.clear();
         Gdx.input.setInputProcessor(Inputs.instance);
-        world.setContactListener(new MyContactListener());
+        world.setContactListener(new MyContactListener());   
     }
     
     @Override
@@ -204,14 +213,13 @@ public class GameScreen implements Screen{
         //show debug informations
         if (Inputs.instance.debugMode)
         {
-            spriteBatch.setProjectionMatrix(debugHUD.getStageHUD().getCamera().combined);
-            debugHUD.draw(player, spriteBatch,cam);
+            //spriteBatch.setProjectionMatrix(debugHUD.getStageHUD().getCamera().combined);
+            debugHUD.draw(player,cam);
             debugRenderer.render(world, camera.combined);
         }
 
-
+        shaders.updatePlayerPos(player, cam, camera);
         
-
         stage.draw();
     }
 
@@ -246,6 +254,7 @@ public class GameScreen implements Screen{
     public void resize(int width, int height) {
         // change the stage's viewport when the screen size is changed
         stage.getViewport().update(width, height, true);
+        shaders.updateValues(width, height);
     } 
     
     @Override

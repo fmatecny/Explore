@@ -36,6 +36,8 @@ public class DebugHUD implements Disposable{
     
     private OrthographicCamera camera;
     
+    private SpriteBatch batch = new SpriteBatch();
+    
     public DebugHUD(SpriteBatch spriteBatch) {
         font = new BitmapFont();
         //this.camera = camera;
@@ -48,11 +50,11 @@ parameter.size = 12;*/
 //generator.dispose(); // don't forget to dispose to avoid memory leaks!
        
 camera = new OrthographicCamera();
-stageHUD = new Stage(new FitViewport(MyGdxGame.width,MyGdxGame.height,camera),spriteBatch);
+stageHUD = new Stage(new FitViewport(MyGdxGame.width,MyGdxGame.height,camera),batch);
 
     }
     
-    public void draw(Player player, SpriteBatch batch, Vector2 cam){
+    public void draw(Player player, Vector2 cam){
         //stageHUD.draw();
         createDebugInfo(player, cam);
         //font.getData().setScale(0.1f);
