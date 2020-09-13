@@ -10,7 +10,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -20,6 +19,7 @@ import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyContactListener;
@@ -31,6 +31,7 @@ import com.mygdx.game.world.Background;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
 import com.mygdx.game.world.Shaders;
+import com.mygdx.game.world.Shaders_box2dlights;
 
 /**
  *
@@ -65,7 +66,11 @@ public class GameScreen implements Screen{
     
     private Box2DDebugRenderer debugRenderer;
     
-    private Shaders shaders;
+    //private Shaders shaders;
+    private Shaders_box2dlights shaders_box2dlights;
+    
+    private double worldTime = Constants.HOUR_IN_SECONDS*(Constants.SUNRISE_HOUR+Constants.SUNRISE_DURATION);
+    private double currentHour = 0.0;
 
     QueryCallback callback = new QueryCallback() 
     {
@@ -90,7 +95,7 @@ public class GameScreen implements Screen{
         spriteBatch = new SpriteBatch();
         
         // Create shaders
-        shaders = new Shaders();
+        //shaders = new Shaders();
         
         //shaders.setDefaultShader(spriteBatch);
         //shaders.setVignetteShader(spriteBatch);
@@ -98,6 +103,9 @@ public class GameScreen implements Screen{
         // Create box2d world
         world = new World(new Vector2(0, -10), true);
         //world.setContactListener(new MyContactListener());
+        
+        shaders_box2dlights = new Shaders_box2dlights();
+        
         debugRenderer = new Box2DDebugRenderer();   
         
         // Create map - blocks, houses, trees...
@@ -112,7 +120,7 @@ public class GameScreen implements Screen{
         //villager = new Villager(stage);
         
         // Create debug HUD
-        debugHUD = new DebugHUD(spriteBatch);
+        debugHUD = new DebugHUD(spriteBatch);   
     }
     
     @Override
@@ -125,13 +133,29 @@ public class GameScreen implements Screen{
     @Override
     public void render(float f) {
 
+        worldTime += Gdx.graphics.getDeltaTime();
+        //System.err.println(worldTime);
+       /* 
+        if (worldTime > 20){
+            worldTime = 0;
+            shaders.setDefaultShader(spriteBatch);
+            
+        }else if (worldTime > 10){
+            shaders.setVignetteShader(spriteBatch);
+        }
+            */
+        currentHour = (worldTime%Constants.DAY_IN_SECONDS)/Constants.HOUR_IN_SECONDS;
+        
+        shaders_box2dlights.updateSun(currentHour);
+       
+       
         if (Inputs.instance.pause){
             parent.changeScreen(MyGdxGame.PAUSE);
             return;
         }
         
         // clear the screen ready for next set of images to be drawn
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         world.step(1 / 60f, 6, 2);
@@ -208,18 +232,22 @@ public class GameScreen implements Screen{
         //spriteBatch.setProjectionMatrix(player.getInventory().getStageInventory().getCamera().combined);   
         spriteBatch.end();
         
+        shaders_box2dlights.updateRayHandler();
+        
         player.getInventory().draw();
         
         //show debug informations
         if (Inputs.instance.debugMode)
         {
             //spriteBatch.setProjectionMatrix(debugHUD.getStageHUD().getCamera().combined);
-            debugHUD.draw(player,cam);
+            debugHUD.draw(player,cam, currentHour);
             debugRenderer.render(world, camera.combined);
         }
 
-        shaders.updatePlayerPos(player, cam, camera);
+        //shaders.updatePlayerPos(player, cam, camera);
         
+        
+      
         stage.draw();
     }
 
@@ -254,7 +282,7 @@ public class GameScreen implements Screen{
     public void resize(int width, int height) {
         // change the stage's viewport when the screen size is changed
         stage.getViewport().update(width, height, true);
-        shaders.updateValues(width, height);
+        //shaders.updateValues(width, height);
     } 
     
     @Override
@@ -276,10 +304,13 @@ public class GameScreen implements Screen{
     public void dispose() {
         player.dispose();
         // dispose of assets when not needed anymore
-        stage.dispose();    
+        stage.dispose();   
+        
+        //shaders.dispose();
+        shaders_box2dlights.dispose();
     }
 
     public SpriteBatch getSpriteBatch() {
         return spriteBatch;
-    }  
+    } 
 }

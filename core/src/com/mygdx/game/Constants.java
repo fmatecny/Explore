@@ -24,6 +24,7 @@ public final class Constants {
     public static final int PLAYER_LEFT_BIT = 8;
     public static final int PLAYER_RIGHT_BIT = 2;
     public static final int BLOCK_BIT = 4;
+    public static final int UNBLOCK_BIT = 16;
     
     public static final int RECEPIE_PLANK = 1;
     public static final int RECEPIE_HALF_PLANK = 2;
@@ -31,6 +32,16 @@ public final class Constants {
     public static final int RECEPIE_WOOD_DOOR = 4;
     public static final int RECEPIE_STICK = 5;
 
+    public static final int DAY_IN_SECONDS = 600;
+    public static final float HOUR_IN_SECONDS = DAY_IN_SECONDS/24;
+    public static final int SUNRISE_HOUR = 4;
+    public static final int SUNRISE_DURATION = 4;
+    public static final int SUNSET_HOUR = 18;
+    public static final int SUNSET_DURATION = 4;
+    public static final float ALPHA_MIN = 0.3f;
+    public static final float ALPHA_MAX = 1.0f;
+    
+    
     private Constants() {
     }
 }

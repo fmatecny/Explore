@@ -42,6 +42,8 @@ public abstract class WorldObject {
         fixtureDef.isSensor = !blocked;
         if (blocked)
             fixtureDef.filter.categoryBits = Constants.BLOCK_BIT;
+        else
+            fixtureDef.filter.categoryBits = Constants.UNBLOCK_BIT;
         //fixtureDef.density = 0.5f;
         //fixtureDef.friction = 0.5f;
         //fixtureDef.restitution = 0.5f;

@@ -22,6 +22,7 @@ import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
+import java.text.DecimalFormat;
 
 /**
  *
@@ -54,9 +55,9 @@ stageHUD = new Stage(new FitViewport(MyGdxGame.width,MyGdxGame.height,camera),ba
 
     }
     
-    public void draw(Player player, Vector2 cam){
+    public void draw(Player player, Vector2 cam, double currentTime){
         //stageHUD.draw();
-        createDebugInfo(player, cam);
+        createDebugInfo(player, cam, currentTime);
         //font.getData().setScale(0.1f);
         //stageHUD.getBatch().setProjectionMatrix(camera.combined);
         stageHUD.getBatch().begin();
@@ -66,10 +67,11 @@ stageHUD = new Stage(new FitViewport(MyGdxGame.width,MyGdxGame.height,camera),ba
     
     }
     
-    private void createDebugInfo(Player player, Vector2 cam){
+    private void createDebugInfo(Player player, Vector2 cam, double currentTime){
         addPlayerInfo(player, cam);
         addCamInfo(cam);
         addMouseInfo();
+        addTimeInfo(currentTime);
 
     }
     
@@ -85,7 +87,12 @@ stageHUD = new Stage(new FitViewport(MyGdxGame.width,MyGdxGame.height,camera),ba
     private void addMouseInfo() {
         dbgStr += "MouseX: " + Inputs.instance.mouseX + ", MouseY: " + Inputs.instance.mouseY + "\n";
     }
-
+    
+    private void addTimeInfo(double currentTime) {
+        
+        dbgStr += "Time: " + String.format("%2d", (int)(currentTime*10)/10) + ":" + String.format("%2d", (int)(60*(currentTime-(int)currentTime))) + " hours\n";
+    }
+    
     @Override
     public void dispose() {
         stageHUD.dispose();}
@@ -97,6 +104,8 @@ stageHUD = new Stage(new FitViewport(MyGdxGame.width,MyGdxGame.height,camera),ba
     public Stage getStageHUD() {
         return stageHUD;
     }
+
+
     
     
 }

@@ -63,4 +63,9 @@ public class Shaders {
         
     }
     
+    public void dispose(){
+        basic.dispose();
+        vignette.dispose();
+    }
+    
 }
