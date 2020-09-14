@@ -21,7 +21,7 @@ public class AllBlocks {
        
        leaf,
        
-       gravel, sand, coal, stone,
+       gravel, sand, stone, coal, iron, gold, diamond,
        
        wood_stairs, plank, half_plank,
        
@@ -42,9 +42,9 @@ public class AllBlocks {
     public static Block sand;
 //    public static Block water;
     public static Block coal;
-//    public static Block iron;
-//    public static Block gold;
-//    public static Block diamond;
+    public static Block iron;
+    public static Block gold;
+    public static Block diamond;
 //    public static Block bones;
     
     public static Block leaf;
@@ -83,6 +83,14 @@ public class AllBlocks {
         coal.texture = new Texture(Gdx.files.internal("block/coal.png"));
         blockList.add(coal);
         
+        diamond = new Block();
+        diamond.id = t.diamond.ordinal();
+        diamond.blocked = true;
+        diamond.hardness = 5;
+        diamond.textureRotation = 0;
+        diamond.stackable = true;
+        diamond.texture = new Texture(Gdx.files.internal("block/diamond.png"));        
+        
         door = new Block();
         door.id = t.door.ordinal();
         door.blocked = false;
@@ -120,6 +128,14 @@ public class AllBlocks {
         empty.stackable = false;
         empty.texture = null;
         blockList.add(empty);
+        
+        gold = new Block();
+        gold.id = t.gold.ordinal();
+        gold.blocked = true;
+        gold.hardness = 5;
+        gold.textureRotation = 0;
+        gold.stackable = true;
+        gold.texture = new Texture(Gdx.files.internal("block/gold.png"));
         
         grassy_ground = new Block();
         grassy_ground.id = t.grassy_ground.ordinal();
@@ -172,6 +188,13 @@ public class AllBlocks {
         half_plank.stackable = true;
         half_plank.texture = new Texture(Gdx.files.internal("block/plank_halfblock.png"));
         
+        iron = new Block();
+        iron.id = t.iron.ordinal();
+        iron.blocked = true;
+        iron.hardness = 5;
+        iron.textureRotation = 0;
+        iron.stackable = true;
+        iron.texture = new Texture(Gdx.files.internal("block/iron.png"));
         
         leaf = new Block();
         leaf.id = t.leaf.ordinal();

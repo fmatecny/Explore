@@ -100,6 +100,7 @@ public class Map extends WorldObject{
     
     
     private void generateGround(int w, int h){
+        int randomIdx = 0;
         perlinNoise2D = new PerlinNoise2D();
         noiseArr = perlinNoise2D.getNoiseArr(h);
         
@@ -117,7 +118,48 @@ public class Map extends WorldObject{
                     mapArray[i][j] = new Block(AllBlocks.grassy_ground);
                 }
                 else if (j < noiseArr[i/2]){
-                    mapArray[i][j] = new Block(AllBlocks.stone);
+                     randomIdx = (int) (Math.random() * 100);
+                    //diamond area
+                    if (j <= 10)
+                    {
+                        if (randomIdx < 5)
+                            mapArray[i][j] = new Block(AllBlocks.diamond);
+                        else if (randomIdx < 8 && j > 5)
+                            mapArray[i][j] = new Block(AllBlocks.gold);
+                        else if (randomIdx < 10 && j > 3)
+                            mapArray[i][j] = new Block(AllBlocks.coal);
+                        else
+                            mapArray[i][j] = new Block(AllBlocks.stone);
+                    
+                    }//gold area
+                    else if(j <= 20)
+                    {
+                        if (randomIdx < 7)
+                            mapArray[i][j] = new Block(AllBlocks.gold);
+                        else if (randomIdx < 13)
+                            mapArray[i][j] = new Block(AllBlocks.coal);
+                        else if (randomIdx < 17)
+                            mapArray[i][j] = new Block(AllBlocks.iron);
+                        else
+                            mapArray[i][j] = new Block(AllBlocks.stone);
+                    }//iron area
+                    else if(j <= 35)
+                    {
+                        if (randomIdx < 10)
+                            mapArray[i][j] = new Block(AllBlocks.iron);
+                        else if (randomIdx < 20)
+                            mapArray[i][j] = new Block(AllBlocks.coal);
+                        else
+                            mapArray[i][j] = new Block(AllBlocks.stone);
+                    }//coal area
+                    else
+                    {
+                        if (randomIdx < 15)
+                            mapArray[i][j] = new Block(AllBlocks.coal);
+                        else
+                            mapArray[i][j] = new Block(AllBlocks.stone);
+                    }
+
                     groundBckArr[i][j] = AllBlocks.groundBck;
                 }      
             }
