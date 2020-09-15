@@ -5,8 +5,6 @@
  */
 package com.mygdx.game;
 
-import com.mygdx.game.screens.GameScreen;
-
 /**
  *
  * @author Fery
@@ -31,7 +29,8 @@ public final class Constants {
     public static final int RECEPIE_WOOD_STAIRS = 3;
     public static final int RECEPIE_WOOD_DOOR = 4;
     public static final int RECEPIE_STICK = 5;
-
+    public static final int RECEPIE_TORCH = 6;
+    
     public static final int DAY_IN_SECONDS = 600;
     public static final float HOUR_IN_SECONDS = DAY_IN_SECONDS/24;
     public static final int SUNRISE_HOUR = 4;

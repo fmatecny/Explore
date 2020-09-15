@@ -24,6 +24,7 @@ import com.mygdx.game.Skins;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
 import static java.lang.Math.abs;
+import jdk.vm.ci.meta.Constant;
 
 /**
  *
@@ -107,7 +108,7 @@ public class Inventory implements Disposable{
 
     }
     
-    private boolean addBlockToInvenotryBar(Block block){
+    private boolean addObjectToInvenotryBar(Block block){
         if (block != null)
         {
             int i = getIdxOfBlockInInventoryBar(block);
@@ -124,7 +125,27 @@ public class Inventory implements Disposable{
         return true;
     }
     
-    public boolean addBlockToInvenotry(Block block){
+    private boolean addObjectToInvenotryBar(Item item){
+        if (item != null)
+        {
+            int i = getIdxOfItemInInventoryBar(item);
+            if (i != -1)
+            {
+                int num = (int)(Math.random() * item.maxItemInBlock);
+                if (num == 0) num = 1;
+                
+                inventoryBarHUD.inventoryBar[i].setObject(item);
+                inventoryBarHUD.inventoryBar[i].numOfItem += num; 
+                inventoryBar.inventoryBar[i].setObject(item);
+                inventoryBar.inventoryBar[i].numOfItem += num;
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean addObjectToInvenotry(Block block){
         if (block != null)
         {
             if (block.id == AllBlocks.door_down.id || block.id == AllBlocks.door_up.id)
@@ -133,11 +154,31 @@ public class Inventory implements Disposable{
                 block.texture = AllBlocks.door.texture;
             }
             
-            if (addBlockToInvenotryBar(block))
+            if (block.id == AllBlocks.coal.id)
+            {
+                if (addObjectToInvenotryBar(AllItems.coalIngot))
+                    return true;
+                else
+                    return inventoryPackage.addObject(AllItems.coalIngot);
+            }
+            if (block.id == AllBlocks.gold.id)
+            {
+                if (addObjectToInvenotryBar(AllItems.goldIngot))
+                    return true;
+                else
+                    return inventoryPackage.addObject(AllItems.goldIngot);
+            }
+            if (block.id == AllBlocks.diamond.id)
+            {
+                if (addObjectToInvenotryBar(AllItems.diamondIngot))
+                    return true;
+                else
+                    return inventoryPackage.addObject(AllItems.diamondIngot);
+            }
+            if (addObjectToInvenotryBar(block))
                 return true;
-            else{
-                return inventoryPackage.addItem(block);
-            }                
+            else
+                return inventoryPackage.addObject(block);             
         }
         return true;
     }
@@ -155,6 +196,26 @@ public class Inventory implements Disposable{
             else if (slotItem != null)
             {
                 if (block.stackable && slotItem.id == block.id)
+                    return i;
+            }
+        }
+
+        return emptySlot;
+    }
+    
+    public int getIdxOfItemInInventoryBar(Item item){
+        
+        Item slotItem;
+        int emptySlot = -1;
+        
+        for (int i = numOfCol-1; i >= 0; i--) 
+        {
+            slotItem = inventoryBarHUD.inventoryBar[i].getItem();
+            if (inventoryBarHUD.inventoryBar[i].isEmpty())
+                emptySlot = i;
+            else if (slotItem != null)
+            {
+                if (slotItem.id == item.id)
                     return i;
             }
         }

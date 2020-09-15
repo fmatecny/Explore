@@ -25,6 +25,19 @@ public class Background {
     
     private float x,y;
     
+    private float bgClouds_speedOffset = 0.97f;
+    private float bgHugeClouds_speedOffset = 0.95f;
+    private float bgHill_speedOffset = 0.91f;
+    private float bgBushes_speedOffset = 0.87f;
+    
+    private float bg_x;
+    private int k;
+    
+    //minimal distance between edge of screen and edge of background
+    //it means minimal distance of background OUT of screen
+    //background will be drawing minimal n meter(s) out of screen
+    private int MIN_GAP = 1;
+    
     public Background() {
         
         bgImg = new Texture(Gdx.files.internal("background/11_background.png"));
@@ -41,23 +54,65 @@ public class Background {
         x = GameScreen.camera.position.x-Constants.W_IN_M/2.0f;
         y = GameScreen.camera.position.y-Constants.H_IN_M/2.0f;
         
-        //System.err.println(x*0.87 + "aa" + GameScreen.camera.position.x);
-        
+        //System.err.println( GameScreen.camera.position.x);
+        //default background
         batch.draw(bgImg, x, y, Constants.W_IN_M, Constants.H_IN_M);
         
-        batch.draw(bgClouds,        x*0.97f,                  y+0.9f,    Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgHugeClouds,    x*0.95f,                  y+1,       Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgHill,          x*0.91f,                  y+1,       Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgBushes,        x*0.87f,                  y+0.7f,    Constants.W_IN_M, Constants.H_IN_M);
+        //############## CLOUDS #################
+        bg_x = x*bgClouds_speedOffset;
+        k = (int) (x/Constants.W_IN_M - bg_x/Constants.W_IN_M);
         
-        //TODO 
-        batch.draw(bgClouds,        x*0.97f+Constants.W_IN_M, y+0.9f,   Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgHugeClouds,    x*0.95f+Constants.W_IN_M, y+1,      Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgHill,          x*0.91f+Constants.W_IN_M, y+1,      Constants.W_IN_M, Constants.H_IN_M);
-        batch.draw(bgBushes,        x*0.87f+Constants.W_IN_M, y+0.7f,   Constants.W_IN_M, Constants.H_IN_M);    
-    }
-    
-    
-    
+        //min gap on right side
+        if ((bg_x + Constants.W_IN_M*(k+2)) - (GameScreen.camera.position.x + Constants.W_IN_M/2) < MIN_GAP)
+            k++;
+        
+        //min gap on left side
+        if (x - (bg_x + Constants.W_IN_M*k) < MIN_GAP)
+            batch.draw(bgClouds,    bg_x + Constants.W_IN_M*(k-1),    y+0.9f,   Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgClouds,        bg_x + Constants.W_IN_M*k,        y+0.9f,   Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgClouds,        bg_x + Constants.W_IN_M*(k+1),    y+0.9f,   Constants.W_IN_M, Constants.H_IN_M);
+        
+        //############## HUGE CLOUDS #################
+        bg_x = x*bgHugeClouds_speedOffset;
+        k = (int) (x/Constants.W_IN_M - bg_x/Constants.W_IN_M);
+        
+        //min gap on right side
+        if ((bg_x + Constants.W_IN_M*(k+2)) - (GameScreen.camera.position.x + Constants.W_IN_M/2) < MIN_GAP)
+            k++;
+        
+        //min gap on left side
+        if (x - (bg_x + Constants.W_IN_M*k) < MIN_GAP)
+            batch.draw(bgHugeClouds,    bg_x + Constants.W_IN_M*(k-1),    y+1,   Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHugeClouds,        bg_x + Constants.W_IN_M*k,        y+1,   Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHugeClouds,        bg_x + Constants.W_IN_M*(k+1),    y+1,   Constants.W_IN_M, Constants.H_IN_M);
+        
+        //############## HILL #################
+        bg_x = x*bgHill_speedOffset;
+        k = (int) (x/Constants.W_IN_M - bg_x/Constants.W_IN_M);
+        
+        //min gap on right side
+        if ((bg_x + Constants.W_IN_M*(k+2)) - (GameScreen.camera.position.x + Constants.W_IN_M/2) < MIN_GAP)
+            k++;
+        
+        //min gap on left side
+        if (x - (bg_x + Constants.W_IN_M*k) < MIN_GAP)
+            batch.draw(bgHill,    bg_x + Constants.W_IN_M*(k-1),    y+1,   Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHill,        bg_x + Constants.W_IN_M*k,        y+1,   Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgHill,        bg_x + Constants.W_IN_M*(k+1),    y+1,   Constants.W_IN_M, Constants.H_IN_M);       
+        
 
+        //############## BUSHES #################
+        bg_x = x*bgBushes_speedOffset;
+        k = (int) (x/Constants.W_IN_M - bg_x/Constants.W_IN_M);
+        
+        //min gap on right side
+        if ((bg_x + Constants.W_IN_M*(k+2)) - (GameScreen.camera.position.x + Constants.W_IN_M/2) < MIN_GAP)
+            k++;
+        
+        //min gap on left side
+        if (x - (bg_x + Constants.W_IN_M*k) < MIN_GAP)
+            batch.draw(bgBushes,    bg_x + Constants.W_IN_M*(k-1),    y+0.7f,   Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgBushes,        bg_x + Constants.W_IN_M*k,        y+0.7f,   Constants.W_IN_M, Constants.H_IN_M);
+        batch.draw(bgBushes,        bg_x + Constants.W_IN_M*(k+1),    y+0.7f,   Constants.W_IN_M, Constants.H_IN_M);  
+    }
 }

@@ -114,13 +114,15 @@ public class GameScreen implements Screen{
         // Create background
         bck = new Background();
         
-        // Create player
-        player = new Player(stage, spriteBatch);
+
         
         //villager = new Villager(stage);
         
         // Create debug HUD
-        debugHUD = new DebugHUD(spriteBatch);   
+        debugHUD = new DebugHUD(spriteBatch);  
+        
+        // Create player
+        player = new Player(stage, spriteBatch);
     }
     
     @Override
@@ -202,7 +204,7 @@ public class GameScreen implements Screen{
                     if (v != null){
                         if (map.getBlock(v.X, v.Y) != null){
                             //map.getBlock(v.X, v.Y).textureRotation = 0;
-                            if (player.getInventory().addBlockToInvenotry(map.getBlock(v.X, v.Y)))
+                            if (player.getInventory().addObjectToInvenotry(map.getBlock(v.X, v.Y)))
                                 map.removeBlock(v.X, v.Y);
                         }
                     }
@@ -231,6 +233,19 @@ public class GameScreen implements Screen{
         
         //spriteBatch.setProjectionMatrix(player.getInventory().getStageInventory().getCamera().combined);   
         spriteBatch.end();
+        
+        
+        
+        if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isBlock())
+        {
+            if(player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.torch.id)
+                shaders_box2dlights.lightTorch(player);
+            else
+                shaders_box2dlights.lightTorchOff();
+        }
+        else{
+            shaders_box2dlights.lightTorchOff();
+        }
         
         shaders_box2dlights.updateRayHandler();
         

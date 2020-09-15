@@ -7,7 +7,6 @@ package com.mygdx.game.world;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
@@ -40,7 +39,7 @@ public class Map extends WorldObject{
     private ArrayList<Water> waterList = new ArrayList<>();
     
     private int left, right, down, up, left_cam_edge, down_cam_edge;
-    private int previousLeft = 0;
+    private int previousLeft = 40; //should be position of camera(cam.x/Block.size) + min. 24
     private int previousRight = width;
     private int previousDown = 0;
     private int previousUp = height;

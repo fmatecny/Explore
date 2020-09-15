@@ -171,6 +171,12 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftedItem.setObject(AllItems.stick);
                 break;
                 
+            case Constants.RECEPIE_TORCH:
+                n = Math.min(craftingSlots[1][1].numOfItem, craftingSlots[1][2].numOfItem);
+                craftedItem.numOfItem = n;
+                craftedItem.setObject(AllBlocks.torch);
+                break;
+                
             default:
                 craftedItem.numOfItem = 0;
                 craftedItem.removeObject();
@@ -213,7 +219,12 @@ public class InventoryCraftingArea extends InventoryPack{
             case Constants.RECEPIE_STICK:
                 craftingSlots[2][1].numOfItem -= n/2;
                 craftingSlots[2][2].numOfItem -= n/2;
-                break;    
+                break; 
+                
+            case Constants.RECEPIE_TORCH:
+                craftingSlots[1][1].numOfItem -= n;
+                craftingSlots[1][2].numOfItem -= n;
+                break;
                 
             default:
                 
@@ -224,15 +235,15 @@ public class InventoryCraftingArea extends InventoryPack{
     private int getRecepies() {
        
         if (
-            craftingSlots[0][0].getBlock() == null &&
-            craftingSlots[0][1].getBlock() == null &&
-            craftingSlots[0][2].getBlock() == null &&
-            craftingSlots[1][0].getBlock() == null &&
+            craftingSlots[0][0].isEmpty() &&
+            craftingSlots[0][1].isEmpty() &&
+            craftingSlots[0][2].isEmpty() &&
+            craftingSlots[1][0].isEmpty() &&
             craftingSlots[1][1].getBlock() != null &&
-            craftingSlots[1][2].getBlock() == null &&
-            craftingSlots[2][0].getBlock() == null &&
-            craftingSlots[2][1].getBlock() == null &&
-            craftingSlots[2][2].getBlock() == null
+            craftingSlots[1][2].isEmpty() &&
+            craftingSlots[2][0].isEmpty() &&
+            craftingSlots[2][1].isEmpty() &&
+            craftingSlots[2][2].isEmpty()
             )
             {
             if (craftingSlots[1][1].getBlock().id == AllBlocks.wood.id)
@@ -240,14 +251,14 @@ public class InventoryCraftingArea extends InventoryPack{
             }
         
         if (
-            craftingSlots[0][0].getBlock() == null &&
-            craftingSlots[0][1].getBlock() == null &&
-            craftingSlots[0][2].getBlock() == null &&
-            craftingSlots[1][0].getBlock() == null &&
-            craftingSlots[1][1].getBlock() == null &&
+            craftingSlots[0][0].isEmpty() &&
+            craftingSlots[0][1].isEmpty() &&
+            craftingSlots[0][2].isEmpty() &&
+            craftingSlots[1][0].isEmpty() &&
+            craftingSlots[1][1].isEmpty() &&
             craftingSlots[1][2].getBlock() != null &&
-            craftingSlots[2][0].getBlock() == null &&
-            craftingSlots[2][1].getBlock() == null &&
+            craftingSlots[2][0].isEmpty() &&
+            craftingSlots[2][1].isEmpty() &&
             craftingSlots[2][2].getBlock() != null
             )
             {
@@ -260,11 +271,11 @@ public class InventoryCraftingArea extends InventoryPack{
             craftingSlots[0][0].getBlock() != null &&
             craftingSlots[0][1].getBlock() != null &&
             craftingSlots[0][2].getBlock() != null &&
-            craftingSlots[1][0].getBlock() == null &&
+            craftingSlots[1][0].isEmpty() &&
             craftingSlots[1][1].getBlock() != null &&
             craftingSlots[1][2].getBlock() != null &&
-            craftingSlots[2][0].getBlock() == null &&
-            craftingSlots[2][1].getBlock() == null &&
+            craftingSlots[2][0].isEmpty() &&
+            craftingSlots[2][1].isEmpty() &&
             craftingSlots[2][2].getBlock() != null
             )
             {
@@ -284,9 +295,9 @@ public class InventoryCraftingArea extends InventoryPack{
             craftingSlots[1][0].getBlock() != null &&
             craftingSlots[1][1].getBlock() != null &&
             craftingSlots[1][2].getBlock() != null &&
-            craftingSlots[2][0].getBlock() == null &&
-            craftingSlots[2][1].getBlock() == null &&
-            craftingSlots[2][2].getBlock() == null
+            craftingSlots[2][0].isEmpty() &&
+            craftingSlots[2][1].isEmpty() &&
+            craftingSlots[2][2].isEmpty()
             )
             {
             if (craftingSlots[0][0].getBlock().id == AllBlocks.plank.id &&
@@ -300,13 +311,13 @@ public class InventoryCraftingArea extends InventoryPack{
         
         
         if (
-            craftingSlots[0][0].getBlock() == null &&
-            craftingSlots[0][1].getBlock() == null &&
-            craftingSlots[0][2].getBlock() == null &&
-            craftingSlots[1][0].getBlock() == null &&
-            craftingSlots[1][1].getBlock() == null &&
-            craftingSlots[1][2].getBlock() == null &&
-            craftingSlots[2][0].getBlock() == null &&
+            craftingSlots[0][0].isEmpty() &&
+            craftingSlots[0][1].isEmpty() &&
+            craftingSlots[0][2].isEmpty() &&
+            craftingSlots[1][0].isEmpty() &&
+            craftingSlots[1][1].isEmpty() &&
+            craftingSlots[1][2].isEmpty() &&
+            craftingSlots[2][0].isEmpty() &&
             craftingSlots[2][1].getBlock() != null &&
             craftingSlots[2][2].getBlock() != null
             )
@@ -316,6 +327,22 @@ public class InventoryCraftingArea extends InventoryPack{
                 return Constants.RECEPIE_STICK;
             }
         
+        if (
+            craftingSlots[0][0].isEmpty() &&
+            craftingSlots[0][1].isEmpty() &&
+            craftingSlots[0][2].isEmpty() &&
+            craftingSlots[1][0].isEmpty() &&
+            craftingSlots[1][1].getItem() != null &&
+            craftingSlots[1][2].getItem() != null &&
+            craftingSlots[2][0].isEmpty() &&
+            craftingSlots[2][1].isEmpty() &&
+            craftingSlots[2][2].isEmpty()
+            )
+            {
+            if (craftingSlots[1][1].getItem().id == AllItems.coalIngot.id &&
+                craftingSlots[1][2].getItem().id == AllItems.stick.id)
+                return Constants.RECEPIE_TORCH;
+            }
         
         
         

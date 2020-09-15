@@ -10,6 +10,7 @@ import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.Color;
 import com.mygdx.game.Constants;
+import com.mygdx.game.entities.Player;
 import com.mygdx.game.screens.GameScreen;
 
 /**
@@ -17,6 +18,8 @@ import com.mygdx.game.screens.GameScreen;
  * @author Fery
  */
 public class Shaders_box2dlights {
+
+
 
     private RayHandler rayHandler;
     private DirectionalLight sun;
@@ -94,4 +97,23 @@ public class Shaders_box2dlights {
     private float map(double a1, double a2, double b1, double b2, double input){
         return (float) (b1 + ((input - a1)*(b2 - b1))/(a2 - a1));
     }
+    
+    public void lightTorch(Player player) {
+        if(myLight == null){
+            myLight = new PointLight(rayHandler, 100, Color.BLACK, 5, 10, 30);
+            myLight.setSoftnessLength(0);
+            myLight.setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
+            myLight.attachToBody(player.b2body, 0.5f, 0.5f);
+        }
+        else{
+            myLight.setActive(true);
+        }
+    }
+
+    public void lightTorchOff() {
+       if(myLight != null){
+           myLight.setActive(false);
+       }
+    }
+    
 }

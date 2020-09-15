@@ -105,7 +105,17 @@ public class InventoryPackage extends InventoryPack{
         return false;
     }
     
-    public boolean addItem(Block item){
+    public boolean addObject(Block block){
+        IntVector2 index = getSlotIdx(block);
+        if (index != null){
+            inventoryPackageArray[index.X][index.Y].setObject(block);
+            inventoryPackageArray[index.X][index.Y].numOfItem++;
+            return true;
+        } 
+        return false;
+    }
+    
+    public boolean addObject(Item item){
         IntVector2 index = getSlotIdx(item);
         if (index != null){
             inventoryPackageArray[index.X][index.Y].setObject(item);
@@ -115,7 +125,7 @@ public class InventoryPackage extends InventoryPack{
         return false;
     }
     
-    public IntVector2 getSlotIdx(Block item){
+    public IntVector2 getSlotIdx(Block block){
         IntVector2 idx = new IntVector2(-1,-1);
         
         for (int y = 0; y < Inventory.numOfRow; y++) 
@@ -125,7 +135,36 @@ public class InventoryPackage extends InventoryPack{
 
                 if (inventoryPackageArray[x][y].getBlock() != null)
                 {
-                    if (inventoryPackageArray[x][y].getBlock().id == item.id)
+                    if (inventoryPackageArray[x][y].getBlock().id == block.id)
+                    {
+                        idx.X = x;
+                        idx.Y = y;
+                        return idx;
+                    }        
+                }
+                else if (inventoryPackageArray[x][y].isEmpty()){
+                    idx.X = x;
+                    idx.Y = y;
+                }
+            }
+        }
+        if (idx.X == -1)
+            return null;
+        
+        return idx;
+    }
+    
+    public IntVector2 getSlotIdx(Item item){
+        IntVector2 idx = new IntVector2(-1,-1);
+        
+        for (int y = 0; y < Inventory.numOfRow; y++) 
+        {
+            for (int x = 0; x < Inventory.numOfCol; x++) 
+            {
+
+                if (inventoryPackageArray[x][y].getItem()!= null)
+                {
+                    if (inventoryPackageArray[x][y].getItem().id == item.id)
                     {
                         idx.X = x;
                         idx.Y = y;

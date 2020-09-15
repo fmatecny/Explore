@@ -115,7 +115,7 @@ public class Player {
 
     public void definePlayer(){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(450.0f/GameScreen.PPM, 30);
+        bdef.position.set(450.0f/GameScreen.PPM, 20);
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
         b2body.setFixedRotation(true);

@@ -25,7 +25,9 @@ public class AllBlocks {
        
        wood_stairs, plank, half_plank,
        
-       door, door_down, door_up, window
+       door, door_down, door_up, window,
+       
+       torch
 
     }
 
@@ -56,6 +58,8 @@ public class AllBlocks {
     public static Block plank;
     public static Block half_plank;
     public static Block wood_stairs;
+    
+    public static Block torch;
     
     
     public static Texture heard;
@@ -229,6 +233,14 @@ public class AllBlocks {
         stone.stackable = true;
         stone.texture = new Texture(Gdx.files.internal("block/rocky.png"));        
 
+        torch = new Block();
+        torch.id = t.torch.ordinal();
+        torch.blocked = false;
+        torch.hardness = 5;
+        torch.textureRotation = 0;
+        torch.stackable = true;
+        torch.texture = new Texture(Gdx.files.internal("block/torch.png"));
+        
         window = new Block();
         window.id = t.window.ordinal();
         window.blocked = false;
