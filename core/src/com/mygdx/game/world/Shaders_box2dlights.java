@@ -25,6 +25,8 @@ public class Shaders_box2dlights {
     private DirectionalLight sun;
     private PointLight myLight;
     
+    private PointLight torchLight;
+    
     private Color color;
     
     
@@ -101,7 +103,7 @@ public class Shaders_box2dlights {
     public void lightTorch(Player player) {
         if(myLight == null){
             myLight = new PointLight(rayHandler, 100, Color.BLACK, 5, 10, 30);
-            myLight.setSoftnessLength(0);
+            myLight.setSoftnessLength(0.5f);
             myLight.setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
             myLight.attachToBody(player.b2body, 0.5f, 0.5f);
         }
@@ -114,6 +116,23 @@ public class Shaders_box2dlights {
        if(myLight != null){
            myLight.setActive(false);
        }
+    }
+
+    public void setLightToPos(float x, float y) {
+        if(torchLight == null){
+            torchLight = new PointLight(rayHandler, 100, Color.BLACK, 5, x, y);
+            torchLight.setSoftnessLength(0.5f);
+            torchLight.setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
+        }
+        else if (torchLight.isActive() == false){
+            torchLight.setActive(true);
+            torchLight.setPosition(x, y);
+        }
+
+    }
+
+    public void setLightOfFromPos() {
+        torchLight.setActive(false);
     }
     
 }

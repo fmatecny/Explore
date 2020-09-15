@@ -239,7 +239,7 @@ public class AllBlocks {
         torch.hardness = 5;
         torch.textureRotation = 0;
         torch.stackable = true;
-        torch.texture = new Texture(Gdx.files.internal("block/torch.png"));
+        torch.texture = new Texture(Gdx.files.internal("block/walltorch1.gif"));//torch.png"));
         
         window = new Block();
         window.id = t.window.ordinal();

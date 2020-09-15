@@ -422,11 +422,18 @@ public class Map extends WorldObject{
             for (int j = down; j < up; j++) 
             {
                 if (mapArray[i][j] != null)
+                {
                     //stage.getBatch().draw( mapArray[x][y].texture, x*Block.size, y*Block.size, Block.size, Block.size);
+                    if (mapArray[i][j].id == AllBlocks.torch.id && j < height-Constants.HEIGHT_OF_SKY)
+                    {
+                        if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
+                            spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                    }
                     drawWithRotation(spriteBatch, i, j);
+                }
                 else if(j < height-Constants.HEIGHT_OF_SKY) {
                     if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
-                    spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                        spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
                 }
             }
         }

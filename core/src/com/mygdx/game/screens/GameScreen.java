@@ -205,7 +205,12 @@ public class GameScreen implements Screen{
                         if (map.getBlock(v.X, v.Y) != null){
                             //map.getBlock(v.X, v.Y).textureRotation = 0;
                             if (player.getInventory().addObjectToInvenotry(map.getBlock(v.X, v.Y)))
+                            {
+                                if (map.getBlock(v.X, v.Y).id == AllBlocks.torch.id)
+                                    shaders_box2dlights.setLightOfFromPos();
                                 map.removeBlock(v.X, v.Y);
+                            }
+                                
                         }
                     }
                 }
@@ -219,8 +224,11 @@ public class GameScreen implements Screen{
             {
                 if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isBlock())
                 {
-                    if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock()))
-                       player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--; 
+                    if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock())){
+                        player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
+                        if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.torch.id)
+                            shaders_box2dlights.setLightToPos(v3.x,v3.y);
+                    }
                 }
             }
             else if (!Inputs.instance.mouseMiddle){
