@@ -15,7 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
-import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
 
 /**
@@ -99,11 +98,11 @@ public class InventorySlot extends Table{
     }
     
     public Block getBlock() {
-        return block;
+        return isEmpty() ? null : block;
     }
 
     public Item getItem() {
-        return item;
+        return isEmpty() ? null : item;
     }
     
     public void setObject(InventorySlot slot, int n){
@@ -167,6 +166,10 @@ public class InventorySlot extends Table{
         }
         
         return false;
+    }
+    
+    public boolean isObjectStackable(){
+        return block != null ? block.stackable : true;
     }
     
     @Override

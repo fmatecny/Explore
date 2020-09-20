@@ -23,10 +23,8 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.MyContactListener;
-import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.Block;
-import com.mygdx.game.world.Map;
 import java.util.ArrayList;
 
 /**
@@ -279,6 +277,7 @@ public class Player {
             sprites.get(i).get(0).clear();
             sprites.get(i).get(1).clear();
         }
+        inventory.dispose();
     }
     
     

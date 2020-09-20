@@ -23,8 +23,6 @@ import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Skins;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
-import static java.lang.Math.abs;
-import jdk.vm.ci.meta.Constant;
 
 /**
  *
@@ -91,6 +89,7 @@ public class Inventory implements Disposable{
         inventoryPackage = new InventoryPackage(numOfCol, numOfRow);
         inventoryBar = new InventoryBar(numOfCol);
         inventoryBarHUD = new InventoryBar(numOfCol, Touchable.disabled);
+        inventoryBarHUD.setPosition(MyGdxGame.width/2,100);
          
         table.add(inventoryArmorSlots).left();
         table.add(inventoryAvatar).left();
@@ -160,6 +159,13 @@ public class Inventory implements Disposable{
                     return true;
                 else
                     return inventoryPackage.addObject(AllItems.coalIngot);
+            }
+            if (block.id == AllBlocks.iron.id)
+            {
+                if (addObjectToInvenotryBar(AllItems.ironIngot))
+                    return true;
+                else
+                    return inventoryPackage.addObject(AllItems.ironIngot);
             }
             if (block.id == AllBlocks.gold.id)
             {
@@ -239,7 +245,7 @@ public class Inventory implements Disposable{
         }
     }
     
-    //get dra invenotry slot AFTER drop item
+    //get drag invenotry slot AFTER drop item
     private InventorySlot getDragInventorySlotAfterDrop(){
         dragSlotInBar = false;
         dragSlotInPackage = false;
@@ -362,7 +368,7 @@ public class Inventory implements Disposable{
                 else
                     inventoryBarHUD.setNonActiveBckForSlot(i);
             }
-            inventoryBarHUD.setPosition(MyGdxGame.width/2,100);//(GameScreen.camera.position.x, GameScreen.camera.position.y - MyGdxGame.height/2 + 50);
+            
             stageInventory.addActor(inventoryBarHUD);
         }
         else
@@ -406,7 +412,7 @@ public class Inventory implements Disposable{
                             //dropSlot.setObject(dragSlot, n);
           
                         }
-                        else if (dropSlot.hasObject(dragSlot))
+                        else if (dropSlot.hasObject(dragSlot) && dragSlot.isObjectStackable())
                         {
                             if (dragSlot.splitItems)
                             {

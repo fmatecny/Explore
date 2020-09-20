@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.mygdx.game.Constants;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.screens.GameScreen;
+import java.util.ArrayList;
 
 /**
  *
@@ -26,6 +27,7 @@ public class Shaders_box2dlights {
     private PointLight myLight;
     
     private PointLight torchLight;
+    private ArrayList<PointLight> torchLightList;
     
     private Color color;
     
@@ -46,14 +48,7 @@ public class Shaders_box2dlights {
         sun.setStaticLight(false);
         sun.setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
         
-        
-        
-        /*myLight = new PointLight(rayHandler, 100, Color.BLACK, 3, 10, 30);
-        myLight.setSoftnessLength(0);
-        myLight.setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
-        myLight.attachToBody(player.b2body, 0.5f, 0.5f); */
-        
-        
+        torchLightList = new ArrayList<>();
     }
     
     public void updateSun(double currentHour){
@@ -118,21 +113,37 @@ public class Shaders_box2dlights {
        }
     }
 
-    public void setLightToPos(float x, float y) {
-        if(torchLight == null){
-            torchLight = new PointLight(rayHandler, 100, Color.BLACK, 5, x, y);
-            torchLight.setSoftnessLength(0.5f);
-            torchLight.setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
-        }
-        else if (torchLight.isActive() == false){
-            torchLight.setActive(true);
-            torchLight.setPosition(x, y);
-        }
-
+    public void setTorchLight(float x, float y) {
+        int i = torchLightList.size();
+        
+        x = centerPosOfBlock(x);
+        y = centerPosOfBlock(y);
+        
+        //System.out.println("setTorchLight: index: " + i + ", x: " + x + ", y: " + y);
+        
+        torchLightList.add(i, new PointLight(rayHandler, 100, Color.BLACK, 5, x, y));
+        torchLightList.get(i).setSoftnessLength(0.5f);
+        torchLightList.get(i).setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
     }
 
-    public void setLightOfFromPos() {
-        torchLight.setActive(false);
+    public void removeTorchLightFromPos(float x, float y) {
+        x = centerPosOfBlock(x);
+        y = centerPosOfBlock(y);
+        
+        //System.out.println("removeTorchLightFromPos: x: " + x + ", y: " + y);
+        for (int i = 0; i < torchLightList.size(); i++) 
+        {
+            if (torchLightList.get(i).getX() == x && torchLightList.get(i).getY() == y)
+            {
+                torchLightList.get(i).setActive(false);
+                torchLightList.get(i).dispose();
+                torchLightList.remove(i);
+            }
+        }
+    }
+    
+    private float centerPosOfBlock(float c){
+        return (int)(c*GameScreen.PPM/Block.size_in_pixels) * Block.size + Block.size/2.0f;
     }
     
 }

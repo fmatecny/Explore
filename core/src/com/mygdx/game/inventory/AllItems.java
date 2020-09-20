@@ -17,13 +17,20 @@ public class AllItems {
     
     private enum id
     {
-        stick, coalIngot, goldIngot, diamondIngot
+        stick, 
+        coalIngot, ironIngot, goldIngot, diamondIngot,
+        bucket, waterBucket
+        
     }
     
     public static Item stick;
     public static Item coalIngot;
+    public static Item ironIngot;
     public static Item goldIngot;
     public static Item diamondIngot;
+    
+    public static Item bucket;
+    public static Item waterBucket;
 
     public AllItems() {
         
@@ -37,6 +44,11 @@ public class AllItems {
         coalIngot.texture = new Texture(Gdx.files.internal("item/coalIngot.png"));
         coalIngot.maxItemInBlock = 5;
         
+        ironIngot =  new Item();
+        ironIngot.id = id.ironIngot.ordinal();
+        ironIngot.texture = new Texture(Gdx.files.internal("item/ironIngot.png"));
+        ironIngot.maxItemInBlock = 5;
+        
         goldIngot =  new Item();
         goldIngot.id = id.goldIngot.ordinal();
         goldIngot.texture = new Texture(Gdx.files.internal("item/goldIngot.png"));
@@ -47,8 +59,20 @@ public class AllItems {
         diamondIngot.texture = new Texture(Gdx.files.internal("item/diamondIngot.png"));
         diamondIngot.maxItemInBlock = 3;
         
+        bucket =  new Item();
+        bucket.id = id.bucket.ordinal();
+        bucket.texture = new Texture(Gdx.files.internal("item/bucket.png"));
+        bucket.maxItemInBlock = 0;
         
+        bucket =  new Item();
+        bucket.id = id.bucket.ordinal();
+        bucket.texture = new Texture(Gdx.files.internal("item/bucket.png"));
+        bucket.maxItemInBlock = 0;
         
+        waterBucket =  new Item();
+        waterBucket.id = id.waterBucket.ordinal();
+        waterBucket.texture = new Texture(Gdx.files.internal("item/waterBucket.png"));
+        waterBucket.maxItemInBlock = 0;
     }
     
     

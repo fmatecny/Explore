@@ -30,6 +30,10 @@ public final class Constants {
     public static final int RECEPIE_WOOD_DOOR = 4;
     public static final int RECEPIE_STICK = 5;
     public static final int RECEPIE_TORCH = 6;
+    public static final int RECEPIE_LADDER = 7;
+    public static final int RECEPIE_BUCKET = 8;
+    public static final int RECEPIE_CHEST = 9;
+    public static final int RECEPIE_FURNACE = 10;
     
     public static final int DAY_IN_SECONDS = 600;
     public static final float HOUR_IN_SECONDS = DAY_IN_SECONDS/24;

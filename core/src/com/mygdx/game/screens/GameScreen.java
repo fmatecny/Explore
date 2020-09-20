@@ -7,6 +7,7 @@ package com.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -18,6 +19,8 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
@@ -32,6 +35,11 @@ import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
 import com.mygdx.game.world.Shaders;
 import com.mygdx.game.world.Shaders_box2dlights;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -135,6 +143,12 @@ public class GameScreen implements Screen{
     @Override
     public void render(float f) {
 
+        if (Inputs.instance.pause){
+            saveGame();
+            parent.changeScreen(MyGdxGame.PAUSE);
+            return;
+        }
+        
         worldTime += Gdx.graphics.getDeltaTime();
         //System.err.println(worldTime);
        /* 
@@ -149,13 +163,7 @@ public class GameScreen implements Screen{
         currentHour = (worldTime%Constants.DAY_IN_SECONDS)/Constants.HOUR_IN_SECONDS;
         
         shaders_box2dlights.updateSun(currentHour);
-       
-       
-        if (Inputs.instance.pause){
-            parent.changeScreen(MyGdxGame.PAUSE);
-            return;
-        }
-        
+
         // clear the screen ready for next set of images to be drawn
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -207,7 +215,7 @@ public class GameScreen implements Screen{
                             if (player.getInventory().addObjectToInvenotry(map.getBlock(v.X, v.Y)))
                             {
                                 if (map.getBlock(v.X, v.Y).id == AllBlocks.torch.id)
-                                    shaders_box2dlights.setLightOfFromPos();
+                                    shaders_box2dlights.removeTorchLightFromPos(v3.x, v3.y);
                                 map.removeBlock(v.X, v.Y);
                             }
                                 
@@ -227,7 +235,7 @@ public class GameScreen implements Screen{
                     if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock())){
                         player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
                         if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.torch.id)
-                            shaders_box2dlights.setLightToPos(v3.x,v3.y);
+                            shaders_box2dlights.setTorchLight(v3.x,v3.y);
                     }
                 }
             }
@@ -336,4 +344,24 @@ public class GameScreen implements Screen{
     public SpriteBatch getSpriteBatch() {
         return spriteBatch;
     } 
+    
+    private void saveGame(){
+        Json json = new Json();
+        json.setOutputType(OutputType.minimal);
+        Integer[][] a = new Integer[map.getBlockArray().length][map.getBlockArray()[0].length];
+        for (int i = 0; i < map.getBlockArray().length; i++) {
+            for (int j = 0; j < map.getBlockArray()[i].length; j++) {
+                if (map.getBlockArray()[i][j] != null)
+                    a[i][j] = map.getBlockArray()[i][j].id;
+            }
+        }
+        
+        String b = json.toJson(a);
+        
+        FileHandle file = Gdx.files.local("scores.json");
+        file.writeString(b, false);  
+    }
+    
+    
+    
 }
