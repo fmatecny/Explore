@@ -7,6 +7,7 @@ package com.mygdx.game.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import java.util.ArrayList;
 
 /**
  *
@@ -67,10 +68,14 @@ public class AllBlocks {
     public static Block furnace;
     
     
+    public static ArrayList<Block> blockList;
+    
     public static Texture heard;
  
     public AllBlocks() {
 
+        blockList = new ArrayList<Block>();
+        
         heard = new Texture(Gdx.files.internal("heart.png"));
 
         coal = new Block();
@@ -81,6 +86,7 @@ public class AllBlocks {
         coal.isRotationAllowed = false;
         coal.stackable = true;
         coal.texture = new Texture(Gdx.files.internal("block/coal.png"));
+        blockList.add(coal);
         
         diamond = new Block();
         diamond.id = t.diamond.ordinal();
@@ -88,7 +94,8 @@ public class AllBlocks {
         diamond.hardness = 5;
         diamond.textureRotation = 0;
         diamond.stackable = true;
-        diamond.texture = new Texture(Gdx.files.internal("block/diamond.png"));        
+        diamond.texture = new Texture(Gdx.files.internal("block/diamond.png"));
+        blockList.add(diamond);        
         
         door = new Block();
         door.id = t.door.ordinal();
@@ -98,6 +105,7 @@ public class AllBlocks {
         door.isRotationAllowed = false;
         door.stackable = false;
         door.texture = new Texture(Gdx.files.internal("block/door.png"));
+        blockList.add(door);
         
         door_down = new Block();
         door_down.id = t.door_down.ordinal();
@@ -107,6 +115,7 @@ public class AllBlocks {
         door_down.isRotationAllowed = false;
         door_down.stackable = false;
         door_down.texture = new Texture(Gdx.files.internal("block/door_down.jpg"));
+        blockList.add(door_down);
         
         door_up = new Block();
         door_up.id = t.door_up.ordinal();
@@ -116,7 +125,8 @@ public class AllBlocks {
         door_up.isRotationAllowed = false;
         door_up.stackable = false;
         door_up.texture = new Texture(Gdx.files.internal("block/door_up.jpg"));
-
+        blockList.add(door_up);
+        
         empty = new Block();
         empty.id = t.empty.ordinal();
         empty.blocked = false;
@@ -124,6 +134,7 @@ public class AllBlocks {
         empty.textureRotation = 0;
         empty.stackable = false;
         empty.texture = null;
+        blockList.add(empty);
         
         furnace = new Block();
         furnace.id = t.furnace.ordinal();
@@ -132,6 +143,7 @@ public class AllBlocks {
         furnace.textureRotation = 0;
         furnace.stackable = false;
         furnace.texture = new Texture(Gdx.files.internal("block/furnace.jpg"));
+        blockList.add(furnace);
         
         gold = new Block();
         gold.id = t.gold.ordinal();
@@ -140,6 +152,7 @@ public class AllBlocks {
         gold.textureRotation = 0;
         gold.stackable = true;
         gold.texture = new Texture(Gdx.files.internal("block/gold.png"));
+        blockList.add(gold);
         
         grassy_ground = new Block();
         grassy_ground.id = t.grassy_ground.ordinal();
@@ -148,6 +161,7 @@ public class AllBlocks {
         grassy_ground.textureRotation = 0;
         grassy_ground.stackable = true;
         grassy_ground.texture = new Texture(Gdx.files.internal("block/leafy_ground.png"));
+        blockList.add(grassy_ground);
 
         gravel = new Block();
         gravel.id = t.gravel.ordinal();
@@ -156,6 +170,7 @@ public class AllBlocks {
         gravel.textureRotation = 0;
         gravel.stackable = true;
         gravel.texture = new Texture(Gdx.files.internal("block/gravel.jpg"));
+        blockList.add(gravel);
         
         ground = new Block();
         ground.id = t.ground.ordinal();
@@ -164,6 +179,7 @@ public class AllBlocks {
         ground.textureRotation = 0;
         ground.stackable = true;
         ground.texture = new Texture(Gdx.files.internal("block/ground.png"));
+        blockList.add(ground);
         
         groundBck = new Block();
         groundBck.id = t.groundBck.ordinal();
@@ -172,6 +188,7 @@ public class AllBlocks {
         groundBck.textureRotation = 0;
         groundBck.stackable = true;
         groundBck.texture = new Texture(Gdx.files.internal("block/groundBck.png"));
+        blockList.add(groundBck);
         
         /*houseStone = new Block();
         houseStone.blocked = false;
@@ -187,6 +204,7 @@ public class AllBlocks {
         half_plank.textureRotation = 0;
         half_plank.stackable = true;
         half_plank.texture = new Texture(Gdx.files.internal("block/plank_halfblock.png"));
+        blockList.add(half_plank);
         
         chest = new Block();
         chest.id = t.chest.ordinal();
@@ -195,6 +213,7 @@ public class AllBlocks {
         chest.textureRotation = 0;
         chest.stackable = false;
         chest.texture = new Texture(Gdx.files.internal("block/chest.jpg"));
+        blockList.add(chest);
         
         iron = new Block();
         iron.id = t.iron.ordinal();
@@ -203,6 +222,7 @@ public class AllBlocks {
         iron.textureRotation = 0;
         iron.stackable = true;
         iron.texture = new Texture(Gdx.files.internal("block/iron.png"));
+        blockList.add(iron);
 
         ladder = new Block();
         ladder.id = t.ladder.ordinal();
@@ -211,6 +231,7 @@ public class AllBlocks {
         ladder.textureRotation = 0;
         ladder.stackable = true;
         ladder.texture = new Texture(Gdx.files.internal("block/ladder.png"));
+        blockList.add(ladder);
         
         leaf = new Block();
         leaf.id = t.leaf.ordinal();
@@ -219,6 +240,7 @@ public class AllBlocks {
         leaf.textureRotation = 0;
         leaf.stackable = true;
         leaf.texture = new Texture(Gdx.files.internal("block/leaf.png"));
+        blockList.add(leaf);
 
         plank = new Block();
         plank.id = t.plank.ordinal();
@@ -227,6 +249,7 @@ public class AllBlocks {
         plank.textureRotation = 0;
         plank.stackable = true;
         plank.texture = new Texture(Gdx.files.internal("block/plank.jpg"));
+        blockList.add(plank);
         
         sand = new Block();
         sand.id = t.sand.ordinal();
@@ -235,6 +258,7 @@ public class AllBlocks {
         sand.textureRotation = 0;
         sand.stackable = true;
         sand.texture = new Texture(Gdx.files.internal("block/sand.jpg"));
+        blockList.add(sand);
         
         stone = new Block();
         stone.id = t.stone.ordinal();
@@ -242,7 +266,8 @@ public class AllBlocks {
         stone.hardness = 5;
         stone.textureRotation = 0;
         stone.stackable = true;
-        stone.texture = new Texture(Gdx.files.internal("block/rocky.png"));        
+        stone.texture = new Texture(Gdx.files.internal("block/rocky.png"));  
+        blockList.add(stone);
 
         torch = new Block();
         torch.id = t.torch.ordinal();
@@ -251,6 +276,7 @@ public class AllBlocks {
         torch.textureRotation = 0;
         torch.stackable = true;
         torch.texture = new Texture(Gdx.files.internal("block/walltorch1.gif"));//torch.png"));
+        blockList.add(torch);
         
         window = new Block();
         window.id = t.window.ordinal();
@@ -259,6 +285,7 @@ public class AllBlocks {
         window.textureRotation = 0;
         window.stackable = true;
         window.texture = new Texture(Gdx.files.internal("block/window.jpg"));
+        blockList.add(window);
         
         wood = new Block();
         wood.id = t.wood.ordinal();
@@ -267,6 +294,7 @@ public class AllBlocks {
         wood.textureRotation = 0;
         wood.stackable = true;
         wood.texture = new Texture(Gdx.files.internal("block/wood.jpg"));
+        blockList.add(wood);
 
         wood_stairs = new Block();
         wood_stairs.id = t.wood_stairs.ordinal();
@@ -276,7 +304,21 @@ public class AllBlocks {
         wood_stairs.isRotationAllowed = true;
         wood_stairs.stackable = true;
         wood_stairs.texture = new Texture(Gdx.files.internal("block/wood_stairs.png"));
+        blockList.add(wood_stairs);
 
     }
 
+    public Block getBlockById(int id){
+        if (id < 0)
+            return null;
+        
+        for (Block block : blockList) 
+        {
+            if (block.id == id)
+                return block; 
+        }
+        
+        return null;
+    }
+    
 }

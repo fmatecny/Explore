@@ -11,13 +11,15 @@ package com.mygdx.game;
  */
 public final class Constants {
 
-    public static final int WIDTH_OF_MAP = 500;
+    public static final int WIDTH_OF_MAP = 50;
     public static final int HEIGHT_OF_MAP = 100;
     public static final int HEIGHT_OF_SKY = 30;
     public static final int SIZE_OF_CHUNK = 8;
     public static final float PPM = 100.0f;
     public static final float W_IN_M = MyGdxGame.width/PPM;
     public static final float H_IN_M = MyGdxGame.height/PPM;
+    
+    public static final String SPLIT_CHAR = "_";
     
     public static final int PLAYER_LEFT_BIT = 8;
     public static final int PLAYER_RIGHT_BIT = 2;

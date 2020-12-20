@@ -33,13 +33,8 @@ import com.mygdx.game.inventory.AllItems;
 import com.mygdx.game.world.Background;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
-import com.mygdx.game.world.Shaders;
 import com.mygdx.game.world.Shaders_box2dlights;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import save.SaveManager;
 
 /**
  *
@@ -48,6 +43,7 @@ import java.util.logging.Logger;
 public class GameScreen implements Screen{
     
     private final MyGdxGame parent;
+    private SaveManager saveManager;
     
     public static float PPM = 100;
 
@@ -61,10 +57,10 @@ public class GameScreen implements Screen{
     public static AllBlocks allBlocks = new AllBlocks();
     public static AllItems allItems = new AllItems();
     private final Background bck;
-    private final Map map;
-    private final Player player;
+    private static Map map;
+    private Player player;
     //private final Villager villager;
-    private final DebugHUD debugHUD;
+    private DebugHUD debugHUD;
     
     private boolean allowRotation = true;
     
@@ -96,11 +92,9 @@ public class GameScreen implements Screen{
     
     public GameScreen(MyGdxGame myGdxGame){
         parent = myGdxGame;
-        camera = new OrthographicCamera();//MyGdxGame.width,MyGdxGame.height);
-        // create stage and set it as input processor
-        stage = new Stage(new FitViewport(MyGdxGame.width/PPM,MyGdxGame.height/PPM,camera));
-
-        spriteBatch = new SpriteBatch();
+        
+        //create camera stuff 
+        createStage();
         
         // Create shaders
         //shaders = new Shaders();
@@ -117,7 +111,8 @@ public class GameScreen implements Screen{
         debugRenderer = new Box2DDebugRenderer();   
         
         // Create map - blocks, houses, trees...
-        map = new Map();
+        //map = new Map();
+        //createMap();
         
         // Create background
         bck = new Background();
@@ -126,11 +121,14 @@ public class GameScreen implements Screen{
         
         //villager = new Villager(stage);
         
+        createDebugStuff();
         // Create debug HUD
-        debugHUD = new DebugHUD(spriteBatch);  
+        //debugHUD = new DebugHUD(spriteBatch);  
         
+        createEntities();
         // Create player
-        player = new Player(stage, spriteBatch);
+        //player = new Player(stage, spriteBatch);
+        
     }
     
     @Override
@@ -338,30 +336,50 @@ public class GameScreen implements Screen{
         stage.dispose();   
         
         //shaders.dispose();
-        shaders_box2dlights.dispose();
+        //shaders_box2dlights.dispose();
     }
 
     public SpriteBatch getSpriteBatch() {
         return spriteBatch;
     } 
     
-    private void saveGame(){
-        Json json = new Json();
-        json.setOutputType(OutputType.minimal);
-        Integer[][] a = new Integer[map.getBlockArray().length][map.getBlockArray()[0].length];
-        for (int i = 0; i < map.getBlockArray().length; i++) {
-            for (int j = 0; j < map.getBlockArray()[i].length; j++) {
-                if (map.getBlockArray()[i][j] != null)
-                    a[i][j] = map.getBlockArray()[i][j].id;
-            }
-        }
-        
-        String b = json.toJson(a);
-        
-        FileHandle file = Gdx.files.local("scores.json");
-        file.writeString(b, false);  
+    
+    
+    public void createMap(){
+        // Create map - blocks, houses, trees...
+        map = new Map();
     }
     
+    private void saveGame(){
+        if(saveManager == null)
+            saveManager = new SaveManager();
+        
+        saveManager.saveGame(map, player);
+    }
     
+    public void loadGame(){
+        if(saveManager == null)
+            saveManager = new SaveManager();
+        
+        saveManager.loadGame(map);
+    }
+
+    public void createStage() {
+        camera = new OrthographicCamera();//MyGdxGame.width,MyGdxGame.height);
+        // create stage and set it as input processor
+        stage = new Stage(new FitViewport(MyGdxGame.width/PPM,MyGdxGame.height/PPM,camera));
+
+        spriteBatch = new SpriteBatch();
+    }
+
+    public void createDebugStuff() {
+        // Create debug HUD
+        debugHUD = new DebugHUD(spriteBatch);  
+    }
+
+    public void createEntities() {
+        // Create player
+        player = new Player();
+    }
     
 }

@@ -58,7 +58,10 @@ public class NewGameScreen extends ExploreMenuScreen{
                 public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                         System.out.println(nameField.getText());
                         System.out.println(worldField.getText());
-                        getParent().changeScreen(MyGdxGame.GAME);
+                        MyGdxGame.playerName = nameField.getText();
+                        MyGdxGame.worldName = worldField.getText();
+                        LoadingScreen.worldID = 0;
+                        getParent().changeScreen(MyGdxGame.LOADING);
 
                 }
         });

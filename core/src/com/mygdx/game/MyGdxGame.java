@@ -9,9 +9,13 @@ public class MyGdxGame extends Game {
     public static int width = 1280;
     public static int height = 720;
     
+    public static String worldName;
+    public static String playerName;
+    
     private MenuScreen menuScreen;
     private NewGameScreen newGameScreen;
     private LoadGameScreen loadGameScreen;
+    private LoadingScreen loadingScreen;
     private PreferencesScreen settingScreen;
     private ExitScreen exitScreen;
     private AppPreferences preferences;
@@ -25,6 +29,7 @@ public class MyGdxGame extends Game {
     public final static int EXIT        = 4; 
     public final static int GAME        = 5;
     public final static int PAUSE       = 6;
+    public final static int LOADING     = 7;
     
     public boolean resolutionChanged = false;
     
@@ -66,6 +71,12 @@ public class MyGdxGame extends Game {
                             if(pauseScreen == null) pauseScreen = new PauseScreen(this);
                             this.setScreen(pauseScreen);
                             break;
+                    case LOADING:
+                            if(loadingScreen == null) loadingScreen = new LoadingScreen(this);
+                            this.setScreen(loadingScreen);
+                            break;
+                            
+                    
             }
     }
 
@@ -93,6 +104,8 @@ public class MyGdxGame extends Game {
         
     }
 
+    
+    
    /* @Override
     public void dispose() {
         //textureAtlas.dispose();
@@ -109,5 +122,14 @@ public class MyGdxGame extends Game {
         //changeScreen(MENU);
         
     //}
+
+    public void createGameScreen() {
+        if (gameScreen != null) gameScreen.dispose();
+        gameScreen = new GameScreen(this);
+    }
+
+    public GameScreen getGameScreen() {
+        return gameScreen;
+    }
    
 }

@@ -58,7 +58,7 @@ public class Player {
     
     private Vector3 v3 = new Vector3();
 
-    public Player(Stage stage, SpriteBatch spriteBatch) {
+    public Player() {
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
         //System.out.println(typeOfMovement.stand.ordinal());
         textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("player/Stand/stand.txt");
