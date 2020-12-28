@@ -3,13 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package save;
+package com.mygdx.game.world.save;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
-import static com.badlogic.gdx.utils.JsonWriter.OutputType.json;
 import com.mygdx.game.Constants;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
@@ -36,8 +35,8 @@ public class SaveManager {
     }
     
     public void saveGame(Map map, Player player){
-        Gdx.files.local("data").mkdirs();
-        file = Gdx.files.local("data/" + MyGdxGame.playerName + "_" + MyGdxGame.worldName + ".json");
+        Gdx.files.external(".explore/data").mkdirs();
+        file = Gdx.files.external(".explore/data/" + MyGdxGame.playerName + "_" + MyGdxGame.worldName + ".json");
         
         //getMapParamsJson(map);
         
@@ -49,7 +48,7 @@ public class SaveManager {
     
     
     public void loadGame(Map map){
-        file = Gdx.files.local("data/" + MyGdxGame.playerName + "_" + MyGdxGame.worldName + ".json");
+        file = Gdx.files.external(".explore/data/" + MyGdxGame.playerName + "_" + MyGdxGame.worldName + ".json");
         
         //SaveMapParams[][] saveMapParams = new SaveMapParams[Constants.WIDTH_OF_MAP][Constants.HEIGHT_OF_MAP];
         SaveMapParams[][] saveMapParams = json.fromJson(SaveMapParams[][].class, file);

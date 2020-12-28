@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldFilter;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.mygdx.game.MyGdxGame;
 
@@ -24,7 +25,7 @@ public class NewGameScreen extends ExploreMenuScreen{
     
     private TextField nameField;
     private TextField worldField;
-    
+
     public NewGameScreen(MyGdxGame myGdxGame){
         super(myGdxGame);
     }
@@ -38,21 +39,10 @@ public class NewGameScreen extends ExploreMenuScreen{
         
         // temporary until we have asset manager in
         Skin skin = getSkin();
-        
-        nameField = new TextField("", skin);
-        worldField = new TextField("", skin);
-        
-        Table table = new Table();
-        table.setFillParent(true);
-        table.top();
-        table.left();
-        table.padTop(50);
-        table.padLeft(100);
-        //table.setDebug(true);
-        getStage().addActor(table);
-        
+
         // create world
         final TextButton createButton = new TextButton("Create World", skin);
+        createButton.setDisabled(true);
         createButton.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -65,6 +55,60 @@ public class NewGameScreen extends ExploreMenuScreen{
 
                 }
         });
+        
+        
+        nameField = new TextField("", skin);
+        worldField = new TextField("", skin);
+        
+        
+        nameField.setTextFieldFilter(new TextFieldFilter() {
+            // Accepts all Characters except '_' 
+            @Override
+            public  boolean acceptChar(TextField textField, char c) {
+                    return c != '_';
+                }
+        });
+        nameField.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent ce, Actor actor) {
+                if ( nameField.getText().length() > 0 &&
+                    worldField.getText().length() > 0)
+                    createButton.setDisabled(false);
+                else
+                    createButton.setDisabled(true);
+            }
+        });
+        
+        
+        worldField.setTextFieldFilter(new TextFieldFilter() {
+            // Accepts all Characters except '_' 
+            @Override
+            public  boolean acceptChar(TextField textField, char c) {
+                    return c != '_';
+                }
+        });
+
+        worldField.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent ce, Actor actor) {
+                if ( nameField.getText().length() > 0 &&
+                    worldField.getText().length() > 0)
+                    createButton.setDisabled(false);
+                else
+                    createButton.setDisabled(true);
+            }
+        });
+        
+        Table table = new Table();
+        table.setFillParent(true);
+        table.top();
+        table.left();
+        table.padTop(50);
+        table.padLeft(100);
+        //table.setDebug(true);
+        getStage().addActor(table);
+        
+
         
         // return back to menu
         final TextButton backButton = new TextButton("Back To Menu", skin);

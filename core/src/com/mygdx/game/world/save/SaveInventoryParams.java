@@ -3,21 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package save;
+package com.mygdx.game.world.save;
 
 /**
  *
  * @author Fery
  */
-public class SaveMapParams {
+public class SaveInventoryParams {
 
-    public int id;
-    public boolean blocked;
-    public int rotation;
-    
-    
-    public SaveMapParams() {
-
+    public SaveInventoryParams() {
     }
     
 }

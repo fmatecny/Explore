@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public class LoadGameScreen extends ExploreMenuScreen{
 
     private ArrayList<SavedGameItem> savedGameList;
-    
+    private Table scrolTable;
     
     public LoadGameScreen(MyGdxGame myGdxGame){
             super(myGdxGame);
@@ -50,22 +50,15 @@ public class LoadGameScreen extends ExploreMenuScreen{
         getStage().addActor(table);
         
         
-        Table scrolTable = new Table(skin);
+        scrolTable = new Table(skin);
         //scrolTable.setDebug(true);
         
         savedGameList = new ArrayList<>();
-        
         loadSavedGameList();
-
-        for (SavedGameItem savedGameItem : savedGameList) 
-        {
-            scrolTable.add(savedGameItem).fillX().uniformX();
-            scrolTable.row().pad(10, 0, 10, 0);
-        }
+        updateTable();
 
         scrollPane = new ScrollPane(scrolTable, skin);
         scrollPane.setFadeScrollBars(false);
-        
         
         // return back to menu
         final TextButton backButton = new TextButton("Back To Menu", skin);
@@ -91,33 +84,56 @@ public class LoadGameScreen extends ExploreMenuScreen{
     private void loadSavedGameList() {
         
         FileHandle dirHandle;
-        dirHandle = Gdx.files.internal("data");
+        dirHandle = Gdx.files.external(".explore/data");
         String s;
-        String player;
-        String world;
         int i = 0;
         
         for (FileHandle entry: dirHandle.list()) {
             
             s = entry.nameWithoutExtension();
-            player = s.split(Constants.SPLIT_CHAR)[0];
-            world = s.split(Constants.SPLIT_CHAR)[1];
-            System.out.println(player + "|" + world);
-            
-            savedGameList.add(new SavedGameItem(player, world, getParent()));
-            savedGameList.get(i).getBtn().addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                        LoadingScreen.worldID = 1;
-                        getParent().changeScreen(MyGdxGame.LOADING);
-
-                }
-            });
-            i++;
+            if (s.length() > 1)
+            {
+                final String player = s.split(Constants.SPLIT_CHAR)[0];
+                final String world = s.split(Constants.SPLIT_CHAR)[1];
+                final FileHandle file = entry;
+                //System.out.println(player + "|" + world);
+                savedGameList.add(new SavedGameItem(player, world, getParent()));
+                
+                savedGameList.get(i).getLoadBtn().addListener(new ChangeListener() {
+                        @Override
+                        public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                                MyGdxGame.playerName = player;
+                                MyGdxGame.worldName = world;
+                                LoadingScreen.worldID = 1;
+                                System.out.println(MyGdxGame.playerName + "|load|"+ MyGdxGame.worldName);
+                                getParent().changeScreen(MyGdxGame.LOADING);
+                        }
+                    });
+                
+                savedGameList.get(i).getDeleteBtn().addListener(new ChangeListener() {
+                        @Override
+                        public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                                System.out.println(player + "|delete|" + world + Gdx.files.getExternalStoragePath());
+                                
+                                file.delete();
+                                savedGameList.clear();
+                                loadSavedGameList();
+                                updateTable();
+                        }
+                    });
+                
+                i++;
+            }
         }
-        
-        
-        
-
     }
+    
+    private void updateTable(){
+        scrolTable.clear();
+        for (SavedGameItem savedGameItem : savedGameList) 
+        {
+            scrolTable.add(savedGameItem).fillX().uniformX();
+            scrolTable.row().pad(20, 0, 0, 0);
+        }
+    }
+    
 }

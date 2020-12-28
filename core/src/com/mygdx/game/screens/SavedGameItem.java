@@ -5,11 +5,9 @@
  */
 package com.mygdx.game.screens;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Skins;
 
@@ -19,46 +17,39 @@ import com.mygdx.game.Skins;
  */
 public class SavedGameItem extends Table{
     
-    private TextButton btn;
+    private TextButton loadBtn;
+    private TextButton deleteBtn;
     private Label worldNameLbl;
     private Label playerNameLbl;
     
     
     public SavedGameItem(final String playerName, final String worldName, final MyGdxGame parent) {
         
-        this.setDebug(true);
+        //this.setDebug(true);
         
-        btn = new TextButton("Load World", Skins.skin);
-        btn.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                        MyGdxGame.playerName = playerName;
-                        MyGdxGame.worldName = worldName;
-                        System.out.println(MyGdxGame.playerName + "|"+ MyGdxGame.worldName);
-                        parent.changeScreen(MyGdxGame.LOADING);
-
-                }
-            });
+        loadBtn = new TextButton("Load", Skins.skin);
+        deleteBtn = new TextButton("Delete", Skins.skin);
+        
         playerNameLbl = new Label(playerName, Skins.skin);
         worldNameLbl = new Label(worldName, Skins.skin);
         
+        float width = loadBtn.getWidth()/2;
+        float height = loadBtn.getHeight()*0.7f;
         
-        Table tableLbl = new Table();
-        tableLbl.add(playerNameLbl);
-        tableLbl.row();
-        tableLbl.add(worldNameLbl);
-        
-        this.add(tableLbl).width(372/2);
-        this.add(btn).width(372/2);
-        
+        this.add(playerNameLbl).width(width).height(height);
+        this.add(loadBtn).width(width).height(height);
+        this.row();
+        this.add(worldNameLbl).width(width).height(height);
+        this.add(deleteBtn).width(width).height(height);
         
     }
 
-    public TextButton getBtn() {
-        return btn;
+    public TextButton getLoadBtn() {
+        return loadBtn;
     }
 
-    
-    
-    
+    public TextButton getDeleteBtn() {
+        return deleteBtn;
+    }
+     
 }
