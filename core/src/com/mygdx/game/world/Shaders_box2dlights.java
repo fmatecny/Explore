@@ -20,13 +20,11 @@ import java.util.ArrayList;
  */
 public class Shaders_box2dlights {
 
-
-
     private RayHandler rayHandler;
     private DirectionalLight sun;
     private PointLight myLight;
     
-    private PointLight torchLight;
+    //private PointLight torchLight;
     private ArrayList<PointLight> torchLightList;
     
     private Color color;

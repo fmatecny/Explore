@@ -18,7 +18,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
@@ -111,7 +110,7 @@ public class Player {
     }
 
 
-    public void definePlayer(){
+    private void definePlayer(){
         BodyDef bdef = new BodyDef();
         bdef.position.set(450.0f/GameScreen.PPM, 20);
         bdef.type = BodyDef.BodyType.DynamicBody;

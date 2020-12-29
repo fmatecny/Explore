@@ -7,7 +7,6 @@ package com.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -19,8 +18,6 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
@@ -54,8 +51,8 @@ public class GameScreen implements Screen{
     private Stage stage;
     private SpriteBatch spriteBatch;
     
-    public static AllBlocks allBlocks = new AllBlocks();
-    public static AllItems allItems = new AllItems();
+    public static AllBlocks allBlocks;
+    public static AllItems allItems;
     private final Background bck;
     private static Map map;
     private Player player;
@@ -95,12 +92,6 @@ public class GameScreen implements Screen{
         
         //create camera stuff 
         createStage();
-        
-        // Create shaders
-        //shaders = new Shaders();
-        
-        //shaders.setDefaultShader(spriteBatch);
-        //shaders.setVignetteShader(spriteBatch);
             
         // Create box2d world
         world = new World(new Vector2(0, -10), true);
@@ -110,25 +101,11 @@ public class GameScreen implements Screen{
         
         debugRenderer = new Box2DDebugRenderer();   
         
-        // Create map - blocks, houses, trees...
-        //map = new Map();
-        //createMap();
-        
         // Create background
         bck = new Background();
         
-
-        
-        //villager = new Villager(stage);
-        
-        createDebugStuff();
         // Create debug HUD
-        //debugHUD = new DebugHUD(spriteBatch);  
-        
-        createEntities();
-        // Create player
-        //player = new Player(stage, spriteBatch);
-        
+        createDebugStuff();
     }
     
     @Override
@@ -231,9 +208,9 @@ public class GameScreen implements Screen{
                 if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isBlock())
                 {
                     if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock())){
-                        player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
                         if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.torch.id)
                             shaders_box2dlights.setTorchLight(v3.x,v3.y);
+                        player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
                     }
                 }
             }
@@ -344,6 +321,13 @@ public class GameScreen implements Screen{
     } 
     
     
+    public void createAllBlocks(){
+        allBlocks = new AllBlocks();
+    }
+    
+    public void createAllItems(){
+        allItems = new AllItems();
+    }
     
     public void createMap(){
         // Create map - blocks, houses, trees...
@@ -361,9 +345,26 @@ public class GameScreen implements Screen{
         if(saveManager == null)
             saveManager = new SaveManager();
         
-        saveManager.loadGame(map);
+        saveManager.loadGame(map, player);
+        updateShaders();
     }
 
+    private void updateShaders(){
+        
+        for (int x = 0; x < Constants.WIDTH_OF_MAP; x++) {
+            for (int y = 0; y < Constants.HEIGHT_OF_MAP; y++) {
+                if (map.getBlock(x, y) != null){
+                    if (map.getBlock(x, y).id == AllBlocks.torch.id)
+                        shaders_box2dlights.setTorchLight(x*Block.size,y*Block.size);  
+                }
+            }
+            
+        }
+        
+        
+    }
+    
+    
     public void createStage() {
         camera = new OrthographicCamera();//MyGdxGame.width,MyGdxGame.height);
         // create stage and set it as input processor

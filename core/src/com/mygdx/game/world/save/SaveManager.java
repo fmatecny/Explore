@@ -12,7 +12,11 @@ import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.mygdx.game.Constants;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
+import com.mygdx.game.inventory.Inventory;
+import com.mygdx.game.inventory.InventorySlot;
+import com.mygdx.game.inventory.Item;
 import static com.mygdx.game.screens.GameScreen.allBlocks;
+import static com.mygdx.game.screens.GameScreen.allItems;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
 
@@ -38,20 +42,20 @@ public class SaveManager {
         Gdx.files.external(".explore/data").mkdirs();
         file = Gdx.files.external(".explore/data/" + MyGdxGame.playerName + "_" + MyGdxGame.worldName + ".json");
         
-        //getMapParamsJson(map);
+        file.writeString(getSaveParamsJson(map, player), false);
         
-        
-        
-        file.writeString(getMapParamsJson(map), false);
-    
+        System.out.println("Save Done");
     }
     
     
-    public void loadGame(Map map){
+    public void loadGame(Map map, Player player){
         file = Gdx.files.external(".explore/data/" + MyGdxGame.playerName + "_" + MyGdxGame.worldName + ".json");
         
+        SaveParams saveParams = json.fromJson(SaveParams.class, file);
+        
         //SaveMapParams[][] saveMapParams = new SaveMapParams[Constants.WIDTH_OF_MAP][Constants.HEIGHT_OF_MAP];
-        SaveMapParams[][] saveMapParams = json.fromJson(SaveMapParams[][].class, file);
+        SaveMapParams[][] saveMapParams = saveParams.saveMapParams;
+        SavePlayerParams savePlayerParams = saveParams.savePlayerParams;
     
         for (int i = 0; i < Constants.WIDTH_OF_MAP; i++) {
             for (int j = 0; j < Constants.HEIGHT_OF_MAP; j++) {
@@ -67,11 +71,52 @@ public class SaveManager {
             //System.out.println("");
         }
         
+        if (savePlayerParams != null)
+        {
+            player.b2body.setTransform(savePlayerParams.position, 0);
+            for (int i = 0; i < Inventory.numOfCol; i++) 
+            {
+                if (savePlayerParams.saveInventoryParams.saveInventoryBar[i].id != -1)
+                {
+                    player.getInventory().getInventoryBarHUD().inventoryBar[i].numOfItem = savePlayerParams.saveInventoryParams.saveInventoryBar[i].amount;
+                    if (savePlayerParams.saveInventoryParams.saveInventoryBar[i].isBlock)
+                    {
+                        player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(allBlocks.getBlockById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
+                    }
+                    else{
+                        player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(allItems.getItemById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
+                    }
+                }
+            }  
+            
+            
+            
+            for (int x = 0; x < Inventory.numOfCol; x++) 
+            {
+                for (int y = 0; y < Inventory.numOfRow; y++) 
+                {
+                    if (savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id != -1)
+                    {
+                        player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].numOfItem = savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].amount;
+                        if (savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].isBlock)
+                        {
+                            player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(allBlocks.getBlockById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
+                        }
+                        else{
+                            player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(allItems.getItemById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
+                        }
+                    }
+                }
+            }
+            
+            
+            
+        }    
     }
     
     
     
-    public String getMapParamsJson(Map map){
+    public SaveMapParams[][] getMapParams(Map map){
         
         SaveMapParams[][] saveMapParams = new SaveMapParams[Constants.WIDTH_OF_MAP][Constants.HEIGHT_OF_MAP];
         
@@ -91,10 +136,65 @@ public class SaveManager {
             }
         }
         
-        return json.toJson(saveMapParams);
+        return saveMapParams;
     }
     
     
+    private SavePlayerParams getPlayerParams(Player player){
+        SavePlayerParams savePlayerParams = new SavePlayerParams();
+        
+        savePlayerParams.position = player.b2body.getPosition();
+        
+        InventorySlot inventorySlot;
+        
+        for (int i = 0; i < Inventory.numOfCol; i++) 
+        {
+            inventorySlot = player.getInventory().getInventoryBarHUD().inventoryBar[i];
+            if (inventorySlot.isEmpty())
+            {
+                savePlayerParams.saveInventoryParams.saveInventoryBar[i].id = -1;
+                //savePlayerParams.saveInventoryParams.saveInventoryBar[i].amount = 0;
+            }
+            else{
+                savePlayerParams.saveInventoryParams.saveInventoryBar[i].id = inventorySlot.isBlock() ? inventorySlot.getBlock().id : inventorySlot.getItem().id;
+                savePlayerParams.saveInventoryParams.saveInventoryBar[i].amount = inventorySlot.numOfItem;
+                savePlayerParams.saveInventoryParams.saveInventoryBar[i].isBlock = inventorySlot.isBlock();
+            
+            }    
+            
+        }
+        
+        for (int y = 0; y < Inventory.numOfRow; y++) {
+            for (int x = 0; x < Inventory.numOfCol; x++) {
+                inventorySlot = player.getInventory().getInventoryPackage().inventoryPackageArray[x][y];
+                if (inventorySlot.isEmpty())
+                {
+                    savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id = -1;
+                    //savePlayerParams.saveInventoryParams.saveInventoryBar[i].amount = 0;
+                }
+                else{
+                    savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id = inventorySlot.isBlock() ? inventorySlot.getBlock().id : inventorySlot.getItem().id;
+                    savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].amount = inventorySlot.numOfItem;
+                    savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].isBlock = inventorySlot.isBlock();
+
+                }  
+            } 
+        }
+        
+        
+        return savePlayerParams;  
+    }
+    
+    
+    private String getSaveParamsJson(Map map, Player player){
+    
+        SaveParams saveParams = new SaveParams();
+        
+        saveParams.saveMapParams = getMapParams(map);
+        saveParams.savePlayerParams = getPlayerParams(player);
+        
+        return json.toJson(saveParams);
+    }
     
     
 }

@@ -5,13 +5,22 @@
  */
 package com.mygdx.game.world.save;
 
+import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.inventory.InventoryBar;
+
 /**
  *
  * @author Fery
  */
 public class SavePlayerParams {
 
+    public Vector2 position;
+    //private int health;
+    
+    public SaveInventoryParams saveInventoryParams;
+    
     public SavePlayerParams() {
+        saveInventoryParams = new SaveInventoryParams();
     }
     
 }

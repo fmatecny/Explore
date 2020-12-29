@@ -446,6 +446,10 @@ public class Inventory implements Disposable{
     public InventoryBar getInventoryBarHUD() {
         return inventoryBarHUD;
     }
+
+    public InventoryPackage getInventoryPackage() {
+        return inventoryPackage;
+    }
     
     public Stage getStageInventory(){
         return stageInventory;
