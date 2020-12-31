@@ -11,9 +11,14 @@ package com.mygdx.game.world.save;
  */
 public class SaveInventorySlot {
 
+        public enum t
+        {
+           block, item, tool
+        }
+    
         public int id;
         public int amount;
-        public boolean isBlock;
+        public t type;
 
         public SaveInventorySlot() {
         }

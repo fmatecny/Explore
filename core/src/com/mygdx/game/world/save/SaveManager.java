@@ -14,9 +14,9 @@ import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.inventory.Inventory;
 import com.mygdx.game.inventory.InventorySlot;
-import com.mygdx.game.inventory.Item;
 import static com.mygdx.game.screens.GameScreen.allBlocks;
 import static com.mygdx.game.screens.GameScreen.allItems;
+import static com.mygdx.game.screens.GameScreen.allTools;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
 
@@ -79,13 +79,18 @@ public class SaveManager {
                 if (savePlayerParams.saveInventoryParams.saveInventoryBar[i].id != -1)
                 {
                     player.getInventory().getInventoryBarHUD().inventoryBar[i].numOfItem = savePlayerParams.saveInventoryParams.saveInventoryBar[i].amount;
-                    if (savePlayerParams.saveInventoryParams.saveInventoryBar[i].isBlock)
+                    
+                    if (savePlayerParams.saveInventoryParams.saveInventoryBar[i].type == SaveInventorySlot.t.block)
                     {
                         player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(allBlocks.getBlockById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
                     }
-                    else{
+                    else if (savePlayerParams.saveInventoryParams.saveInventoryBar[i].type == SaveInventorySlot.t.tool){
+                        player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(allTools.getToolById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
+                    }
+                    else {
                         player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(allItems.getItemById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
                     }
+                    
                 }
             }  
             
@@ -98,11 +103,14 @@ public class SaveManager {
                     if (savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id != -1)
                     {
                         player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].numOfItem = savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].amount;
-                        if (savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].isBlock)
+                        if (savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].type == SaveInventorySlot.t.block)
                         {
                             player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(allBlocks.getBlockById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
                         }
-                        else{
+                        else if (savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].type == SaveInventorySlot.t.tool){
+                            player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(allTools.getToolById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
+                        }
+                        else {
                             player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(allItems.getItemById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
                         }
                     }
@@ -156,9 +164,16 @@ public class SaveManager {
                 //savePlayerParams.saveInventoryParams.saveInventoryBar[i].amount = 0;
             }
             else{
-                savePlayerParams.saveInventoryParams.saveInventoryBar[i].id = inventorySlot.isBlock() ? inventorySlot.getBlock().id : inventorySlot.getItem().id;
                 savePlayerParams.saveInventoryParams.saveInventoryBar[i].amount = inventorySlot.numOfItem;
-                savePlayerParams.saveInventoryParams.saveInventoryBar[i].isBlock = inventorySlot.isBlock();
+                if (inventorySlot.isBlock()){
+                    savePlayerParams.saveInventoryParams.saveInventoryBar[i].id = inventorySlot.getBlock().id;
+                    savePlayerParams.saveInventoryParams.saveInventoryBar[i].type = SaveInventorySlot.t.block;}
+                else if (inventorySlot.isTool()){
+                    savePlayerParams.saveInventoryParams.saveInventoryBar[i].id = inventorySlot.getTool().id;
+                    savePlayerParams.saveInventoryParams.saveInventoryBar[i].type = SaveInventorySlot.t.tool;}
+                else{
+                    savePlayerParams.saveInventoryParams.saveInventoryBar[i].id = inventorySlot.getItem().id;
+                    savePlayerParams.saveInventoryParams.saveInventoryBar[i].type = SaveInventorySlot.t.item;}
             
             }    
             
@@ -173,9 +188,17 @@ public class SaveManager {
                     //savePlayerParams.saveInventoryParams.saveInventoryBar[i].amount = 0;
                 }
                 else{
-                    savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id = inventorySlot.isBlock() ? inventorySlot.getBlock().id : inventorySlot.getItem().id;
+                    
                     savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].amount = inventorySlot.numOfItem;
-                    savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].isBlock = inventorySlot.isBlock();
+                    if (inventorySlot.isBlock()){
+                        savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id = inventorySlot.getBlock().id;
+                        savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].type = SaveInventorySlot.t.block;}
+                    else if (inventorySlot.isTool()){
+                        savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id = inventorySlot.getTool().id;
+                        savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].type = SaveInventorySlot.t.tool;}
+                    else{
+                        savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id = inventorySlot.getItem().id;
+                        savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].type = SaveInventorySlot.t.item;}
 
                 }  
             } 

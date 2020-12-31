@@ -43,7 +43,7 @@ public class LoadingScreen extends ExploreMenuScreen{
         table.center();
         table.left();
         table.padLeft(100);
-        table.setDebug(true);
+        //table.setDebug(true);
         getStage().addActor(table);
         
         progressBar = new ProgressBar(0.0f, 100, .1f, false, skin, "xp");
@@ -67,7 +67,7 @@ public class LoadingScreen extends ExploreMenuScreen{
         
         switch (renderIdx) {
             case 0: progress = 10;
-                    progressString = "Loading...";
+                    progressString = "Creating game screen";
                     break;
             
             case 2: getParent().createGameScreen();
@@ -77,32 +77,41 @@ public class LoadingScreen extends ExploreMenuScreen{
                     
             case 4: getParent().getGameScreen().createAllBlocks();
                     progress = 50;
-                    progressString = "Creating game screen";
+                    progressString = "Creating items";
                     break;
                     
             case 6: getParent().getGameScreen().createAllItems();
                     progress = 60;
+                    progressString = "Creating tools";
+                    break;
+                  
+            case 8: getParent().getGameScreen().createAllTools();
+                    progress = 70;
+                    progressString = "Creating entities";
                     break;
                     
-            case 8: getParent().getGameScreen().createEntities();
-                    progress = 70;
+            case 10: getParent().getGameScreen().createEntities();
+                    progress = 80;
+                    progressString = "Creating map";
                     break;     
                     
-            case 10: getParent().getGameScreen().createMap();
-                    progress = 80;
+            case 12: getParent().getGameScreen().createMap();
+                    progress = 90;
                     break;
                     
-            case 12: if (worldID == 0)
+            case 14: if (worldID == 0)
                         progress = 99;
+                     else
+                        progressString = "Loading game";
                     break;
                     
-            case 14: if (worldID > 0){
+            case 16: if (worldID > 0){
                         getParent().getGameScreen().loadGame();
                         progress = 99;
                     }
                     break;  
                     
-            case 16: progress = 100;
+            case 18: progress = 100;
                     break; 
                     
                     

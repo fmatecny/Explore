@@ -10,6 +10,7 @@ import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.Skins;
 import com.mygdx.game.world.AllBlocks;
+import com.mygdx.game.world.AllTools;
 
 /**
  *
@@ -220,6 +221,11 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftedItem.setObject(AllBlocks.furnace);
                 break;
                 
+            case Constants.RECEPIE_PICKAXE:
+                craftedItem.numOfItem = 1;
+                craftedItem.setObject(AllTools.pickaxe);
+                break;
+                
             default:
                 craftedItem.numOfItem = 0;
                 craftedItem.removeObject();
@@ -299,8 +305,15 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftingSlots[2][0].numOfItem -= n;
                 craftingSlots[2][1].numOfItem -= n;
                 craftingSlots[2][2].numOfItem -= n;
-                break; 
+                break;
                 
+            case Constants.RECEPIE_PICKAXE:
+                craftingSlots[0][0].numOfItem -= n;
+                craftingSlots[1][0].numOfItem -= n;
+                craftingSlots[1][1].numOfItem -= n;
+                craftingSlots[1][2].numOfItem -= n;
+                craftingSlots[2][0].numOfItem -= n;
+                break; 
             default:
                 
         }
@@ -504,6 +517,26 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftingSlots[2][1].getBlock().id == AllBlocks.stone.id &&
                 craftingSlots[2][2].getBlock().id == AllBlocks.stone.id)
                 return Constants.RECEPIE_FURNACE;
+            }
+        
+if (
+            craftingSlots[0][0].getBlock() != null &&
+            craftingSlots[0][1].isEmpty() &&
+            craftingSlots[0][2].isEmpty() &&
+            craftingSlots[1][0].getBlock() != null &&
+            craftingSlots[1][1].getItem() != null &&
+            craftingSlots[1][2].getItem() != null &&
+            craftingSlots[2][0].getBlock() != null &&
+            craftingSlots[2][1].isEmpty() &&
+            craftingSlots[2][2].isEmpty()
+            )
+            {
+            if (craftingSlots[0][0].getBlock().id == AllBlocks.stone.id &&
+                craftingSlots[1][0].getBlock().id == AllBlocks.stone.id &&
+                craftingSlots[1][1].getItem().id == AllItems.stick.id &&
+                craftingSlots[1][2].getItem().id == AllItems.stick.id &&
+                craftingSlots[2][0].getBlock().id == AllBlocks.stone.id)
+                return Constants.RECEPIE_PICKAXE;
             }
         
         

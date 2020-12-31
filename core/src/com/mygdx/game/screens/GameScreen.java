@@ -27,6 +27,7 @@ import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.inventory.AllItems;
+import com.mygdx.game.world.AllTools;
 import com.mygdx.game.world.Background;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
@@ -53,6 +54,7 @@ public class GameScreen implements Screen{
     
     public static AllBlocks allBlocks;
     public static AllItems allItems;
+    public static AllTools allTools;
     private final Background bck;
     private static Map map;
     private Player player;
@@ -187,6 +189,7 @@ public class GameScreen implements Screen{
                     if (v != null){
                         if (map.getBlock(v.X, v.Y) != null){
                             //map.getBlock(v.X, v.Y).textureRotation = 0;
+                            mining();
                             if (player.getInventory().addObjectToInvenotry(map.getBlock(v.X, v.Y)))
                             {
                                 if (map.getBlock(v.X, v.Y).id == AllBlocks.torch.id)
@@ -283,6 +286,10 @@ public class GameScreen implements Screen{
         
     }
     
+    private void mining(){
+    
+    
+    }
     
     @Override
     public void resize(int width, int height) {
@@ -327,6 +334,10 @@ public class GameScreen implements Screen{
     
     public void createAllItems(){
         allItems = new AllItems();
+    }
+    
+    public void createAllTools(){
+        allTools = new AllTools();
     }
     
     public void createMap(){

@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.world.Block;
+import com.mygdx.game.world.Tool;
 
 /**
  *
@@ -26,6 +27,7 @@ public class InventorySlot extends Table{
     public int numOfItem;
     private Block block = null;
     private Item item = null;
+    private Tool tool = null;
     private Texture texture;
 
     private BitmapFont font;
@@ -90,11 +92,15 @@ public class InventorySlot extends Table{
     }
 
     public boolean isEmpty(){
-        return (numOfItem <= 0 || (block == null && item == null) || texture == null);
+        return (numOfItem <= 0 || (block == null && item == null && tool == null) || texture == null);
     }
 
     public boolean isBlock(){
         return (numOfItem > 0 && block != null && texture != null);
+    }
+    
+    public boolean isTool(){
+        return (numOfItem > 0 && tool != null && texture != null);
     }
     
     public Block getBlock() {
@@ -104,6 +110,11 @@ public class InventorySlot extends Table{
     public Item getItem() {
         return isEmpty() ? null : item;
     }
+    
+    public Tool getTool() {
+        return isEmpty() ? null : tool;
+    }
+    
     
     public void setObject(InventorySlot slot, int n){
         this.numOfItem = n;
@@ -115,6 +126,10 @@ public class InventorySlot extends Table{
         else if(slot.item != null)
         {
             setObject(slot.item);
+        }
+        else if(slot.tool != null)
+        {
+            setObject(slot.tool);
         }
         else{
             removeObject();
@@ -131,6 +146,8 @@ public class InventorySlot extends Table{
             this.block = block;
             this.texture = block.texture;
             this.block.textureRotation = 0;
+            this.item = null;
+            this.tool = null;
         }
     }
     
@@ -139,12 +156,26 @@ public class InventorySlot extends Table{
         {
             this.item = item;
             this.texture = item.texture;
+            this.block = null;
+            this.tool = null;
+        }  
+    }
+    
+    public void setObject(Tool tool) {
+        if (tool != null)
+        {
+            this.tool = tool;
+            this.texture = tool.texture;
+            this.block = null;
+            this.item = null;
         }  
     }
 
     public void removeObject() {
+        this.numOfItem = 0;
         this.block = null;
         this.item = null;
+        this.tool = null;
         this.texture = null;
     }
     
@@ -165,11 +196,17 @@ public class InventorySlot extends Table{
                 return true;
         }
         
+        if (this.tool != null && dragSlot.getTool() != null)
+        {
+            if (this.tool == dragSlot.getTool())
+                return true;
+        }
+        
         return false;
     }
     
     public boolean isObjectStackable(){
-        return block != null ? block.stackable : true;
+        return block != null ? block.stackable : !isTool();
     }
     
     @Override
