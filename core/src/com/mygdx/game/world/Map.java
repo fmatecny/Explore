@@ -5,7 +5,12 @@
  */
 package com.mygdx.game.world;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
@@ -43,11 +48,27 @@ public class Map extends WorldObject{
     private int previousRight = width;
     private int previousDown = 0;
     private int previousUp = height;
+    
+    private TextureAtlas textureAtlas;
+    private Animation<AtlasRegion> breakBlockAnimation;
+    private TextureAtlas textureTorchAtlas;
+    private Animation<AtlasRegion> torchAnimation;
+    private ArrayList<IntVector2> torchsPos = new ArrayList<>();
+    private float stateTime = 0;
+    private float stateTimeTorch = 0;
+    private boolean isMining = false;
+    private Block miningBlock = null;
+    private Block minedBlock = null;
 
     public Map() {
         mapArray = new Block[width][height];        
         
-        generateMap();  
+        generateMap();
+
+        textureAtlas = new TextureAtlas("block/cracking1.txt");
+        breakBlockAnimation = new Animation<>(0.5f, textureAtlas.getRegions());
+        textureTorchAtlas = new TextureAtlas("block/walltorch.txt");
+        torchAnimation = new Animation<>(0.1f, textureTorchAtlas.getRegions());
     }
     
     private void generateMap() {
@@ -253,27 +274,45 @@ public class Map extends WorldObject{
     }
     
     
-    public Block getBlock(int x, int y){
+    private Block getBlock(int x, int y){
         if (y < 0)
             y = 0;
         
         if (x < 0)
             x = 0;
         
+        if (x >= mapArray.length)
+            return null;
+        
+        if (y >= mapArray[x].length)
+            return null;
+        
         return mapArray[x][y];
     
     }
     
-    private Block getBlockByIdx(IntVector2 v){
-        return mapArray[v.X][v.Y];
+    public Block getBlockByIdx(IntVector2 v){
+        if (v == null)
+            return null;
+        
+        return getBlock(v.X,v.Y);
     
     }
     
-    private Block getBlockByIdx(int x, int y){
-        return mapArray[x][y];
+    public Block getBlockByIdx(int x, int y){
+        return getBlock(x, y);
     
     }
 
+    public int getBlockId(IntVector2 v){
+        return getBlockId(v.X, v.Y); 
+    }
+    
+    public int getBlockId(int x, int y){
+        Block b = getBlockByIdx(x, y);
+        return b == null ? -1 : b.id; 
+    }
+    
     public Block[][] getBlockArray() {
         return mapArray;
     }    
@@ -290,7 +329,22 @@ public class Map extends WorldObject{
             if (mapArray[x][y].id == AllBlocks.door_up.id)
                 mapArray[x][y-1] = null;
             
+            if (minedBlock == mapArray[x][y]){
+                miningBlock = null;
+                minedBlock = null;}
+            
+            if (mapArray[x][y].id == AllBlocks.torch.id){
+                for (IntVector2 torchsPo : torchsPos) {
+                    if (torchsPo.X == x && torchsPo.Y == y){
+                        torchsPos.remove(torchsPo);
+                        break;
+                    }
+                }
+            }
+                
+            
             mapArray[x][y] = null;
+           
     }
     
     public boolean addBodyToIdx(int x, int y, Block b){
@@ -307,6 +361,9 @@ public class Map extends WorldObject{
         else{
             mapArray[x][y] = new Block(b);
         }
+        
+        if (b.id == AllBlocks.torch.id)
+            torchsPos.add(new IntVector2(x, y));
         
         mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, b.blocked));
         
@@ -428,8 +485,8 @@ public class Map extends WorldObject{
                     {
                         if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
                             spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
-                    }
-                    drawWithRotation(spriteBatch, i, j);
+                    }else
+                        drawWithRotation(spriteBatch, i, j);
                 }
                 else if(j < height-Constants.HEIGHT_OF_SKY) {
                     if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
@@ -437,6 +494,33 @@ public class Map extends WorldObject{
                 }
             }
         }
+        
+        
+        if (isMining){
+            stateTime += Gdx.graphics.getDeltaTime();
+            TextureRegion currentFrame = breakBlockAnimation.getKeyFrame(stateTime);
+            IntVector2 v = (IntVector2)miningBlock.getBody().getUserData();
+            spriteBatch.draw(currentFrame, v.X*Block.size, v.Y*Block.size, Block.size, Block.size);
+            if (breakBlockAnimation.isAnimationFinished(stateTime)){
+                isMining = false; 
+                minedBlock = miningBlock;
+            }
+        }
+        
+        if (torchsPos.isEmpty() && stateTimeTorch != 0){
+            stateTimeTorch = 0;}
+        else{
+            stateTimeTorch += Gdx.graphics.getDeltaTime();
+            TextureRegion currentFrame = torchAnimation.getKeyFrame(stateTimeTorch, true);
+            for (IntVector2 torchPos : torchsPos) {
+                spriteBatch.draw(currentFrame, torchPos.X*Block.size, torchPos.Y*Block.size, Block.size, Block.size);   
+            }
+        }
+        
+
+        
+        
+
     }
 
     private void drawWithRotation(SpriteBatch spriteBatch, int i, int j) {
@@ -461,6 +545,28 @@ public class Map extends WorldObject{
     
     }
 
+    public void mining(IntVector2 v){
+        if ((miningBlock == null && minedBlock == null) ||
+            (getBlockByIdx(v) != miningBlock) ) 
+        {
+            miningBlock = getBlockByIdx(v);
+            stateTime = 0;
+            isMining = true;
+            breakBlockAnimation.setFrameDuration(miningBlock.hardness/10.0f);
+        }
+    }
+    
+    public boolean isMiningDone(){
+        return !isMining; 
+    }
+    
+    public void stopMining(){
+        isMining = false;
+        stateTime = 0;
+        miningBlock = null;
+        minedBlock = null;
+    }
+    
     private void createBodyToMap(int fromX, int toX, int fromY, int toY) {
         for (int x = fromX; x < toX; x++) 
         {

@@ -165,7 +165,7 @@ public class GameScreen implements Screen{
             player.updatePosition(camera);
         
         player.draw(spriteBatch);
-        
+
         spriteBatch.end();
         
         map.drawWater();
@@ -179,27 +179,36 @@ public class GameScreen implements Screen{
             hitBody = null;
             world.QueryAABB(callback, v3.x, v3.y, v3.x, v3.y);
             
-            // take block to inventory
+            
+            if (!Inputs.instance.mouseLeft || hitBody == null)
+                map.stopMining();
+            
+            // mine block to inventory
             if (Inputs.instance.mouseLeft && hitBody != null)
             {
                 if (hitBody.getUserData() instanceof IntVector2)
                 {
                     IntVector2 v = (IntVector2)hitBody.getUserData();
                     //System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v.X + "|" + v.Y);
-                    if (v != null){
-                        if (map.getBlock(v.X, v.Y) != null){
-                            //map.getBlock(v.X, v.Y).textureRotation = 0;
-                            mining();
-                            if (player.getInventory().addObjectToInvenotry(map.getBlock(v.X, v.Y)))
+                    if (map.getBlockByIdx(v) != null)
+                    {
+                        //map.getBlock(v.X, v.Y).textureRotation = 0;
+                        map.mining(v);
+                        if (map.isMiningDone())
+                        {
+                            if (player.getInventory().addObjectToInvenotry(map.getBlockByIdx(v)))
                             {
-                                if (map.getBlock(v.X, v.Y).id == AllBlocks.torch.id)
+                                if (map.getBlockId(v) == AllBlocks.torch.id)
                                     shaders_box2dlights.removeTorchLightFromPos(v3.x, v3.y);
                                 map.removeBlock(v.X, v.Y);
                             }
-                                
                         }
                     }
+                    else{
+                        map.stopMining();}
                 }
+                else{
+                    map.stopMining();}
             }
             else if (Inputs.instance.mouseMiddle &&  hitBody != null && hitBody.getUserData() instanceof IntVector2 && allowRotation)
             {
@@ -286,11 +295,6 @@ public class GameScreen implements Screen{
         
     }
     
-    private void mining(){
-    
-    
-    }
-    
     @Override
     public void resize(int width, int height) {
         // change the stage's viewport when the screen size is changed
@@ -364,8 +368,8 @@ public class GameScreen implements Screen{
         
         for (int x = 0; x < Constants.WIDTH_OF_MAP; x++) {
             for (int y = 0; y < Constants.HEIGHT_OF_MAP; y++) {
-                if (map.getBlock(x, y) != null){
-                    if (map.getBlock(x, y).id == AllBlocks.torch.id)
+                if (map.getBlockByIdx(x, y) != null){
+                    if (map.getBlockId(x, y) == AllBlocks.torch.id)
                         shaders_box2dlights.setTorchLight(x*Block.size,y*Block.size);  
                 }
             }

@@ -5,12 +5,14 @@
  */
 package com.mygdx.game.entities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mygdx.game.inventory.Inventory;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -18,13 +20,13 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.MyContactListener;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.Block;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -40,12 +42,14 @@ public class Player {
     private typeOfMovement lastTOM = typeOfMovement.stand;
    
     private TextureAtlas[] textureAtlas;
-    private ArrayList<ArrayList<ArrayList<Sprite>>> sprites;
-    private int idx = 0;
+    private List<Animation<AtlasRegion>> animations;
+    private float stateTime = 0;
 
     private boolean turned = false;
     
-    private final float SCALE = 4f;    
+    private final float SCALE = 4f;
+    private float WIDTH;
+    private float HEIGHT;
     
     private float speed = 0.4f;//2/GameScreen.PPM;
     private float powerOfImpuls = 0.2f;
@@ -59,54 +63,34 @@ public class Player {
 
     public Player() {
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
-        //System.out.println(typeOfMovement.stand.ordinal());
         textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("player/Stand/stand.txt");
         textureAtlas[typeOfMovement.walk.ordinal()] = new TextureAtlas("player/Walk/walk.txt");
         textureAtlas[typeOfMovement.run.ordinal()] = new TextureAtlas("player/Run/run.txt");
         textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("player/Jump/jump.txt");
         
-        addSprites();
+        createAnimations();
         definePlayer();
-        //inventory = new Inventory(spriteBatch);
+
         inventory = new Inventory();
         hud = new HUD();
-        
     }
 
-    private void addSprites() {
+    private void createAnimations() {
         
-        sprites = new ArrayList<ArrayList<ArrayList<Sprite>>>();
+        animations = new ArrayList<>(typeOfMovement.values().length);
         
         for (int i = 0; i < typeOfMovement.values().length; i++) 
         { 
-            ArrayList<ArrayList<Sprite>> spriteArrArr = new ArrayList<ArrayList<Sprite>>();
-            Array<AtlasRegion> regions = textureAtlas[i].getRegions();
-            ArrayList<Sprite> spriteArr = new ArrayList<Sprite>();
-            ArrayList<Sprite> spriteArrTurned = new ArrayList<Sprite>();
-            
-            for (AtlasRegion region : regions) 
-            {
-                Sprite sprite = textureAtlas[i].createSprite(region.name);
-
-                float width = sprite.getWidth();
-                float height = sprite.getHeight();
-
-                sprite.setSize(((Block.size*SCALE)/height)*width, Block.size*SCALE);
-                sprite.setOrigin(0, 0);
-
-                spriteArr.add(sprite);
-
-                Sprite spriteTurned = new Sprite(sprite);
-                spriteTurned.flip(true, false);
-                spriteArrTurned.add(spriteTurned);
-
-            }
-            spriteArrArr.add(spriteArr);
-            spriteArrArr.add(spriteArrTurned);
-            sprites.add(spriteArrArr);
+            if (i == typeOfMovement.stand.ordinal())
+                animations.add(i, new Animation<>(0.1f, textureAtlas[i].getRegions()));
+            else
+                animations.add(i, new Animation<>(0.03f, textureAtlas[i].getRegions()));  
         }
 
-        
+        float width = animations.get(0).getKeyFrame(0).getRegionWidth();
+        float height = animations.get(0).getKeyFrame(0).getRegionHeight();
+        WIDTH = ((Block.size*SCALE)/height)*width;
+        HEIGHT = Block.size*SCALE;
     }
 
 
@@ -220,7 +204,7 @@ public class Player {
             turned = false;
     }
     
-    private int getScaleOfMovement(){
+    /*private int getScaleOfMovement(){
         
         switch (currentTOM) 
         {
@@ -232,49 +216,36 @@ public class Player {
             default:    throw new AssertionError();
         }
     
-    }
+    }*/
     
     
     public void draw(SpriteBatch spriteBatch){
         
-        if (idx <= 0)
-            idx = sprites.get(currentTOM.ordinal()).get(0).size()*getScaleOfMovement()-1;
-        else if (idx >= sprites.get(currentTOM.ordinal()).get(0).size()*getScaleOfMovement() || lastTOM != currentTOM)
-            idx = 0;
-        
-        Sprite sprite;
-        if (turned){
-            sprite = sprites.get(currentTOM.ordinal()).get(1).get(idx/getScaleOfMovement());           
-        }
-        else {sprite = sprites.get(currentTOM.ordinal()).get(0).get(idx/getScaleOfMovement());}
-        
-        
-        sprite.setPosition(b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 7.0f/GameScreen.PPM)*2.0f);
-
-        sprite.draw(spriteBatch);
         if (currentTOM != typeOfMovement.jump)
         {
             //backwalk
             if ((turned && Inputs.instance.right) || (!turned && Inputs.instance.left))
-                idx--;
+                animations.get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.REVERSED );
             else
-                idx++;
+                animations.get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.NORMAL );
+            
+            stateTime += Gdx.graphics.getDeltaTime();
         }
         
+        if (lastTOM != currentTOM)
+            stateTime = 0;
+        
+        TextureRegion currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
+        currentFrame.flip(currentFrame.isFlipX() != turned, false);
+        spriteBatch.draw(currentFrame, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 7.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
+        
         lastTOM = currentTOM;
-        
-        
-        //System.out.println(b2body.getLinearVelocity().y);
-        //inventory.draw();
-    
     }
     
     public void dispose(){
         for (int i = 0; i < typeOfMovement.values().length; i++) 
         {
             textureAtlas[i].dispose();
-            sprites.get(i).get(0).clear();
-            sprites.get(i).get(1).clear();
         }
         inventory.dispose();
     }

@@ -91,7 +91,7 @@ public class AllBlocks {
         diamond = new Block();
         diamond.id = t.diamond.ordinal();
         diamond.blocked = true;
-        diamond.hardness = 5;
+        diamond.hardness = 10;
         diamond.textureRotation = 0;
         diamond.stackable = true;
         diamond.texture = new Texture(Gdx.files.internal("block/diamond.png"));
@@ -148,7 +148,7 @@ public class AllBlocks {
         gold = new Block();
         gold.id = t.gold.ordinal();
         gold.blocked = true;
-        gold.hardness = 5;
+        gold.hardness = 8;
         gold.textureRotation = 0;
         gold.stackable = true;
         gold.texture = new Texture(Gdx.files.internal("block/gold.png"));
@@ -157,7 +157,7 @@ public class AllBlocks {
         grassy_ground = new Block();
         grassy_ground.id = t.grassy_ground.ordinal();
         grassy_ground.blocked = true;
-        grassy_ground.hardness = 5;
+        grassy_ground.hardness = 3;
         grassy_ground.textureRotation = 0;
         grassy_ground.stackable = true;
         grassy_ground.texture = new Texture(Gdx.files.internal("block/leafy_ground.png"));
@@ -166,7 +166,7 @@ public class AllBlocks {
         gravel = new Block();
         gravel.id = t.gravel.ordinal();
         gravel.blocked = true;
-        gravel.hardness = 5;
+        gravel.hardness = 3;
         gravel.textureRotation = 0;
         gravel.stackable = true;
         gravel.texture = new Texture(Gdx.files.internal("block/gravel.jpg"));
@@ -175,7 +175,7 @@ public class AllBlocks {
         ground = new Block();
         ground.id = t.ground.ordinal();
         ground.blocked = true;
-        ground.hardness = 5;
+        ground.hardness = 3;
         ground.textureRotation = 0;
         ground.stackable = true;
         ground.texture = new Texture(Gdx.files.internal("block/ground.png"));
@@ -184,7 +184,7 @@ public class AllBlocks {
         groundBck = new Block();
         groundBck.id = t.groundBck.ordinal();
         groundBck.blocked = false;
-        groundBck.hardness = 5;
+        groundBck.hardness = 3;
         groundBck.textureRotation = 0;
         groundBck.stackable = true;
         groundBck.texture = new Texture(Gdx.files.internal("block/groundBck.png"));
@@ -218,7 +218,7 @@ public class AllBlocks {
         iron = new Block();
         iron.id = t.iron.ordinal();
         iron.blocked = true;
-        iron.hardness = 5;
+        iron.hardness = 6;
         iron.textureRotation = 0;
         iron.stackable = true;
         iron.texture = new Texture(Gdx.files.internal("block/iron.png"));
@@ -236,7 +236,7 @@ public class AllBlocks {
         leaf = new Block();
         leaf.id = t.leaf.ordinal();
         leaf.blocked = true;
-        leaf.hardness = 5;
+        leaf.hardness = 2;
         leaf.textureRotation = 0;
         leaf.stackable = true;
         leaf.texture = new Texture(Gdx.files.internal("block/leaf.png"));
@@ -254,7 +254,7 @@ public class AllBlocks {
         sand = new Block();
         sand.id = t.sand.ordinal();
         sand.blocked = true;
-        sand.hardness = 5;
+        sand.hardness = 2;
         sand.textureRotation = 0;
         sand.stackable = true;
         sand.texture = new Texture(Gdx.files.internal("block/sand.jpg"));
@@ -272,7 +272,7 @@ public class AllBlocks {
         torch = new Block();
         torch.id = t.torch.ordinal();
         torch.blocked = false;
-        torch.hardness = 5;
+        torch.hardness = 1;
         torch.textureRotation = 0;
         torch.stackable = true;
         torch.texture = new Texture(Gdx.files.internal("block/walltorch1.gif"));//torch.png"));
