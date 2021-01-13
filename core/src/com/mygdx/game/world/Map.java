@@ -6,11 +6,14 @@
 package com.mygdx.game.world;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
@@ -59,6 +62,9 @@ public class Map extends WorldObject{
     private boolean isMining = false;
     private Block miningBlock = null;
     private Block minedBlock = null;
+    IntVector2 rectVector = new IntVector2();
+    
+    ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public Map() {
         mapArray = new Block[width][height];        
@@ -480,6 +486,14 @@ public class Map extends WorldObject{
             {
                 if (mapArray[i][j] != null)
                 {
+                    
+                    if (mapArray[i][j].id == AllBlocks.ladder.id && j < height-Constants.HEIGHT_OF_SKY)
+                    {
+                        if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
+                            spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                    }
+                    
+                    
                     //stage.getBatch().draw( mapArray[x][y].texture, x*Block.size, y*Block.size, Block.size, Block.size);
                     if (mapArray[i][j].id == AllBlocks.torch.id && j < height-Constants.HEIGHT_OF_SKY)
                     {
@@ -516,11 +530,6 @@ public class Map extends WorldObject{
                 spriteBatch.draw(currentFrame, torchPos.X*Block.size, torchPos.Y*Block.size, Block.size, Block.size);   
             }
         }
-        
-
-        
-        
-
     }
 
     private void drawWithRotation(SpriteBatch spriteBatch, int i, int j) {
@@ -545,19 +554,47 @@ public class Map extends WorldObject{
     
     }
 
+    public void drawRectOnBlock(Body b, Vector2 cam, Vector2 player){
+        if (b.getUserData() instanceof IntVector2)
+        {
+            IntVector2 v = (IntVector2)b.getUserData();
+            shapeRenderer.begin(ShapeType.Line);
+            shapeRenderer.setColor(Color.BLACK);
+            if (getBlockByIdx(v) != null && player.dst(b.getPosition()) < 1.5f)
+            {
+                shapeRenderer.rect( v.X * Block.size_in_pixels - cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
+                                    v.Y * Block.size_in_pixels - cam.y*GameScreen.PPM + MyGdxGame.height/2.0f, 
+                                    Block.size_in_pixels, 
+                                    Block.size_in_pixels);
+                rectVector.set(v);
+                
+            }
+            /*shapeRenderer.line(
+                    b.getPosition().x*GameScreen.PPM - cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
+                    b.getPosition().y*GameScreen.PPM - cam.y*GameScreen.PPM + MyGdxGame.height/2.0f, 
+                    player.x*GameScreen.PPM- cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
+                    player.y*GameScreen.PPM- cam.y*GameScreen.PPM + MyGdxGame.height/2.0f);*/
+            shapeRenderer.end();
+        }
+   
+    }
+    
     public void mining(IntVector2 v){
+        if (v.equal(rectVector) == false)
+            return;
+        
         if ((miningBlock == null && minedBlock == null) ||
             (getBlockByIdx(v) != miningBlock) ) 
         {
             miningBlock = getBlockByIdx(v);
             stateTime = 0;
             isMining = true;
-            breakBlockAnimation.setFrameDuration(miningBlock.hardness/10.0f);
+            breakBlockAnimation.setFrameDuration(miningBlock.hardness/100.0f);
         }
     }
     
     public boolean isMiningDone(){
-        return !isMining; 
+        return !isMining && minedBlock!=null; 
     }
     
     public void stopMining(){

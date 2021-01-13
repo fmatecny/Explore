@@ -27,6 +27,17 @@ public class IntVector2 {
         this.Y = y;
     }
     
+    public void set(IntVector2 v){
+        setXY(v.X, v.Y);
+    }
     
+    public boolean equal(IntVector2 v){
+        if (v == null)
+            return false;
+        
+        return v.X == this.X && v.Y == this.Y;
+    
+    
+    }
     
 }

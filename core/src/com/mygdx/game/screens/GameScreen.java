@@ -10,12 +10,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
+import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -88,6 +90,32 @@ public class GameScreen implements Screen{
             }
         }
     };
+    
+    public static int b = 0;
+    public static int a = 0;
+    RayCastCallback callback1 = new RayCastCallback() {
+    @Override
+    public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+        
+        if (hitBody == fixture.getBody() && 
+            fixture.getBody().getUserData() instanceof IntVector2)
+        {
+            a = 1;
+            return fraction;
+        }
+        else if (fixture.getFilterData().categoryBits != Constants.BLOCK_BIT)
+        {
+            return -1;
+        }
+        else
+        {
+            //System.out.println("terminate");
+            a = 0;
+            return 0;
+        }
+        
+    }
+};
     
     public GameScreen(MyGdxGame myGdxGame){
         parent = myGdxGame;
@@ -179,6 +207,23 @@ public class GameScreen implements Screen{
             hitBody = null;
             world.QueryAABB(callback, v3.x, v3.y, v3.x, v3.y);
             
+            if (hitBody != null)
+            {
+                if (hitBody.getUserData() instanceof IntVector2)
+                {
+                    a = 0;
+                    world.rayCast(callback1, player.b2body.getPosition(), hitBody.getPosition());
+                    if (a == 1){
+                        map.drawRectOnBlock(hitBody, cam, player.b2body.getPosition());
+                    }
+                    else{
+                        Vector2 v2 = new Vector2(player.b2body.getPosition().x, player.b2body.getPosition().y+0.5f);
+                        world.rayCast(callback1, v2, hitBody.getPosition());
+                        if (a == 1)
+                            map.drawRectOnBlock(hitBody, cam, v2);
+                    }
+                }
+            }
             
             if (!Inputs.instance.mouseLeft || hitBody == null)
                 map.stopMining();
