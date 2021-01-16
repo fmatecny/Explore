@@ -13,6 +13,7 @@ public class SaveParams {
 
     public SaveMapParams[][] saveMapParams;
     public SavePlayerParams savePlayerParams;
+    public double hours;
     
     public SaveParams() {
     }

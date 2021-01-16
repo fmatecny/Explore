@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
+import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.GameScreen;
@@ -47,10 +48,11 @@ public class Map extends WorldObject{
     private ArrayList<Water> waterList = new ArrayList<>();
     
     private int left, right, down, up, left_cam_edge, down_cam_edge;
-    private int previousLeft = 40; //should be position of camera(cam.x/Block.size) + min. 24
-    private int previousRight = width;
+    private int previousLeft = 0; //40; //should be position of camera(cam.x/Block.size) + min. 24
+    private int previousRight = 0;//width;
     private int previousDown = 0;
     private int previousUp = height;
+    private boolean isFirstCycle = true;
     
     private TextureAtlas textureAtlas;
     private Animation<AtlasRegion> breakBlockAnimation;
@@ -447,6 +449,13 @@ public class Map extends WorldObject{
             up = 0;
         up = (((int)(up/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);
         
+        if(isFirstCycle)
+        {
+            previousLeft = right;
+            previousRight = right;
+            isFirstCycle = false; 
+        }
+
         // create bodies -> one chunck on left side - when player is going to the left
         if (previousLeft > left)
             createBodyToMap(left, previousLeft, down, up);
@@ -569,12 +578,15 @@ public class Map extends WorldObject{
                 rectVector.set(v);
                 
             }
-            /*shapeRenderer.line(
-                    b.getPosition().x*GameScreen.PPM - cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
-                    b.getPosition().y*GameScreen.PPM - cam.y*GameScreen.PPM + MyGdxGame.height/2.0f, 
-                    player.x*GameScreen.PPM- cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
-                    player.y*GameScreen.PPM- cam.y*GameScreen.PPM + MyGdxGame.height/2.0f);*/
-            shapeRenderer.end();
+            if (Inputs.instance.debugMode)
+            {
+                shapeRenderer.line(
+                        b.getPosition().x*GameScreen.PPM - cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
+                        b.getPosition().y*GameScreen.PPM - cam.y*GameScreen.PPM + MyGdxGame.height/2.0f, 
+                        player.x*GameScreen.PPM- cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
+                        player.y*GameScreen.PPM- cam.y*GameScreen.PPM + MyGdxGame.height/2.0f);
+            }
+                shapeRenderer.end();
         }
    
     }
@@ -624,6 +636,10 @@ public class Map extends WorldObject{
                             removeBody(x, y);
                     }
                 }
+    }
+    
+    public void addTorchToPos(IntVector2 pos){
+        torchsPos.add(pos);
     }
       
 }

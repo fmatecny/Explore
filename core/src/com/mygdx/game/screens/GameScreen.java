@@ -91,8 +91,7 @@ public class GameScreen implements Screen{
         }
     };
     
-    public static int b = 0;
-    public static int a = 0;
+    private boolean isBlockMinable = false;
     RayCastCallback callback1 = new RayCastCallback() {
     @Override
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
@@ -100,7 +99,7 @@ public class GameScreen implements Screen{
         if (hitBody == fixture.getBody() && 
             fixture.getBody().getUserData() instanceof IntVector2)
         {
-            a = 1;
+            isBlockMinable = true;
             return fraction;
         }
         else if (fixture.getFilterData().categoryBits != Constants.BLOCK_BIT)
@@ -110,7 +109,7 @@ public class GameScreen implements Screen{
         else
         {
             //System.out.println("terminate");
-            a = 0;
+            isBlockMinable = false;
             return 0;
         }
         
@@ -211,15 +210,15 @@ public class GameScreen implements Screen{
             {
                 if (hitBody.getUserData() instanceof IntVector2)
                 {
-                    a = 0;
+                    isBlockMinable = false;
                     world.rayCast(callback1, player.b2body.getPosition(), hitBody.getPosition());
-                    if (a == 1){
+                    if (isBlockMinable){
                         map.drawRectOnBlock(hitBody, cam, player.b2body.getPosition());
                     }
                     else{
                         Vector2 v2 = new Vector2(player.b2body.getPosition().x, player.b2body.getPosition().y+0.5f);
                         world.rayCast(callback1, v2, hitBody.getPosition());
-                        if (a == 1)
+                        if (isBlockMinable)
                             map.drawRectOnBlock(hitBody, cam, v2);
                     }
                 }
@@ -268,6 +267,17 @@ public class GameScreen implements Screen{
                         if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.torch.id)
                             shaders_box2dlights.setTorchLight(v3.x,v3.y);
                         player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
+                    }
+                }
+            }// open chest
+            else if (Inputs.instance.mouseRight && hitBody != null)
+            {
+                if (hitBody.getUserData() instanceof IntVector2)
+                {
+                    IntVector2 v = (IntVector2)hitBody.getUserData();
+                    if (map.getBlockId(v) == AllBlocks.chest.id)
+                    {
+                        //TODO open chest
                     }
                 }
             }
@@ -398,14 +408,16 @@ public class GameScreen implements Screen{
         if(saveManager == null)
             saveManager = new SaveManager();
         
-        saveManager.saveGame(map, player);
+        saveManager.saveGame(worldTime, map, player);
     }
     
     public void loadGame(){
         if(saveManager == null)
             saveManager = new SaveManager();
-        
+
         saveManager.loadGame(map, player);
+        worldTime = saveManager.getWorldTime();
+
         updateShaders();
     }
 

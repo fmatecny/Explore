@@ -25,6 +25,8 @@ public class AllBlocks {
        
        wood_stairs, plank, half_plank,
        
+       stone_stairs, half_stone,
+       
        door, door_down, door_up, window,
        
        torch, ladder,
@@ -60,6 +62,9 @@ public class AllBlocks {
     public static Block plank;
     public static Block half_plank;
     public static Block wood_stairs;
+    
+    public static Block stone_stairs;
+    public static Block half_stone;
     
     public static Block torch;
     public static Block ladder;
@@ -206,6 +211,15 @@ public class AllBlocks {
         half_plank.texture = new Texture(Gdx.files.internal("block/plank_halfblock.png"));
         blockList.add(half_plank);
         
+        half_stone = new Block();
+        half_stone.id = t.half_stone.ordinal();
+        half_stone.blocked = false;
+        half_stone.hardness = 5;
+        half_stone.textureRotation = 0;
+        half_stone.stackable = true;
+        half_stone.texture = new Texture(Gdx.files.internal("block/stone_halfblock.png"));
+        blockList.add(half_stone);
+        
         chest = new Block();
         chest.id = t.chest.ordinal();
         chest.blocked = false;
@@ -268,7 +282,17 @@ public class AllBlocks {
         stone.stackable = true;
         stone.texture = new Texture(Gdx.files.internal("block/rocky.png"));  
         blockList.add(stone);
-
+        
+        stone_stairs = new Block();
+        stone_stairs.id = t.stone_stairs.ordinal();
+        stone_stairs.blocked = false;
+        stone_stairs.hardness = 5;
+        stone_stairs.textureRotation = 0;
+        stone_stairs.isRotationAllowed = true;
+        stone_stairs.stackable = true;
+        stone_stairs.texture = new Texture(Gdx.files.internal("block/stone_stairs.png"));
+        blockList.add(stone_stairs);
+        
         torch = new Block();
         torch.id = t.torch.ordinal();
         torch.blocked = false;

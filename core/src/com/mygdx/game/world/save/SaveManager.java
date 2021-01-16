@@ -10,13 +10,13 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.mygdx.game.Constants;
+import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.inventory.Inventory;
 import com.mygdx.game.inventory.InventorySlot;
-import static com.mygdx.game.screens.GameScreen.allBlocks;
-import static com.mygdx.game.screens.GameScreen.allItems;
-import static com.mygdx.game.screens.GameScreen.allTools;
+import com.mygdx.game.screens.GameScreen;
+import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
 
@@ -28,9 +28,7 @@ public class SaveManager {
 
     private FileHandle file;
     
-    
     Json json;
-    
     
     public SaveManager() {
         json = new Json();
@@ -38,11 +36,11 @@ public class SaveManager {
         
     }
     
-    public void saveGame(Map map, Player player){
+    public void saveGame(Double hours, Map map, Player player){
         Gdx.files.external(".explore/data").mkdirs();
         file = Gdx.files.external(".explore/data/" + MyGdxGame.playerName + "_" + MyGdxGame.worldName + ".json");
         
-        file.writeString(getSaveParamsJson(map, player), false);
+        file.writeString(getSaveParamsJson(hours, map, player), false);
         
         System.out.println("Save Done");
     }
@@ -56,14 +54,16 @@ public class SaveManager {
         //SaveMapParams[][] saveMapParams = new SaveMapParams[Constants.WIDTH_OF_MAP][Constants.HEIGHT_OF_MAP];
         SaveMapParams[][] saveMapParams = saveParams.saveMapParams;
         SavePlayerParams savePlayerParams = saveParams.savePlayerParams;
-    
+
         for (int i = 0; i < Constants.WIDTH_OF_MAP; i++) {
             for (int j = 0; j < Constants.HEIGHT_OF_MAP; j++) {
                 //System.out.print(a[i][j]);
                 if (saveMapParams[i][j].id != -1){
-                    map.getBlockArray()[i][j] = new Block(allBlocks.getBlockById(saveMapParams[i][j].id));
+                    map.getBlockArray()[i][j] = new Block(GameScreen.allBlocks.getBlockById(saveMapParams[i][j].id));
                     map.getBlockArray()[i][j].blocked = saveMapParams[i][j].blocked;
                     map.getBlockArray()[i][j].textureRotation = saveMapParams[i][j].rotation;
+                    if(saveMapParams[i][j].id == AllBlocks.torch.id)
+                        map.addTorchToPos(new IntVector2(i, j));
                 }
                 else
                     map.getBlockArray()[i][j] = null;
@@ -82,13 +82,13 @@ public class SaveManager {
                     
                     if (savePlayerParams.saveInventoryParams.saveInventoryBar[i].type == SaveInventorySlot.t.block)
                     {
-                        player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(allBlocks.getBlockById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
+                        player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(GameScreen.allBlocks.getBlockById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
                     }
                     else if (savePlayerParams.saveInventoryParams.saveInventoryBar[i].type == SaveInventorySlot.t.tool){
-                        player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(allTools.getToolById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
+                        player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(GameScreen.allTools.getToolById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
                     }
                     else {
-                        player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(allItems.getItemById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
+                        player.getInventory().getInventoryBarHUD().inventoryBar[i].setObject(GameScreen.allItems.getItemById(savePlayerParams.saveInventoryParams.saveInventoryBar[i].id));
                     }
                     
                 }
@@ -105,13 +105,13 @@ public class SaveManager {
                         player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].numOfItem = savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].amount;
                         if (savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].type == SaveInventorySlot.t.block)
                         {
-                            player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(allBlocks.getBlockById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
+                            player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(GameScreen.allBlocks.getBlockById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
                         }
                         else if (savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].type == SaveInventorySlot.t.tool){
-                            player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(allTools.getToolById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
+                            player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(GameScreen.allTools.getToolById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
                         }
                         else {
-                            player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(allItems.getItemById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
+                            player.getInventory().getInventoryPackage().inventoryPackageArray[x][y].setObject(GameScreen.allItems.getItemById(savePlayerParams.saveInventoryParams.saveInventoryPackage[x][y].id));
                         }
                     }
                 }
@@ -122,7 +122,13 @@ public class SaveManager {
         }    
     }
     
-    
+    public double getWorldTime(){
+        file = Gdx.files.external(".explore/data/" + MyGdxGame.playerName + "_" + MyGdxGame.worldName + ".json");
+        
+        SaveParams saveParams = json.fromJson(SaveParams.class, file);
+  
+        return saveParams.hours;
+    }
     
     public SaveMapParams[][] getMapParams(Map map){
         
@@ -209,12 +215,13 @@ public class SaveManager {
     }
     
     
-    private String getSaveParamsJson(Map map, Player player){
+    private String getSaveParamsJson(Double hours, Map map, Player player){
     
         SaveParams saveParams = new SaveParams();
         
         saveParams.saveMapParams = getMapParams(map);
         saveParams.savePlayerParams = getPlayerParams(player);
+        saveParams.hours = hours;
         
         return json.toJson(saveParams);
     }
