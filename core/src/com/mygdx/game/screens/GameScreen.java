@@ -277,7 +277,8 @@ public class GameScreen implements Screen{
                     IntVector2 v = (IntVector2)hitBody.getUserData();
                     if (map.getBlockId(v) == AllBlocks.chest.id)
                     {
-                        //TODO open chest
+                        player.getInventory().setChestPackage(map.getChestPackage(v));
+                        Inputs.instance.showInventory = true;
                     }
                 }
             }

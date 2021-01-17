@@ -36,7 +36,8 @@ public class Inventory implements Disposable{
     private final int space = 10;
     
     public Table mock,table;
-    Window window;
+    private Window window;
+    private Label windowLabel;
     
     Skin skin = Skins.skin;
     
@@ -54,6 +55,7 @@ public class Inventory implements Disposable{
     private boolean dragSlotInPackage = false;
     private boolean dragSlotInCraftingArea = false;
     private boolean dragSlotInArmorSlots = false;
+    private boolean dragSlotInChest = false;
      
     private int dropPosOffsetY = 0;
     private int dropPosOffsetX = 0;
@@ -61,6 +63,7 @@ public class Inventory implements Disposable{
     
     private Stage stageInventory;
     
+    private InventoryPackage chestPackage;
 
     public Inventory() {
         
@@ -77,7 +80,9 @@ public class Inventory implements Disposable{
         mock.center().top().padTop(50);
 
         window = new Window("", skin);
-        window.add(new Label("Inventory", skin)).left().padLeft(15.0f);
+        windowLabel = new Label("Inventory", skin);
+        
+        window.add(windowLabel).left().padLeft(15.0f);
         window.row();
         table = new Table();
         //table.setDebug(true);
@@ -94,7 +99,6 @@ public class Inventory implements Disposable{
         table.add(inventoryArmorSlots).left();
         table.add(inventoryAvatar).left();
         table.add(inventoryCraftingArea).right();
-        //table.add().minWidth(2*50);
         table.row().padTop(space);
         table.add(inventoryPackage).colspan(3);
         table.row().padTop(space);
@@ -251,6 +255,7 @@ public class Inventory implements Disposable{
         dragSlotInPackage = false;
         dragSlotInCraftingArea = false;
         dragSlotInArmorSlots = false;
+        dragSlotInChest = false;
         
         InventorySlot dragSlot = inventoryBar.getDragInventorySlotAfterDrop();
         if (dragSlot != null){
@@ -264,17 +269,31 @@ public class Inventory implements Disposable{
             return dragSlot;
         }
         
-        dragSlot = inventoryCraftingArea.getDragInventorySlotAfterDrop();
-        if (dragSlot != null){
-            dragSlotInCraftingArea = true;
-            return dragSlot;
+        if (isChestOpened())
+        {
+            dragSlot = chestPackage.getDragInventorySlotAfterDrop();
+            if (dragSlot != null){
+                dragSlotInChest = true;
+                return dragSlot;
+            }
+            
+        }
+        else
+        {
+            dragSlot = inventoryCraftingArea.getDragInventorySlotAfterDrop();
+            if (dragSlot != null){
+                dragSlotInCraftingArea = true;
+                return dragSlot;
+            }
+
+            dragSlot = inventoryArmorSlots.getDragInventorySlotAfterDrop();
+            if (dragSlot != null){
+                dragSlotInArmorSlots = true;
+                return dragSlot;
+            }
         }
         
-        dragSlot = inventoryArmorSlots.getDragInventorySlotAfterDrop();
-        if (dragSlot != null){
-            dragSlotInArmorSlots = true;
-            return dragSlot;
-        }
+
         
         return null;
     }
@@ -319,6 +338,11 @@ public class Inventory implements Disposable{
             dropPosOffsetX = (int) inventoryArmorSlots.getX();
             dropPosOffsetY = (int) inventoryArmorSlots.getY();
         }
+        else if (dragSlotInChest)
+        {
+            dropPosOffsetX = (int) chestPackage.getX();
+            dropPosOffsetY = (int) chestPackage.getY();  
+        }
             
         IntVector2 dropPos = dragSlot.getDropPosition();
         //System.out.println(dropPos.X + "|||" + dropPos.Y);
@@ -341,13 +365,16 @@ public class Inventory implements Disposable{
             return inventoryPackage.getDropInventorySlot(realDropPos);
 
         // from inventory bar to armor slots
-        if (inventoryArmorSlots.includes(realDropPos))
+        if (inventoryArmorSlots.includes(realDropPos) && !isChestOpened())
             return inventoryArmorSlots.getDropInventorySlot(realDropPos);
 
         // from inventory bar to craftig area
-        if (inventoryCraftingArea.includes(realDropPos))
+        if (inventoryCraftingArea.includes(realDropPos) && !isChestOpened())
             return inventoryCraftingArea.getDropInventorySlot(realDropPos);
 
+        if (chestPackage.includes(realDropPos) && isChestOpened())
+            return chestPackage.getDropInventorySlot(realDropPos);
+        
         return null;
     }
     
@@ -359,6 +386,10 @@ public class Inventory implements Disposable{
         {
             if(wasInventoryOpen){
                 wasInventoryOpen = false;
+                if (isChestOpened()){
+                    setInventoryLayout();
+                }
+                
                 synchronizeHUDBar();
             }
             
@@ -376,6 +407,10 @@ public class Inventory implements Disposable{
             if (wasInventoryOpen == false){
                 wasInventoryOpen = true;
                 synchronizeInventoryBar();
+                
+                if (isChestOpened()){
+                    setChestLayout();
+                }
             }
 
                 setZIndex();
@@ -490,7 +525,35 @@ public class Inventory implements Disposable{
     }
     
     
-
+    public void setChestPackage(InventoryPackage chestPckg){
+        chestPackage = chestPckg;
+    }
     
+    private boolean isChestOpened(){
+        return chestPackage == null ? false : true;
+    }
+
+    private void setInventoryLayout() {
+        windowLabel.setText("Inventory");
+        chestPackage = null;
+        table.clear();
+        table.add(inventoryArmorSlots).left();
+        table.add(inventoryAvatar).left();
+        table.add(inventoryCraftingArea).right();
+        table.row().padTop(space);
+        table.add(inventoryPackage).colspan(3);
+        table.row().padTop(space);
+        table.add(inventoryBar).colspan(3);
+    }
+
+    private void setChestLayout() {
+        windowLabel.setText("Chest");
+        table.clear();
+        table.add(chestPackage);
+        table.row().padTop(space + sizeOfSlot);
+        table.add(inventoryPackage);
+        table.row().padTop(space);
+        table.add(inventoryBar);
+    }
     
 }

@@ -5,6 +5,8 @@
  */
 package com.mygdx.game.world.save;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Fery
@@ -13,6 +15,7 @@ public class SaveParams {
 
     public SaveMapParams[][] saveMapParams;
     public SavePlayerParams savePlayerParams;
+    public ArrayList<SaveChestParams> saveChestsParams;
     public double hours;
     
     public SaveParams() {

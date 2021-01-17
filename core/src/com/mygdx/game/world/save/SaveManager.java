@@ -18,7 +18,9 @@ import com.mygdx.game.inventory.InventorySlot;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
+import com.mygdx.game.world.Chest;
 import com.mygdx.game.world.Map;
+import java.util.ArrayList;
 
 /**
  *
@@ -54,6 +56,7 @@ public class SaveManager {
         //SaveMapParams[][] saveMapParams = new SaveMapParams[Constants.WIDTH_OF_MAP][Constants.HEIGHT_OF_MAP];
         SaveMapParams[][] saveMapParams = saveParams.saveMapParams;
         SavePlayerParams savePlayerParams = saveParams.savePlayerParams;
+        ArrayList<SaveChestParams> saveChestsParams = saveParams.saveChestsParams;
 
         for (int i = 0; i < Constants.WIDTH_OF_MAP; i++) {
             for (int j = 0; j < Constants.HEIGHT_OF_MAP; j++) {
@@ -116,10 +119,22 @@ public class SaveManager {
                     }
                 }
             }
-            
-            
-            
-        }    
+        }   
+        
+        if (saveChestsParams != null)
+        {
+            for (SaveChestParams saveChestParams : saveChestsParams) 
+            {
+                Chest chest = new Chest(saveChestParams.pos);
+
+                for (int y = 0; y < Inventory.numOfRow; y++) {
+                    for (int x = 0; x < Inventory.numOfCol; x++) {
+                        getSlotFromJson(chest.chestPackage.inventoryPackageArray[x][y], saveChestParams.saveChestPackage[x][y]);
+                    }
+                }
+                map.getChestList().add(chest);
+            }
+        }
     }
     
     public double getWorldTime(){
@@ -214,6 +229,25 @@ public class SaveManager {
         return savePlayerParams;  
     }
     
+    private ArrayList<SaveChestParams> getChestParams(ArrayList<Chest> chestList){
+        ArrayList<SaveChestParams> saveChestsParams = new ArrayList<>();
+        
+        SaveChestParams saveChestParams = new SaveChestParams();
+        
+        for (Chest chest : chestList) 
+        {
+            saveChestParams.pos = chest.positon;
+            
+            for (int y = 0; y < Inventory.numOfRow; y++) {
+                for (int x = 0; x < Inventory.numOfCol; x++) {
+                    parseSlot(chest.chestPackage.inventoryPackageArray[x][y], saveChestParams.saveChestPackage[x][y]);   
+                }
+            }
+            saveChestsParams.add(saveChestParams);
+
+        }
+        return saveChestsParams;
+    }
     
     private String getSaveParamsJson(Double hours, Map map, Player player){
     
@@ -221,10 +255,51 @@ public class SaveManager {
         
         saveParams.saveMapParams = getMapParams(map);
         saveParams.savePlayerParams = getPlayerParams(player);
+        saveParams.saveChestsParams = getChestParams(map.getChestList());
         saveParams.hours = hours;
         
         return json.toJson(saveParams);
     }
+    
+    private void parseSlot(InventorySlot inventorySlot, SaveInventorySlot saveSlot){
+        if (inventorySlot.isEmpty())
+        {
+            saveSlot.id = -1;
+            //savePlayerParams.saveInventoryParams.saveInventoryBar[i].amount = 0;
+        }
+        else{
+
+            saveSlot.amount = inventorySlot.numOfItem;
+            if (inventorySlot.isBlock()){
+                saveSlot.id = inventorySlot.getBlock().id;
+                saveSlot.type = SaveInventorySlot.t.block;}
+            else if (inventorySlot.isTool()){
+                saveSlot.id = inventorySlot.getTool().id;
+                saveSlot.type = SaveInventorySlot.t.tool;}
+            else{
+                saveSlot.id = inventorySlot.getItem().id;
+                saveSlot.type = SaveInventorySlot.t.item;}
+
+        }
+    }
+    
+    private void getSlotFromJson(InventorySlot inventorySlot, SaveInventorySlot saveSlot){
+        if (saveSlot.id != -1)
+        {
+            inventorySlot.numOfItem = saveSlot.amount;
+            if (saveSlot.type == SaveInventorySlot.t.block)
+            {
+                inventorySlot.setObject(GameScreen.allBlocks.getBlockById(saveSlot.id));
+            }
+            else if (saveSlot.type == SaveInventorySlot.t.tool){
+                inventorySlot.setObject(GameScreen.allTools.getToolById(saveSlot.id));
+            }
+            else {
+                inventorySlot.setObject(GameScreen.allItems.getItemById(saveSlot.id));
+            }
+        }
+    }
+    
     
     
 }

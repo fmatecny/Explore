@@ -20,6 +20,7 @@ import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.inventory.InventoryPackage;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.water.Water;
 import static java.lang.Math.abs;
@@ -46,6 +47,7 @@ public class Map extends WorldObject{
     private int groundIndexY = 0;
     
     private ArrayList<Water> waterList = new ArrayList<>();
+    private ArrayList<Chest> chestList = new ArrayList<>();
     
     private int left, right, down, up, left_cam_edge, down_cam_edge;
     private int previousLeft = 0; //40; //should be position of camera(cam.x/Block.size) + min. 24
@@ -56,11 +58,13 @@ public class Map extends WorldObject{
     
     private TextureAtlas textureAtlas;
     private Animation<AtlasRegion> breakBlockAnimation;
+    
     private TextureAtlas textureTorchAtlas;
     private Animation<AtlasRegion> torchAnimation;
     private ArrayList<IntVector2> torchsPos = new ArrayList<>();
     private float stateTime = 0;
     private float stateTimeTorch = 0;
+    
     private boolean isMining = false;
     private Block miningBlock = null;
     private Block minedBlock = null;
@@ -341,10 +345,21 @@ public class Map extends WorldObject{
                 miningBlock = null;
                 minedBlock = null;}
             
-            if (mapArray[x][y].id == AllBlocks.torch.id){
+            if (mapArray[x][y].id == AllBlocks.torch.id)
+            {
                 for (IntVector2 torchsPo : torchsPos) {
                     if (torchsPo.X == x && torchsPo.Y == y){
                         torchsPos.remove(torchsPo);
+                        break;
+                    }
+                }
+            }
+            
+            if (mapArray[x][y].id == AllBlocks.chest.id)
+            {
+                for (Chest chest : chestList) {
+                    if (chest.positon.X == x && chest.positon.Y == y){
+                        chestList.remove(chest);
                         break;
                     }
                 }
@@ -372,6 +387,8 @@ public class Map extends WorldObject{
         
         if (b.id == AllBlocks.torch.id)
             torchsPos.add(new IntVector2(x, y));
+        else if (b.id == AllBlocks.chest.id)
+            chestList.add(new Chest(x, y));
         
         mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, b.blocked));
         
@@ -640,6 +657,18 @@ public class Map extends WorldObject{
     
     public void addTorchToPos(IntVector2 pos){
         torchsPos.add(pos);
+    }
+    
+    public InventoryPackage getChestPackage(IntVector2 v){
+        for (Chest chest : chestList) {
+            if (chest.positon.equal(v))
+                return chest.chestPackage;
+        }
+        return null;
+    }
+
+    public ArrayList<Chest> getChestList() {
+        return chestList;
     }
       
 }
