@@ -22,6 +22,7 @@ import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.inventory.InventoryPackage;
 import com.mygdx.game.screens.GameScreen;
+import com.mygdx.game.world.water.Lake;
 import com.mygdx.game.world.water.Water;
 import static java.lang.Math.abs;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class Map extends WorldObject{
     private int groundIndexX = 0;
     private int groundIndexY = 0;
     
-    private ArrayList<Water> waterList = new ArrayList<>();
+    private ArrayList<Lake> lakeList = new ArrayList<>();
     private ArrayList<Chest> chestList = new ArrayList<>();
     
     private int left, right, down, up, left_cam_edge, down_cam_edge;
@@ -86,19 +87,6 @@ public class Map extends WorldObject{
     private void generateMap() {
         
         generateGround(width, height-Constants.HEIGHT_OF_SKY);
-        
-        /*Ground ground = new Ground(width, height-Constants.HEIGHT_OF_SKY);
-        Block[][] groundBlocksArr = ground.getGroundBlocksArray();
-        groundBckArr = new Block[width][height];
-       
-        for (int x = 0; x < width; x++) 
-        {
-            for (int y = 0; y < height-Constants.HEIGHT_OF_SKY; y++) 
-            {
-                mapArray[x][y] = groundBlocksArr[x][y];
-                groundBckArr[x][y] = ground.getBackgroundBlocksArray()[x][y];
-            }
-        } */
         
         // initial value - [10, 20)
         groundIndexX = (int )(Math.random() * 10 + 10);
@@ -254,31 +242,57 @@ public class Map extends WorldObject{
     }
     
     private void createWater(){
-        int idxY = groundIndexY;
+
+        int widthOfLake = (int)(Math.random() * 10 ) + 5;
+        int heightOfLake = (int)(Math.random() * widthOfLake/4) + widthOfLake/3;
+
+        Lake lake = new Lake(groundIndexX, groundIndexY, widthOfLake, heightOfLake);
+        lakeList.add(lake);
         
-        for (int i = groundIndexY; i > 0; i--) {
-           if (groundBckArr[groundIndexX][i] != null){
-              idxY = i-1; 
-              break;
-           }
-        }
-        
-        Water water = new Water();
-        water.createBody(GameScreen.world, 0.4f*5f + groundIndexX*Block.size, 0.4f*1+idxY*Block.size, 10*0.4f, 2*0.4f); //world, x, y, width, height
-        water.setDebugMode(false);
-        waterList.add(water);
-        
-        for (int i = groundIndexX; i < groundIndexX+10; i++) 
-        {
-            for (int j = idxY; j < idxY+2; j++) 
+        ArrayList<Water> waterList = lake.getWaterList();
+
+        for (Water water : waterList) {
+            
+            if (water.hasWaves())
             {
-                if (mapArray[i][j] != null)
-                    removeBlock(i, j);
-            }  
+                if (mapArray[water.x-1][water.y] == null)
+                {
+                    addBodyToIdx(water.x-1, water.y, AllBlocks.grassy_ground);
+                    if (mapArray[water.x-1][water.y-1] != null){
+                        removeBlock(water.x-1, water.y-1);
+                        addBodyToIdx(water.x-1, water.y-1, AllBlocks.grassy_ground);}
+                }
+                if (mapArray[water.x+(int)(water.width/0.4f)][water.y] == null)
+                {
+                    addBodyToIdx(water.x+(int)(water.width/0.4f), water.y, AllBlocks.grassy_ground);
+                    if (mapArray[water.x+(int)(water.width/0.4f)][water.y-1] != null){
+                        removeBlock(water.x+(int)(water.width/0.4f), water.y-1);
+                        addBodyToIdx(water.x+(int)(water.width/0.4f), water.y-1, AllBlocks.grassy_ground);}
+
+                }
+            }
+
+            
+            
+            
+            for (int y = water.y; y < water.y + water.height/0.4f; y++) {
+                for (int x = water.x; x < water.x + water.width/0.4f; x++) {
+                    if (water.hasWaves()){
+                        if (mapArray[x][y+1] != null)
+                            removeBlock(x, y+1);
+                    }
+                    
+                    
+                    if (mapArray[x][y] != null)
+                        removeBlock(x, y);
+                    groundBckArr[x][y] = AllBlocks.groundBck;
+                }  
+            }
+
+            
         }
 
-        
-        groundIndexX += (int )(Math.random() * 15 + 10);
+        groundIndexX += (int )(Math.random() * 15 + widthOfLake+5);
     }
     
     public void rotateBlock(Body b){
@@ -571,11 +585,10 @@ public class Map extends WorldObject{
                             false, false); 
     }
     
-    public void drawWater(){
-        for (Water water : waterList)
+    public void drawLake(){
+        for (Lake lake : lakeList)
         {
-            water.update();
-            water.draw(GameScreen.camera);
+            lake.draw();
         }
     
     }
@@ -670,5 +683,5 @@ public class Map extends WorldObject{
     public ArrayList<Chest> getChestList() {
         return chestList;
     }
-      
+    
 }

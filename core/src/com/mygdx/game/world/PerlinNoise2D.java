@@ -13,21 +13,62 @@ import static java.lang.Math.abs;
  * @author Fery
  */
 public class PerlinNoise2D {
-	private double time = 0;
-        private int noise = 0;
-        private int[] noiseArr = new int[Constants.WIDTH_OF_MAP];
+        
+    private final short standardFrequency = 1;
+    private final short mountainFrequency = 5;
+    private final double groundYOffsetStd = 1.5;
+    private final double groundYOffsetMountain = 0.7;
+    private final double TIME_STEP = 0.01;
+    
+    
+    private double groundYOffset = groundYOffsetStd;
+    private double time = 10;
+    private int noise = 0;
+    private int[] noiseArr = new int[Constants.WIDTH_OF_MAP];
         
     public int[] getNoiseArr(int height){
         double noise;
-    	time += 0.01;
-        for(int x = 0; x < Constants.WIDTH_OF_MAP; x++){
-            double dx = (double) x / height;
-            double frequency = 1;
-            noise = noise((dx * frequency) + time, 0.5)+0.8;
+        double frequency = standardFrequency;
+        double dx = 0;
+        int mountainXidx = (int )(Math.random() * 100) + 100;
+        int mountainWidth = (int )(Math.random() * 100) + 100;
+        
+        //System.out.println("x = " + mountainXidx + "|w = " + mountainWidth);
+        
+        for(int x = 0; x < Constants.WIDTH_OF_MAP/2; x++)
+        {
+            dx = (double) x / height;
+
+            //from mountain to flat 
+            if (x > mountainXidx+mountainWidth && frequency == mountainFrequency){
+                frequency = standardFrequency;
+                time -= (dx * standardFrequency)-dx*mountainFrequency + TIME_STEP;
+                
+                mountainXidx = (int )(Math.random() * 150) + 150 + x;
+                mountainWidth = (int )(Math.random() * 100) + 100;
+                System.out.println("x = " + mountainXidx + "|w = " + mountainWidth);
+            }
+            //from flat to mountain
+            else if (x > mountainXidx && frequency == standardFrequency){
+                frequency = mountainFrequency;
+                time -= (dx * mountainFrequency)-dx*standardFrequency + TIME_STEP;
+            }
+            
+            if (frequency == standardFrequency){
+                if (groundYOffset < groundYOffsetStd)
+                    groundYOffset += 0.03;    //y = (sin (x/(2*pi)) * 0.8)
+            }
+            else if (groundYOffset > groundYOffsetMountain)
+                    groundYOffset -= 0.03;
+            
+            noise = noise((dx * frequency) + time, 0.5) + groundYOffset;
+            
             int y = abs((int)(noise*20))%height;
-            //System.out.println(x + "|" + test);
+            //System.out.println(x + "|" + y + "|" + time);
             //image.setRGB(x, noise, 255);
             noiseArr[x] = height-y-1;
+            
+            time += TIME_STEP;
         }
 
     	return noiseArr;

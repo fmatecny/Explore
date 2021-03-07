@@ -25,6 +25,9 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Disposable;
+import com.mygdx.game.Constants;
+import com.mygdx.game.Inputs;
+import com.mygdx.game.world.Block;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -55,13 +58,18 @@ public class Water implements Disposable {
 
 	private static Random rand = new Random();
 
-	private float tension = 0.025f;
+	private float tension = 0.08f;//025f;
 	private float dampening = 0.025f;
-	private float spread = 0.25f;
+	private float spread = 0.2f;// 0.25f;
 	private float density = 1f;
 	
 	private final float columnSparation = 0.08f; // 4 px between every column
 
+        
+        public float width;
+        public float height;
+        public int x;
+        public int y;
 	/**
 	 * Main constructor. Will create an object with the effect of waves and particles by default.
 	 */
@@ -81,10 +89,10 @@ public class Water implements Disposable {
 		this.fixturePairs = new HashSet<AbstractMap.SimpleEntry<Fixture, Fixture>>();
 		this.setDebugMode(false);
 
-		if (waves) {
-			textureWater = new TextureRegion(new Texture(Gdx.files.internal("water.png")));
+		/*if (waves) {*/
+			textureWater = new TextureRegion(new Texture(Gdx.files.internal("water3.png")));
 			polyBatch = new PolygonSpriteBatch();
-		}
+		//}
 
 		if (splashParticles) {
 			textureDrop = new Texture(Gdx.files.internal("drop.png"));
@@ -106,17 +114,20 @@ public class Water implements Disposable {
 	 * @param density Body density
 	 */
 	public void createBody(World world, float x, float y, float width, float height) {
-		
+                this.width = width;
+                this.height = height;
+
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.StaticBody;
 		bodyDef.position.set(x, y);
 
 		// Create our body in the world using our body definition
 		body = world.createBody(bodyDef);
-		body.setUserData(this);
+                body.setUserData(this);
 		
 		PolygonShape square = new PolygonShape();
-		square.setAsBox(width / 2, height / 2);
+
+		square.setAsBox(width / 2, height/2);
 
 		// Create a fixture definition to apply our shape to
 		FixtureDef fixtureDef = new FixtureDef();
@@ -124,19 +135,23 @@ public class Water implements Disposable {
                 
 		// Must be a sensor
 		fixtureDef.isSensor = true;
-
+                
+                //for shadows
+                if (!waves && !splashParticles)
+                    fixtureDef.filter.categoryBits = Constants.BLOCK_BIT;
 		// Create our fixture and attach it to the body
 		body.createFixture(fixtureDef);
-		
-		square.dispose();
-
+                
+                square.dispose();
+                        
 		// Water columns (waves)
 		if (waves) {
 			int size = (int) (width / this.columnSparation);
 			columns = new ArrayList<WaterColumn>(size);
 			for (int i = 0; i < size+1; i++) {
 				float cx = i * this.columnSparation + x - width / 2;
-				columns.add(new WaterColumn(cx, y - height / 2, y + height / 2, y + height / 2, 0));
+				columns.add(new WaterColumn(cx, y - height / 2, y + height / 2-0.1f, y + height / 2-0.1f, 0));
+                                //columns.add(new WaterColumn(cx, y+ height / 2 - Block.size, y + height / 2, y + height / 2, 0));
 			}
 		}
 	}
@@ -165,12 +180,19 @@ public class Water implements Disposable {
 					/* Get fixtures bodies */
 					Body fluidBody = fixtureA.getBody();
 					Body fixtureBody = fixtureB.getBody();
-			
+                                        
 					// apply buoyancy force (fixtureA is the fluid)
 					float displacedMass = this.density * area;
+                                        if (Inputs.instance.down){
 					Vector2 buoyancyForce = new Vector2(displacedMass * -world.getGravity().x,
+							displacedMass/2 * -world.getGravity().y);
+					fixtureB.getBody().applyForce(buoyancyForce, centroid, true);
+                                        }
+                                        else{
+                                        Vector2 buoyancyForce = new Vector2(displacedMass * -world.getGravity().x,
 							displacedMass * -world.getGravity().y);
 					fixtureB.getBody().applyForce(buoyancyForce, centroid, true);
+                                        }
 			
 					float dragMod = 0.25f; // adjust as desired
 					float liftMod = 0.25f; // adjust as desired
@@ -203,7 +225,7 @@ public class Water implements Disposable {
 						Vector2 normal = new Vector2(edge.y, -edge.x);
 						float dragDot = normal.dot(velocityDirection);
 			
-						if (dragDot >= 0) {
+						if (dragDot >= 0 && Inputs.instance.down == false) {
 			
 							/*
 							 * Normal don't point backwards. This is a leading edge. Store
@@ -375,11 +397,12 @@ public class Water implements Disposable {
 		float y = column.getHeight();
 		float bodyVel = Math.abs(column.getActualBody().getLinearVelocity().y);
 
-		if (Math.abs(bodyVel) > 3f) {
+		if (Math.abs(bodyVel) > 2.5f) {
 			for (int i = 0; i < bodyVel / 8; i++) {
-				Vector2 pos = new Vector2(column.x(), y).add(IntersectionUtils.getRandomVector(column.getTargetHeight()));
+				//Vector2 pos = new Vector2(column.x(), y).add(IntersectionUtils.getRandomVector(column.getTargetHeight()));
+                                Vector2 pos = new Vector2(column.x(), y).add(IntersectionUtils.getRandomVector(2*Block.size));
 
-				Vector2 vel = new Vector2();
+				Vector2 vel;// = new Vector2();
 				if (rand.nextInt(4) == 0)
 					vel = new Vector2(0, bodyVel / 2 + rand.nextFloat() * bodyVel / 2);
 				else if (pos.x < column.getActualBody().getPosition().x)
@@ -452,6 +475,12 @@ public class Water implements Disposable {
 			}
 			
 		}
+                else{
+                polyBatch.setProjectionMatrix(camera.combined);
+                polyBatch.begin();
+                polyBatch.draw(textureWater, body.getPosition().x-width/2, body.getPosition().y-height/2, width, height );
+                polyBatch.end();
+                }
 	}
 
 	@Override
@@ -542,6 +571,16 @@ public class Water implements Disposable {
 	public void setDebugMode(boolean debugMode) {
 		this.debugMode = debugMode;
 	}
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+        
+        
 
 }
 

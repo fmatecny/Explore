@@ -195,7 +195,7 @@ public class GameScreen implements Screen{
 
         spriteBatch.end();
         
-        map.drawWater();
+        map.drawLake();
         
         spriteBatch.begin();
 
@@ -345,7 +345,15 @@ public class GameScreen implements Screen{
             //cam.y+=0.01;//player.getSpeed()*2;
             cam.y = player.getY() + MyGdxGame.height/2/PPM - 4;
         }
-        
+        /*
+        if (Inputs.instance.left)
+            cam.x--;
+        if (Inputs.instance.right)
+            cam.x++;
+        if (Inputs.instance.down)
+            cam.y--;
+        if (Inputs.instance.up)
+            cam.y++;*/
         camera.position.set(cam.x ,cam.y, camera.position.z);
         camera.update();
         

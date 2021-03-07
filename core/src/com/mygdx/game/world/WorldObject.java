@@ -44,7 +44,7 @@ public abstract class WorldObject {
             fixtureDef.filter.categoryBits = Constants.BLOCK_BIT;
         else
             fixtureDef.filter.categoryBits = Constants.UNBLOCK_BIT;
-        //fixtureDef.density = 0.5f;
+        fixtureDef.density = 0f;//.1f;
         //fixtureDef.friction = 0.5f;
         //fixtureDef.restitution = 0.5f;
 

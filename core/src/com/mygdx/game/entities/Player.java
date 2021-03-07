@@ -157,7 +157,9 @@ public class Player {
         
         if (MyContactListener.swim){
             speed /=4;
-            powerOfImpuls = 0.05f;
+            powerOfImpuls = 0.03f;
+            if (Inputs.instance.run)
+                currentTOM = typeOfMovement.stand;      
         }
         
         if (Inputs.instance.run && currentTOM != typeOfMovement.stand){
@@ -174,6 +176,13 @@ public class Player {
             b2body.applyLinearImpulse(new Vector2(-powerOfImpuls, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
         }
+
+        
+        
+        if (Inputs.instance.down && MyContactListener.swim){
+            b2body.applyLinearImpulse(new Vector2(0, -powerOfImpuls), b2body.getWorldCenter(), true);
+        }
+        
         
         if (b2body.getLinearVelocity().y < 0 && isJumping )
             isFalling = true;
@@ -183,7 +192,7 @@ public class Player {
             isFalling = false;
         }
         
-        if (Inputs.instance.up && !isJumping && !isFalling){
+        if (Inputs.instance.up && !isJumping && (!isFalling || MyContactListener.swim)){
             b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.jump;
             isJumping = true;
