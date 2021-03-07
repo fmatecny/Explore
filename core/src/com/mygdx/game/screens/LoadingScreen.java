@@ -99,8 +99,9 @@ public class LoadingScreen extends ExploreMenuScreen{
                     progress = 90;
                     break;
                     
-            case 14: if (worldID == 0)
+            case 14: if (worldID == 0){
                         progress = 99;
+                        getParent().getGameScreen().genrateMap();}
                      else
                         progressString = "Loading game";
                     break;

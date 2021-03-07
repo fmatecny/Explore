@@ -529,20 +529,7 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftingSlots[2][1].getBlock().id == AllBlocks.plank.id &&
                 craftingSlots[2][2].getBlock().id == AllBlocks.plank.id)
                 return Constants.RECEPIE_CHEST;
-            }
-        else if (
-            craftingSlots[0][0].getBlock() != null &&
-            craftingSlots[0][1].getBlock() != null &&
-            craftingSlots[0][2].getBlock() != null &&
-            craftingSlots[1][0].getBlock() != null &&
-            craftingSlots[1][1].isEmpty() &&
-            craftingSlots[1][2].getBlock() != null &&
-            craftingSlots[2][0].getBlock() != null &&
-            craftingSlots[2][1].getBlock() != null &&
-            craftingSlots[2][2].getBlock() != null
-            )
-            {
-            if (craftingSlots[0][0].getBlock().id == AllBlocks.stone.id &&
+            else if (craftingSlots[0][0].getBlock().id == AllBlocks.stone.id &&
                 craftingSlots[0][1].getBlock().id == AllBlocks.stone.id &&
                 craftingSlots[0][2].getBlock().id == AllBlocks.stone.id &&
                 craftingSlots[1][0].getBlock().id == AllBlocks.stone.id &&

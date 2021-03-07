@@ -32,14 +32,11 @@ import java.util.ArrayList;
  * @author Fery
  */
 public class Map extends WorldObject{
-    
-    private Block[][] mapArray;
-    
-    
     private int width = Constants.WIDTH_OF_MAP;
     private int height = Constants.HEIGHT_OF_MAP;
     
     // Ground 
+    private Block[][] mapArray;
     private Block[][] groundBckArr;
     private PerlinNoise2D perlinNoise2D;
     private int[] noiseArr;
@@ -75,8 +72,8 @@ public class Map extends WorldObject{
 
     public Map() {
         mapArray = new Block[width][height];        
-        
-        generateMap();
+        groundBckArr = new Block[width][height-Constants.HEIGHT_OF_SKY];
+        //generateMap();
 
         textureAtlas = new TextureAtlas("block/cracking1.txt");
         breakBlockAnimation = new Animation<>(0.5f, textureAtlas.getRegions());
@@ -84,7 +81,7 @@ public class Map extends WorldObject{
         torchAnimation = new Animation<>(0.1f, textureTorchAtlas.getRegions());
     }
     
-    private void generateMap() {
+    public void generateMap() {
         
         generateGround(width, height-Constants.HEIGHT_OF_SKY);
         
@@ -106,7 +103,7 @@ public class Map extends WorldObject{
             
             // based on percent generates object
             int percent = (int )(Math.random() * 100);
-            if (percent > 70) {
+            if (percent > 70 && groundIndexY < 50) {
                 generateHouse();
             }
             else if (percent > 5){
@@ -124,7 +121,7 @@ public class Map extends WorldObject{
         perlinNoise2D = new PerlinNoise2D();
         noiseArr = perlinNoise2D.getNoiseArr(h);
         
-        groundBckArr = new Block[w][h];
+        //groundBckArr = new Block[w][h];
 
         for (int i = 0; i < w; i++) 
         {
@@ -342,6 +339,10 @@ public class Map extends WorldObject{
     public Block[][] getBlockArray() {
         return mapArray;
     }    
+    
+    public Block[][] getBckArray(){
+        return groundBckArr;
+    }
         
     public void removeBlock(int x, int y){
             if (mapArray[x][y].id == AllBlocks.door_down.id)
@@ -599,6 +600,7 @@ public class Map extends WorldObject{
             IntVector2 v = (IntVector2)b.getUserData();
             shapeRenderer.begin(ShapeType.Line);
             shapeRenderer.setColor(Color.BLACK);
+            System.out.println(v.X + "|" + v.Y);
             if (getBlockByIdx(v) != null && player.dst(b.getPosition()) < 1.5f)
             {
                 shapeRenderer.rect( v.X * Block.size_in_pixels - cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,

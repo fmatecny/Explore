@@ -14,6 +14,7 @@ public class SaveMapParams {
     public int id;
     public boolean blocked;
     public int rotation;
+    public boolean hasBckBlock;
     
     
     public SaveMapParams() {

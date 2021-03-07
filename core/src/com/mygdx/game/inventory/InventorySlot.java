@@ -186,19 +186,19 @@ public class InventorySlot extends Table{
     public boolean hasObject(InventorySlot dragSlot) {
         if (this.block != null && dragSlot.getBlock() != null)
         {
-            if (this.block == dragSlot.getBlock())
+            if (this.block.id == dragSlot.getBlock().id)
                 return true;
         }
         
         if (this.item != null && dragSlot.getItem() != null)
         {
-            if (this.item == dragSlot.getItem())
+            if (this.item.id == dragSlot.getItem().id)
                 return true;
         }
         
         if (this.tool != null && dragSlot.getTool() != null)
         {
-            if (this.tool == dragSlot.getTool())
+            if (this.tool.id == dragSlot.getTool().id)
                 return true;
         }
         

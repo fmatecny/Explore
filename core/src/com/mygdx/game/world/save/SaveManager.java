@@ -70,6 +70,9 @@ public class SaveManager {
                 }
                 else
                     map.getBlockArray()[i][j] = null;
+                
+                if (j < map.getBckArray()[i].length)
+                    map.getBckArray()[i][j] = saveMapParams[i][j].hasBckBlock ? AllBlocks.groundBck : null;
             }
             //System.out.println("");
         }
@@ -162,6 +165,11 @@ public class SaveManager {
                     saveMapParams[i][j].blocked = false;
                     saveMapParams[i][j].rotation = 0;
                 }
+                
+                if (j < map.getBckArray()[i].length)
+                    saveMapParams[i][j].hasBckBlock = (map.getBckArray()[i][j] != null);
+                else
+                    saveMapParams[i][j].hasBckBlock = false;
             }
         }
         
