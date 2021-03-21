@@ -149,7 +149,7 @@ public class Map extends WorldObject{
                             mapArray[i][j] = new Block(AllBlocks.stone);
                     
                     }//gold area
-                    else if(j <= 20)
+                    else if(j <= 13)
                     {
                         if (randomIdx < 7)
                             mapArray[i][j] = new Block(AllBlocks.gold);
@@ -160,7 +160,7 @@ public class Map extends WorldObject{
                         else
                             mapArray[i][j] = new Block(AllBlocks.stone);
                     }//iron area
-                    else if(j <= 35)
+                    else if(j <= 25)
                     {
                         if (randomIdx < 10)
                             mapArray[i][j] = new Block(AllBlocks.iron);
@@ -169,10 +169,21 @@ public class Map extends WorldObject{
                         else
                             mapArray[i][j] = new Block(AllBlocks.stone);
                     }//coal area
-                    else
+                    else if(j <= 35)
                     {
                         if (randomIdx < 15)
                             mapArray[i][j] = new Block(AllBlocks.coal);
+                        else if (randomIdx < 30 && j > 30)
+                            mapArray[i][j] = new Block(AllBlocks.ground);
+                        else
+                            mapArray[i][j] = new Block(AllBlocks.stone);
+                    }
+                    else
+                    {
+                        if (randomIdx < 10)
+                            mapArray[i][j] = new Block(AllBlocks.coal);
+                        else if (randomIdx < 80)
+                            mapArray[i][j] = new Block(AllBlocks.ground);
                         else
                             mapArray[i][j] = new Block(AllBlocks.stone);
                     }
@@ -254,17 +265,23 @@ public class Map extends WorldObject{
             {
                 if (mapArray[water.x-1][water.y] == null)
                 {
-                    addBodyToIdx(water.x-1, water.y, AllBlocks.grassy_ground);
+                    //addBodyToIdx(water.x-1, water.y, AllBlocks.grassy_ground);
+                    mapArray[water.x-1][water.y] = new Block(AllBlocks.sand);
+                    groundBckArr[water.x-1][water.y] = AllBlocks.groundBck;
                     if (mapArray[water.x-1][water.y-1] != null){
                         removeBlock(water.x-1, water.y-1);
-                        addBodyToIdx(water.x-1, water.y-1, AllBlocks.grassy_ground);}
+                        mapArray[water.x-1][water.y-1] = new Block(AllBlocks.sand);
+                        groundBckArr[water.x-1][water.y-1] = AllBlocks.groundBck;}
                 }
                 if (mapArray[water.x+(int)(water.width/0.4f)][water.y] == null)
                 {
-                    addBodyToIdx(water.x+(int)(water.width/0.4f), water.y, AllBlocks.grassy_ground);
+                    //addBodyToIdx(water.x+(int)(water.width/0.4f), water.y, AllBlocks.grassy_ground);
+                    mapArray[water.x+(int)(water.width/0.4f)][water.y] = new Block(AllBlocks.sand);
+                    groundBckArr[water.x+(int)(water.width/0.4f)][water.y] = AllBlocks.groundBck;
                     if (mapArray[water.x+(int)(water.width/0.4f)][water.y-1] != null){
                         removeBlock(water.x+(int)(water.width/0.4f), water.y-1);
-                        addBodyToIdx(water.x+(int)(water.width/0.4f), water.y-1, AllBlocks.grassy_ground);}
+                        mapArray[water.x+(int)(water.width/0.4f)][water.y-1] = new Block(AllBlocks.sand);
+                        groundBckArr[water.x+(int)(water.width/0.4f)][water.y-1] = AllBlocks.groundBck;}
 
                 }
             }
@@ -283,7 +300,66 @@ public class Map extends WorldObject{
                     if (mapArray[x][y] != null)
                         removeBlock(x, y);
                     groundBckArr[x][y] = AllBlocks.groundBck;
-                }  
+                    
+                    if (groundIndexY-heightOfLake == water.y)
+                    {
+                        int numOfSands = (int )(Math.random() * 2 + 2);
+                        //left bottom and right
+                        for (int i = 1; i <= numOfSands; i++) {
+                            if (mapArray[x-i][water.y-1] != null){
+                                    removeBlock(x-i, water.y-1);
+                                }
+                            mapArray[x-i][water.y-1] = new Block(AllBlocks.sand);  
+                            
+                            if (mapArray[water.x+(int)(water.width/0.4f) + i-1][water.y-1] != null){
+                                    removeBlock(water.x+(int)(water.width/0.4f) + i-1,water.y-1);
+                                }
+                            mapArray[water.x+(int)(water.width/0.4f) + i-1][water.y-1] = new Block(AllBlocks.sand);  
+                        }
+
+                        
+                        
+                        numOfSands = (int )(Math.random() * 2 + 1);
+                        for (int i = 1; i <= numOfSands; i++) {
+                            //add sand to bottom
+
+                                if (mapArray[x][water.y-i] != null){
+                                    removeBlock(x, water.y-i);
+                                }
+                                mapArray[x][water.y-i] = new Block(AllBlocks.sand);
+                            }     
+                    }
+                    
+                    
+ 
+                }
+                
+                int numOfSands = (int )(Math.random() * 3 + 2);
+                
+                for (int i = 1; i <= numOfSands; i++) 
+                {
+                    //add sand to left side
+                    if (mapArray[water.x-i][water.y] != null){
+                        removeBlock(water.x-i, water.y);
+                    }
+                    mapArray[water.x-i][water.y] = new Block(AllBlocks.sand);
+                    groundBckArr[water.x-i][water.y] = AllBlocks.groundBck;   
+                }
+                
+                numOfSands = (int )(Math.random() * 4 + 1);
+                
+                for (int i = 0; i <= numOfSands; i++) 
+                {
+                    //add sand to right side
+                    if (mapArray[water.x+(int)(water.width/0.4f) + i][water.y] != null){
+                        removeBlock(water.x+(int)(water.width/0.4f) + i, water.y);
+                    }
+                    mapArray[water.x+(int)(water.width/0.4f) + i][water.y] = new Block(AllBlocks.sand);
+                    groundBckArr[water.x+(int)(water.width/0.4f) + i][water.y] = AllBlocks.groundBck;
+                }
+                
+                
+
             }
 
             
