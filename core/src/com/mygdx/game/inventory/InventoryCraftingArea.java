@@ -244,6 +244,12 @@ public class InventoryCraftingArea extends InventoryPack{
                 //craftedItem.setMinObjectsForSplit(8);
                 break; 
                 
+            case Constants.RECEPIE_STONE_SWORD:
+                craftedItem.numOfItem = 1;
+                craftedItem.setObject(AllTools.sword);
+                break; 
+                
+                
             default:
                 craftedItem.numOfItem = 0;
                 craftedItem.removeObject();
@@ -346,6 +352,14 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftingSlots[1][2].numOfItem -= n/2;
                 craftingSlots[2][2].numOfItem -= n/2;
                 break;
+                
+            case Constants.RECEPIE_STONE_SWORD:
+                craftingSlots[1][0].numOfItem -= n;
+                craftingSlots[1][1].numOfItem -= n;
+                craftingSlots[1][2].numOfItem -= n;
+                break;
+
+                
             default:
                 
         }
@@ -557,7 +571,26 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftingSlots[1][2].getItem().id == AllItems.stick.id &&
                 craftingSlots[2][0].getBlock().id == AllBlocks.stone.id)
                 return Constants.RECEPIE_PICKAXE;
-            }    
+            }  
+        else if (
+            craftingSlots[0][0].isEmpty() &&
+            craftingSlots[0][1].isEmpty() &&
+            craftingSlots[0][2].isEmpty() &&
+            craftingSlots[1][0].getBlock() != null &&
+            craftingSlots[1][1].getBlock() != null &&
+            craftingSlots[1][2].getItem() != null &&
+            craftingSlots[2][0].isEmpty() &&
+            craftingSlots[2][1].isEmpty() &&
+            craftingSlots[2][2].isEmpty()
+            )
+            {
+            if (craftingSlots[1][0].getBlock().id == AllBlocks.stone.id &&
+                craftingSlots[1][1].getBlock().id == AllBlocks.stone.id &&
+                craftingSlots[1][2].getItem().id == AllItems.stick.id)
+                return Constants.RECEPIE_STONE_SWORD;
+            }  
+        
+        
         
         return -1;
     }

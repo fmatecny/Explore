@@ -94,7 +94,7 @@ public class Inventory implements Disposable{
         inventoryPackage = new InventoryPackage(numOfCol, numOfRow);
         inventoryBar = new InventoryBar(numOfCol);
         inventoryBarHUD = new InventoryBar(numOfCol, Touchable.disabled);
-        inventoryBarHUD.setPosition(MyGdxGame.width/2,100);
+        inventoryBarHUD.setPosition(MyGdxGame.width/2,MyGdxGame.height*0.1f);
          
         table.add(inventoryArmorSlots).left();
         table.add(inventoryAvatar).left();

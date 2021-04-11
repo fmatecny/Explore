@@ -127,7 +127,9 @@ public class Map extends WorldObject{
         {
             for (int j = 0; j < h; j++) 
             {
-                if (j == noiseArr[i/2]){
+                if (j == 0)
+                    mapArray[i][j] = AllBlocks.unbreakable;
+                else if (j == noiseArr[i/2]){
                     mapArray[i][j] = new Block(AllBlocks.ground);
                     groundBckArr[i][j] = AllBlocks.groundBck;
                 }
@@ -189,7 +191,7 @@ public class Map extends WorldObject{
                     }
 
                     groundBckArr[i][j] = AllBlocks.groundBck;
-                }      
+                } 
             }
         }
     }
@@ -462,6 +464,10 @@ public class Map extends WorldObject{
     }
     
     public boolean addBodyToIdx(int x, int y, Block b){
+        //if block is on background or front
+        b.blocked = !Inputs.instance.control_left;
+        
+        
         //create new body beacuse in Inventar is only one body 
         if (b.id == AllBlocks.door.id || b.id == AllBlocks.door_up.id || b.id == AllBlocks.door_down.id)
         {
@@ -534,7 +540,7 @@ public class Map extends WorldObject{
         int left = (int) (((cam.x*100.0f)-640)/40)+Constants.SIZE_OF_CHUNK;
         right = (int) (((cam.x*100.0f)+640)/40);
         down = (int) (((cam.y*100.0f)-360)/40)+Constants.SIZE_OF_CHUNK;
-        up = (int) (((cam.y*100.0f)+360)/40);*/
+        jump = (int) (((cam.y*100.0f)+360)/40);*/
         
         if (left < 0)
             left = 0;
@@ -674,6 +680,9 @@ public class Map extends WorldObject{
         if (b.getUserData() instanceof IntVector2)
         {
             IntVector2 v = (IntVector2)b.getUserData();
+            if (getBlockByIdx(v).id == AllBlocks.unbreakable.id)
+                return; 
+                        
             shapeRenderer.begin(ShapeType.Line);
             shapeRenderer.setColor(Color.BLACK);
             System.out.println(v.X + "|" + v.Y);
@@ -694,7 +703,7 @@ public class Map extends WorldObject{
                         player.x*GameScreen.PPM- cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
                         player.y*GameScreen.PPM- cam.y*GameScreen.PPM + MyGdxGame.height/2.0f);
             }
-                shapeRenderer.end();
+            shapeRenderer.end();
         }
    
     }

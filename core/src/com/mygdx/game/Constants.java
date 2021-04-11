@@ -25,6 +25,8 @@ public final class Constants {
     public static final int PLAYER_RIGHT_BIT = 2;
     public static final int BLOCK_BIT = 4;
     public static final int UNBLOCK_BIT = 16;
+    public static final int VILLAGER_BIT = 32;
+    public static final int PLAYER_BIT = 64;
     
     public static final int RECEPIE_PLANK = 1;
     public static final int RECEPIE_HALF_PLANK = 2;
@@ -39,6 +41,8 @@ public final class Constants {
     public static final int RECEPIE_PICKAXE = 11;
     public static final int RECEPIE_STONE_STAIRS = 12;
     public static final int RECEPIE_HALF_STONE = 13;
+    
+    public static final int RECEPIE_STONE_SWORD = 14;
     
     public static final int DAY_IN_SECONDS = 600;
     public static final float HOUR_IN_SECONDS = DAY_IN_SECONDS/24;

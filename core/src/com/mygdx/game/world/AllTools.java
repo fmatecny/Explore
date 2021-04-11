@@ -17,11 +17,12 @@ public class AllTools {
     
     private enum id
     {
-        bow, pickaxe  
+        bow, pickaxe, sword  
     }
     
     public static Tool bow; 
     public static Tool pickaxe; 
+    public static Tool sword; 
     
     public static ArrayList<Tool> toolList;
 
@@ -38,6 +39,11 @@ public class AllTools {
         pickaxe.id = id.pickaxe.ordinal();
         pickaxe.texture = new Texture(Gdx.files.internal("tool/pickaxe.png"));
         toolList.add(pickaxe);
+        
+        sword =  new Tool();
+        sword.id = id.sword.ordinal();
+        sword.texture = new Texture(Gdx.files.internal("tool/sword.png"));
+        toolList.add(sword);
         
     }
     

@@ -20,6 +20,7 @@ public class Inputs implements InputProcessor{
     public boolean pause = false;
     public boolean right = false;
     public boolean left = false;
+    public boolean jump = false;
     public boolean up = false;
     public boolean down = false;
     public boolean run = false;
@@ -51,8 +52,13 @@ public class Inputs implements InputProcessor{
                             left = true;
                             break;
                             
-            case Keys.SPACE:
+            case Keys.UP:
+            case Keys.W:
                             up = true;
+                            break;
+                            
+            case Keys.SPACE:
+                            jump = true;
                             break;
                             
             case Keys.DOWN:
@@ -104,8 +110,13 @@ public class Inputs implements InputProcessor{
                             left = false;
                             break;
                             
-            case Keys.SPACE:
+            case Keys.UP:
+            case Keys.W:
                             up = false;
+                            break; 
+                            
+            case Keys.SPACE:
+                            jump = false;
                             break;
                             
             case Keys.DOWN:

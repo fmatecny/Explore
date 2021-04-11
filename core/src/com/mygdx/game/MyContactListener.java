@@ -50,6 +50,8 @@ public class MyContactListener implements ContactListener {
                 blockOnRight++;
             }
             //System.out.println(blockOnRight); 
+            
+
 	}
 
 	@Override

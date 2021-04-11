@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -20,6 +21,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.MyContactListener;
@@ -36,6 +38,7 @@ public class Player {
 
     private Inventory inventory;
     private HUD hud;
+    private float health;
     
     private enum typeOfMovement { stand, walk, run, jump};//, shot, hit, die };
     private typeOfMovement currentTOM = typeOfMovement.stand;
@@ -58,6 +61,7 @@ public class Player {
     private boolean isJumping = false;
     
     public Body b2body;
+    private Vector2 position =new Vector2();
     
     private Vector3 v3 = new Vector3();
 
@@ -109,6 +113,7 @@ public class Player {
         square.setAsBox(Block.size, Block.size);*/
         CircleShape square = new CircleShape();
         square.setRadius(Block.size/2.0f + 2.0f/GameScreen.PPM);
+        fdef.filter.categoryBits = Constants.PLAYER_BIT;
         //square.
         //fdef.filter.categoryBits = MarioBros.MARIO_BIT;
         /*fdef.filter.maskBits = MarioBros.GROUND_BIT |
@@ -166,7 +171,7 @@ public class Player {
             speed *= 2;
             //currentTOM = typeOfMovement.run;
         }
-
+        
         if (Inputs.instance.right && b2body.getLinearVelocity().x <= speed && MyContactListener.blockOnRight==0){
             b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.walk;
@@ -177,7 +182,16 @@ public class Player {
             currentTOM = typeOfMovement.walk;
         }
 
-        
+        /*if (Inputs.instance.up && b2body.getLinearVelocity().y <= speed/5){
+            b2body.applyLinearImpulse(new Vector2(0, powerOfImpuls), b2body.getWorldCenter(), true);
+        }
+        else{
+            //if playerOnLadder
+        b2body.setGravityScale(0);
+        Vector2 vel = b2body.getLinearVelocity();
+        vel.y = 0f;
+        b2body.setLinearVelocity(vel);
+        }*/
         
         if (Inputs.instance.down && MyContactListener.swim){
             b2body.applyLinearImpulse(new Vector2(0, -powerOfImpuls), b2body.getWorldCenter(), true);
@@ -192,7 +206,7 @@ public class Player {
             isFalling = false;
         }
         
-        if (Inputs.instance.up && !isJumping && (!isFalling || MyContactListener.swim)){
+        if (Inputs.instance.jump && !isJumping && (!isFalling || MyContactListener.swim)){
             b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
             currentTOM = typeOfMovement.jump;
             isJumping = true;
@@ -228,8 +242,13 @@ public class Player {
     }*/
     
     
+    public void update(OrthographicCamera camera){
+        //updatePosition(camera);
+        hud.setHealth(health);
+    }
+    
     public void draw(SpriteBatch spriteBatch){
-        
+        //hud.draw();
         if (currentTOM != typeOfMovement.jump)
         {
             //backwalk
@@ -249,6 +268,8 @@ public class Player {
         spriteBatch.draw(currentFrame, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 7.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
         
         lastTOM = currentTOM;
+        
+        
     }
     
     public void dispose(){
@@ -274,6 +295,10 @@ public class Player {
 
     public Inventory getInventory() {
         return inventory;
+    }
+    
+    public HUD getHud() {
+        return hud;
     }
 
 }

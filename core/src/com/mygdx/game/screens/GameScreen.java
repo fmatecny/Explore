@@ -27,6 +27,7 @@ import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyContactListener;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.Player;
+import com.mygdx.game.entities.Villager;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.inventory.AllItems;
 import com.mygdx.game.world.AllTools;
@@ -60,7 +61,7 @@ public class GameScreen implements Screen{
     private final Background bck;
     private static Map map;
     private Player player;
-    //private final Villager villager;
+    private Villager villager;
     private DebugHUD debugHUD;
     
     private boolean allowRotation = true;
@@ -110,6 +111,31 @@ public class GameScreen implements Screen{
         {
             //System.out.println("terminate");
             isBlockMinable = false;
+            return 0;
+        }
+        
+    }
+};
+    
+    private boolean isEnemies = false;
+    RayCastCallback callback2 = new RayCastCallback() {
+    @Override
+    public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+        
+        if (hitBody == fixture.getBody() && 
+            fixture.getBody().getUserData() instanceof Integer)
+        {
+            isEnemies = true;
+            return fraction;
+        }
+        else if (fixture.getFilterData().categoryBits != Constants.VILLAGER_BIT)
+        {
+            return -1;
+        }
+        else
+        {
+            //System.out.println("terminate");
+            isEnemies = false;
             return 0;
         }
         
@@ -185,8 +211,8 @@ public class GameScreen implements Screen{
 
         map.draw(spriteBatch, cam);
 
-        //villager.updatePosition();
-        //villager.draw(spriteBatch);
+        villager.updatePosition();
+        villager.draw(spriteBatch);
 
         if (!Inputs.instance.showInventory)
             player.updatePosition(camera);
@@ -220,6 +246,15 @@ public class GameScreen implements Screen{
                         world.rayCast(callback1, v2, hitBody.getPosition());
                         if (isBlockMinable)
                             map.drawRectOnBlock(hitBody, cam, v2);
+                    }
+                }
+                else if (hitBody.getUserData() instanceof Integer && 
+                        Inputs.instance.mouseLeft )
+                {
+                    isEnemies = false;
+                    world.rayCast(callback2, player.b2body.getPosition(), hitBody.getPosition());
+                    if (isEnemies){
+                        System.out.println("enemies");
                     }
                 }
             }
@@ -309,6 +344,7 @@ public class GameScreen implements Screen{
         shaders_box2dlights.updateRayHandler();*/
         
         player.getInventory().draw();
+        player.getHud().draw();
         
         //show debug informations
         if (Inputs.instance.debugMode)
@@ -352,7 +388,7 @@ public class GameScreen implements Screen{
             cam.x++;
         if (Inputs.instance.down)
             cam.y--;
-        if (Inputs.instance.up)
+        if (Inputs.instance.jump)
             cam.y++;*/
         camera.position.set(cam.x ,cam.y, camera.position.z);
         camera.update();
@@ -466,6 +502,7 @@ public class GameScreen implements Screen{
     public void createEntities() {
         // Create player
         player = new Player();
+        villager = new Villager();
     }
     
 }

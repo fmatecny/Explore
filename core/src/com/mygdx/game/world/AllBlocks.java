@@ -21,7 +21,7 @@ public class AllBlocks {
        
        leaf,
        
-       gravel, sand, stone, coal, iron, gold, diamond,
+       gravel, sand, stone, coal, iron, gold, diamond, unbreakable,
        
        wood_stairs, plank, half_plank,
        
@@ -52,6 +52,7 @@ public class AllBlocks {
     public static Block gold;
     public static Block diamond;
 //    public static Block bones;
+    public static Block unbreakable;
     
     public static Block leaf;
     public static Block door_down;
@@ -301,6 +302,15 @@ public class AllBlocks {
         torch.stackable = true;
         torch.texture = new Texture(Gdx.files.internal("block/walltorch1.gif"));//torch.png"));
         blockList.add(torch);
+        
+        unbreakable = new Block();
+        unbreakable.id = t.unbreakable.ordinal();
+        unbreakable.blocked = true;
+        unbreakable.hardness = 99;
+        unbreakable.textureRotation = 0;
+        unbreakable.stackable = false;
+        unbreakable.texture = new Texture(Gdx.files.internal("block/unbreakable.png"));
+        blockList.add(unbreakable);
         
         window = new Block();
         window.id = t.window.ordinal();

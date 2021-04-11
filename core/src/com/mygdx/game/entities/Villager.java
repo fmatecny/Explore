@@ -14,13 +14,10 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
-import com.mygdx.game.IntVector2;
-import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.Constants;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.Block;
-import com.mygdx.game.world.Map;
 import java.util.ArrayList;
 
 /**
@@ -29,6 +26,7 @@ import java.util.ArrayList;
  */
 public class Villager {
    
+    private int id = 1;
     private enum typeOfMovement { stand, walk, run, jump};//, shot, hit, die };
     private typeOfMovement currentTOM = typeOfMovement.stand;
     private typeOfMovement lastTOM = typeOfMovement.stand;
@@ -54,7 +52,7 @@ public class Villager {
     
     private Body b2body;
 
-    public Villager(Stage stage) {
+    public Villager() {
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
         //System.out.println(typeOfMovement.stand.ordinal());
         textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("player/Stand/stand.txt");
@@ -104,9 +102,10 @@ public class Villager {
     }
     public void defineVillager(){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(450.0f/GameScreen.PPM, MyGdxGame.height/GameScreen.PPM);
+        bdef.position.set(700.0f/GameScreen.PPM, 20);
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
+        b2body.setUserData(id);
 
         FixtureDef fdef = new FixtureDef();
         //fdef.friction = 1.0f;
@@ -127,7 +126,10 @@ public class Villager {
                 MarioBros.ITEM_BIT;*/
 
         fdef.shape = square;
+        fdef.filter.categoryBits = Constants.VILLAGER_BIT;
+        //fdef.filter.maskBits = Constants.BLOCK_BIT;
         b2body.createFixture(fdef);//.setUserData(this);
+        
 
         /*EdgeShape head = new EdgeShape();
         head.set(new Vector2(-1, 2), new Vector2(3, 2));
