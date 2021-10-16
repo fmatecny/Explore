@@ -24,9 +24,10 @@ import java.util.ArrayList;
  *
  * @author Fery
  */
-public class Villager {
+public class Villager extends Entity{
    
     private int id = 1;
+    
     private enum typeOfMovement { stand, walk, run, jump};//, shot, hit, die };
     private typeOfMovement currentTOM = typeOfMovement.stand;
     private typeOfMovement lastTOM = typeOfMovement.stand;
@@ -52,7 +53,9 @@ public class Villager {
     
     private Body b2body;
 
-    public Villager() {
+    public Villager(int id) {
+        super(id);
+        
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
         //System.out.println(typeOfMovement.stand.ordinal());
         textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("player/Stand/stand.txt");
@@ -61,8 +64,7 @@ public class Villager {
         textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("player/Jump/jump.txt");
         
         addSprites();
-        defineVillager();
-        
+        defineBody(700.0f/GameScreen.PPM, 20);      
     }
 
     private void addSprites() {
@@ -100,9 +102,10 @@ public class Villager {
 
         
     }
-    public void defineVillager(){
+    @Override
+    public void defineBody(float x, float y){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(700.0f/GameScreen.PPM, 20);
+        bdef.position.set(x, y);
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
         b2body.setUserData(id);
@@ -127,7 +130,7 @@ public class Villager {
 
         fdef.shape = square;
         fdef.filter.categoryBits = Constants.VILLAGER_BIT;
-        //fdef.filter.maskBits = Constants.BLOCK_BIT;
+        fdef.filter.maskBits = Constants.BLOCK_BIT;
         b2body.createFixture(fdef);//.setUserData(this);
         
 
@@ -148,6 +151,7 @@ public class Villager {
         square.dispose();
     }
 
+    @Override
     public void updatePosition(){
         if (b2body.getLinearVelocity().x == 0)
             currentTOM = typeOfMovement.stand;
@@ -208,6 +212,7 @@ public class Villager {
     }
     
     
+    @Override
     public void draw(SpriteBatch spriteBatch){
         
         counter++;
@@ -239,6 +244,7 @@ public class Villager {
     
     }
     
+    @Override
     public void dispose(){
         for (int i = 0; i < typeOfMovement.values().length; i++) {
             textureAtlas[i].dispose();

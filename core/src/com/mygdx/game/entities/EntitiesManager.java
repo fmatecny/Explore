@@ -5,15 +5,22 @@
  */
 package com.mygdx.game.entities;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Fery
  */
 public class EntitiesManager {
 
-    //private List<>
+    private int id = 0;
+    
+    private ArrayList<Villager> villagerList;
+    private Golem golem;
     
     public EntitiesManager() {
+        id++;
+        golem = new Golem(id);
     }
     
 }

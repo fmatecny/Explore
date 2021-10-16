@@ -141,6 +141,31 @@ public class GameScreen implements Screen{
         
     }
 };
+    Body foo;
+    RayCastCallback callback3 = new RayCastCallback() {
+    @Override
+    public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+        
+        if (fixture.getBody().getUserData() instanceof Integer)
+        {
+            foo = fixture.getBody();
+            isEnemies = true;
+            return fraction;
+        }
+        else if (fixture.getFilterData().categoryBits != Constants.VILLAGER_BIT)
+        {
+            isEnemies = false;
+            return 0;
+        }
+        else
+        {
+            //System.out.println("terminate");
+            isEnemies = false;
+            return 0;
+        }
+        
+    }
+};
     
     public GameScreen(MyGdxGame myGdxGame){
         parent = myGdxGame;
@@ -248,16 +273,21 @@ public class GameScreen implements Screen{
                             map.drawRectOnBlock(hitBody, cam, v2);
                     }
                 }
-                else if (hitBody.getUserData() instanceof Integer && 
-                        Inputs.instance.mouseLeft )
+            }
+            
+            if (Inputs.instance.mouseLeft )
+            {
+                isEnemies = false;
+                foo = null;
+                camera.unproject(v3.set(Inputs.instance.mouseX, Inputs.instance.mouseY, 0f));
+                world.rayCast(callback3, player.b2body.getPosition().x,player.b2body.getPosition().y, v3.x,v3.y);
+                if (foo != null)
                 {
-                    isEnemies = false;
-                    world.rayCast(callback2, player.b2body.getPosition(), hitBody.getPosition());
-                    if (isEnemies){
-                        System.out.println("enemies");
-                    }
+                    if (isEnemies && player.b2body.getPosition().dst(foo.getPosition()) < 1.0f )
+                        System.out.println("hiting of enemie");
                 }
             }
+            
             
             if (!Inputs.instance.mouseLeft || hitBody == null)
                 map.stopMining();
@@ -502,7 +532,7 @@ public class GameScreen implements Screen{
     public void createEntities() {
         // Create player
         player = new Player();
-        villager = new Villager();
+        villager = new Villager(1);
     }
     
 }

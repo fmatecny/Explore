@@ -27,6 +27,7 @@ public final class Constants {
     public static final int UNBLOCK_BIT = 16;
     public static final int VILLAGER_BIT = 32;
     public static final int PLAYER_BIT = 64;
+    public static final int GOLEM_BIT = 128;
     
     public static final int RECEPIE_PLANK = 1;
     public static final int RECEPIE_HALF_PLANK = 2;

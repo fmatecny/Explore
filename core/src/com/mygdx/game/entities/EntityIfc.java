@@ -13,13 +13,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  */
 public interface EntityIfc {
    
-    
-    
-    
-    void defineBody();
+    void defineBody(float x, float y);
     void updatePosition();
     void draw(SpriteBatch spriteBatch);
     void dispose();
-    
-    
+  
 }

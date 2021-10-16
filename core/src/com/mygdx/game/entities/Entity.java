@@ -11,13 +11,15 @@ import com.badlogic.gdx.physics.box2d.Body;
  *
  * @author Fery
  */
-public abstract class Entity {
+public abstract class Entity implements EntityIfc{
     
-    private float health;
-    private Body b2body;
+    protected int id;
+    
+    protected float health;
+    protected Body b2body;
 
-    public Entity() {
-        
+    public Entity(int id) {
+        this.id = id;
     }
     
     public float getX(){
