@@ -5,20 +5,22 @@
  */
 package com.mygdx.game.entities;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Constants;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.Block;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -26,82 +28,71 @@ import java.util.ArrayList;
  */
 public class Villager extends Entity{
    
-    private int id = 1;
+    //private int id = 1;
+    private float WIDTH;
+    private float HEIGHT;
     
-    private enum typeOfMovement { stand, walk, run, jump};//, shot, hit, die };
+    private enum typeOfMovement { stand, walk, run, jump, shot, hit, die};
     private typeOfMovement currentTOM = typeOfMovement.stand;
     private typeOfMovement lastTOM = typeOfMovement.stand;
    
     private TextureAtlas[] textureAtlas;
-    private ArrayList<ArrayList<ArrayList<Sprite>>> sprites;
-    private int idx = 0;
+    private List<Animation<AtlasRegion>> animations;
+    private float stateTime = 0;
 
     private boolean turned = false;
     
     private final float SCALE = 4f;
-    private final int downOffset = (int) (7.8f*SCALE);
-    
-    
+  
     private int speed = 2;
     private boolean fallDown = false;
     private double counterJump = 4;
     private boolean jump = false;
     private boolean isJumping = false;
-    
-    
-    private long counter = 170;
+       
+    private long counter = 20;
     
     private Body b2body;
+    
+    private int timeMove = (int )(Math.random() * 20) + 5;
+    private int timeToState = (int )(Math.random() * 100) + 100;
+    
+    private Vector2 followPosition = null;
 
     public Villager(int id) {
         super(id);
         
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
-        //System.out.println(typeOfMovement.stand.ordinal());
         textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("player/Stand/stand.txt");
         textureAtlas[typeOfMovement.walk.ordinal()] = new TextureAtlas("player/Walk/walk.txt");
         textureAtlas[typeOfMovement.run.ordinal()] = new TextureAtlas("player/Run/run.txt");
         textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("player/Jump/jump.txt");
+        textureAtlas[typeOfMovement.shot.ordinal()] = new TextureAtlas("player/Shot/shot.txt");
+        textureAtlas[typeOfMovement.hit.ordinal()] = new TextureAtlas("player/Hit/hit.txt");
+        textureAtlas[typeOfMovement.die.ordinal()] = new TextureAtlas("player/Die/die.txt");
         
-        addSprites();
+        createAnimations();
         defineBody(700.0f/GameScreen.PPM, 20);      
     }
 
-    private void addSprites() {
+    private void createAnimations() {
         
-        sprites = new ArrayList<ArrayList<ArrayList<Sprite>>>();
+        animations = new ArrayList<>(typeOfMovement.values().length);
         
         for (int i = 0; i < typeOfMovement.values().length; i++) 
         { 
-            ArrayList<ArrayList<Sprite>> spriteArrArr = new ArrayList<ArrayList<Sprite>>();
-            Array<AtlasRegion> regions = textureAtlas[i].getRegions();
-            ArrayList<Sprite> spriteArr = new ArrayList<Sprite>();
-            ArrayList<Sprite> spriteArrTurned = new ArrayList<Sprite>();
-            
-            for (AtlasRegion region : regions) 
-            {
-                Sprite sprite = textureAtlas[i].createSprite(region.name);
-
-                float width = sprite.getWidth();
-                float height = sprite.getHeight();
-
-                sprite.setSize(((Block.size*SCALE)/height)*width, Block.size*SCALE);
-                sprite.setOrigin(0, 0);
-
-                spriteArr.add(sprite);
-
-                Sprite spriteTurned = new Sprite(sprite);
-                spriteTurned.flip(true, false);
-                spriteArrTurned.add(spriteTurned);
-
-            }
-            spriteArrArr.add(spriteArr);
-            spriteArrArr.add(spriteArrTurned);
-            sprites.add(spriteArrArr);
+            if (i == typeOfMovement.stand.ordinal())
+                animations.add(i, new Animation<>(0.1f, textureAtlas[i].getRegions()));
+            else
+                animations.add(i, new Animation<>(0.03f, textureAtlas[i].getRegions()));  
         }
 
-        
+        float width = animations.get(0).getKeyFrame(0).getRegionWidth();
+        float height = animations.get(0).getKeyFrame(0).getRegionHeight();
+        WIDTH = ((Block.size*SCALE)/height)*width;
+        HEIGHT = Block.size*SCALE;
     }
+ 
     @Override
     public void defineBody(float x, float y){
         BodyDef bdef = new BodyDef();
@@ -153,6 +144,9 @@ public class Villager extends Entity{
 
     @Override
     public void updatePosition(){
+        if (currentTOM == typeOfMovement.die)
+            return;
+        
         if (b2body.getLinearVelocity().x == 0)
             currentTOM = typeOfMovement.stand;
         
@@ -162,17 +156,36 @@ public class Villager extends Entity{
             //currentTOM = typeOfMovement.run;
         }*/
 
-        if (doRight() && b2body.getLinearVelocity().x <= speed){
-            b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
-            currentTOM = typeOfMovement.walk;
-            turned = false;
+        if (followPosition != null)
+        {
+            if (followPosition.x-Block.size > b2body.getPosition().x && b2body.getLinearVelocity().x <= speed){
+                b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
+                currentTOM = typeOfMovement.walk;
+                turned = false;
+            }
+
+            if (followPosition.x+Block.size < b2body.getPosition().x && b2body.getLinearVelocity().x >= -speed){
+                b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
+                currentTOM = typeOfMovement.walk;
+                turned = true;
+            }
+        }
+        else
+        {
+            if (doRight() && b2body.getLinearVelocity().x <= speed){
+                b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
+                currentTOM = typeOfMovement.walk;
+                turned = false;
+            }
+
+            if (doLeft() && b2body.getLinearVelocity().x >= -speed){
+                b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
+                currentTOM = typeOfMovement.walk;
+                turned = true;
+            }
         }
         
-        if (doLeft() && b2body.getLinearVelocity().x >= -speed){
-            b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
-            currentTOM = typeOfMovement.walk;
-            turned = true;
-        }
+
         
         /*if (b2body.getLinearVelocity().y < 0 && isJumping )
             isFalling = true;
@@ -192,53 +205,37 @@ public class Villager extends Entity{
             //speed *= 2;
             currentTOM = typeOfMovement.run;
         }*/
-            
-                
+    }
 
-    }
-    
-    private int getScaleOfMovement(){
-        
-        switch (currentTOM) 
-        {
-            case stand: return 6;
-            case walk:  return 2;
-            case run:  return 2;
-            case jump:  return 2;
-            
-            default:    throw new AssertionError();
-        }
-    
-    }
-    
-    
     @Override
     public void draw(SpriteBatch spriteBatch){
         
-        counter++;
+        if (health <= 0)
+            currentTOM = typeOfMovement.die;
+        else
+            counter++;
         
-        if (idx <= 0)
-            idx = sprites.get(currentTOM.ordinal()).get(0).size()*getScaleOfMovement()-1;
-        else if (idx >= sprites.get(currentTOM.ordinal()).get(0).size()*getScaleOfMovement() || lastTOM != currentTOM)
-            idx = 0;
-        
-        Sprite sprite;
-        if (turned){
-            sprite = sprites.get(currentTOM.ordinal()).get(1).get(idx/getScaleOfMovement());           
-        }
-        else {sprite = sprites.get(currentTOM.ordinal()).get(0).get(idx/getScaleOfMovement());}
-        
-        sprite.setPosition(b2body.getPosition().x - Block.size*2, b2body.getPosition().y-(Block.size/2.0f + 7.0f/GameScreen.PPM)*2.0f);
-
-        sprite.draw(spriteBatch);
         if (currentTOM != typeOfMovement.jump)
         {
             //backwalk
-            if ((turned && doRight()) || (!turned && doLeft()))
-                idx--;
-            else
-                idx++;
+            /*if ((turned && Inputs.instance.right) || (!turned && Inputs.instance.left))
+                animations.get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.REVERSED );
+            else*/
+                animations.get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.NORMAL );
+            
+            stateTime += Gdx.graphics.getDeltaTime();
         }
+        
+        if (lastTOM != currentTOM)
+            stateTime = 0;
+        
+        TextureRegion currentFrame;
+        if (currentTOM == typeOfMovement.die)
+            currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
+        else
+            currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
+        currentFrame.flip(currentFrame.isFlipX() != turned, false);
+        spriteBatch.draw(currentFrame, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 7.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
         
         lastTOM = currentTOM;
     
@@ -246,10 +243,9 @@ public class Villager extends Entity{
     
     @Override
     public void dispose(){
-        for (int i = 0; i < typeOfMovement.values().length; i++) {
+        for (int i = 0; i < typeOfMovement.values().length; i++) 
+        {
             textureAtlas[i].dispose();
-            sprites.get(i).get(0).clear();
-            sprites.get(i).get(1).clear();
         }
     }
     
@@ -267,32 +263,30 @@ public class Villager extends Entity{
     }  
     
     
-    private boolean doLeft(){
-        
-        if (counter < 180)
-            return true;
-    
-        return false;
+    private boolean doLeft(){ 
+        return counter < timeMove;
     }
     
     
     private boolean doRight(){
         
-        if (counter > 800)
+        if (counter > 2*timeMove + 2*timeToState)
             counter = 0;
         
-        if (counter > 480){
+        if (counter > 2*timeMove + timeToState)
             return false;
-        }
         
-        if (counter > 300)
+        if (counter > timeMove + timeToState)
             return true;
-        
 
-            
-        
         return false;
     }
-            
     
+    public void setPosition(float x, float y){
+        b2body.setTransform(x, y, 0);
+    }
+    
+    void goToPosition(Vector2 position) {
+        followPosition = position;
+    }
 }

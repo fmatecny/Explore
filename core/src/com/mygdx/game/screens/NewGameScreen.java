@@ -22,15 +22,12 @@ import com.mygdx.game.MyGdxGame;
  */
 public class NewGameScreen extends ExploreMenuScreen{
 
-    
     private TextField nameField;
     private TextField worldField;
 
     public NewGameScreen(MyGdxGame myGdxGame){
         super(myGdxGame);
     }
-    
-    
     
     @Override
     public void show() {
@@ -43,23 +40,21 @@ public class NewGameScreen extends ExploreMenuScreen{
         // create world
         final TextButton createButton = new TextButton("Create World", skin);
         createButton.setDisabled(true);
-        createButton.addListener(new ChangeListener() {
-                @Override
-                public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                        System.out.println(nameField.getText());
-                        System.out.println(worldField.getText());
-                        MyGdxGame.playerName = nameField.getText();
-                        MyGdxGame.worldName = worldField.getText();
-                        LoadingScreen.worldID = 0;
-                        getParent().changeScreen(MyGdxGame.LOADING);
-
-                }
+        createButton.addListener(new ChangeListener() 
+        {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                    System.out.println(nameField.getText());
+                    System.out.println(worldField.getText());
+                    MyGdxGame.playerName = nameField.getText();
+                    MyGdxGame.worldName = worldField.getText();
+                    LoadingScreen.worldID = 0;
+                    getParent().changeScreen(MyGdxGame.LOADING);
+            }
         });
-        
         
         nameField = new TextField("", skin);
         worldField = new TextField("", skin);
-        
         
         nameField.setTextFieldFilter(new TextFieldFilter() {
             // Accepts all Characters except '_' 

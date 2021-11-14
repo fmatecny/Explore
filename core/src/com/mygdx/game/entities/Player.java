@@ -38,9 +38,9 @@ public class Player {
 
     private Inventory inventory;
     private HUD hud;
-    private float health;
+    private float health = 100.0f;
     
-    private enum typeOfMovement { stand, walk, run, jump};//, shot, hit, die };
+    private enum typeOfMovement { stand, walk, run, jump, shot, hit, die};
     private typeOfMovement currentTOM = typeOfMovement.stand;
     private typeOfMovement lastTOM = typeOfMovement.stand;
    
@@ -64,6 +64,7 @@ public class Player {
     private Vector2 position =new Vector2();
     
     private Vector3 v3 = new Vector3();
+    private boolean isShotFinished = true;
 
     public Player() {
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
@@ -71,6 +72,9 @@ public class Player {
         textureAtlas[typeOfMovement.walk.ordinal()] = new TextureAtlas("player/Walk/walk.txt");
         textureAtlas[typeOfMovement.run.ordinal()] = new TextureAtlas("player/Run/run.txt");
         textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("player/Jump/jump.txt");
+        textureAtlas[typeOfMovement.shot.ordinal()] = new TextureAtlas("player/Shot/shot.txt");
+        textureAtlas[typeOfMovement.hit.ordinal()] = new TextureAtlas("player/Hit/hit.txt");
+        textureAtlas[typeOfMovement.die.ordinal()] = new TextureAtlas("player/Die/die.txt");
         
         createAnimations();
         definePlayer();
@@ -154,7 +158,10 @@ public class Player {
     
     public void updatePosition(OrthographicCamera camera){
         
-        if (b2body.getLinearVelocity().x == 0)
+        if (currentTOM == typeOfMovement.die)
+            return;
+        
+        if (b2body.getLinearVelocity().x == 0 && isShotFinished)
             currentTOM = typeOfMovement.stand;
         
         speed = 2;
@@ -171,6 +178,14 @@ public class Player {
             speed *= 2;
             //currentTOM = typeOfMovement.run;
         }
+        
+        if (Inputs.instance.mouseLeft && isShotFinished)
+        {
+            currentTOM = typeOfMovement.shot;
+            isShotFinished = false;
+        }
+        else if (Inputs.instance.mouseLeft == false && isShotFinished == false)
+            isShotFinished = true;
         
         if (Inputs.instance.right && b2body.getLinearVelocity().x <= speed && MyContactListener.blockOnRight==0){
             b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
@@ -244,7 +259,10 @@ public class Player {
     
     public void update(OrthographicCamera camera){
         //updatePosition(camera);
+        health -= 10;
         hud.setHealth(health);
+        if (health <= 0)
+            currentTOM = typeOfMovement.die;
     }
     
     public void draw(SpriteBatch spriteBatch){
@@ -263,9 +281,16 @@ public class Player {
         if (lastTOM != currentTOM)
             stateTime = 0;
         
-        TextureRegion currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
+        TextureRegion currentFrame;
+        if (currentTOM == typeOfMovement.die || currentTOM == typeOfMovement.shot)
+            currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
+        else
+            currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
         currentFrame.flip(currentFrame.isFlipX() != turned, false);
         spriteBatch.draw(currentFrame, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 7.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
+        
+        if (currentTOM == typeOfMovement.shot && animations.get(currentTOM.ordinal()).isAnimationFinished(stateTime))
+            currentTOM = typeOfMovement.stand;
         
         lastTOM = currentTOM;
         
@@ -300,5 +325,8 @@ public class Player {
     public HUD getHud() {
         return hud;
     }
-
+    
+    public boolean IsAlive() {
+        return health > 0;
+    }
 }

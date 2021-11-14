@@ -85,7 +85,5 @@ public class MenuScreen extends ExploreMenuScreen{
                 getParent().changeScreen(MyGdxGame.EXIT);
             }
         });
-    }
-
-    
+    } 
 }

@@ -15,7 +15,7 @@ public abstract class Entity implements EntityIfc{
     
     protected int id;
     
-    protected float health;
+    protected float health = 100.0f;
     protected Body b2body;
 
     public Entity(int id) {

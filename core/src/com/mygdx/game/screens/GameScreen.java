@@ -26,6 +26,7 @@ import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyContactListener;
 import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.entities.EntitiesManager;
 import com.mygdx.game.entities.Player;
 import com.mygdx.game.entities.Villager;
 import com.mygdx.game.world.AllBlocks;
@@ -61,10 +62,12 @@ public class GameScreen implements Screen{
     private final Background bck;
     private static Map map;
     private Player player;
-    private Villager villager;
+//    private Villager villager;
+    private EntitiesManager entitiesManager;
     private DebugHUD debugHUD;
     
     private boolean allowRotation = true;
+    private boolean isFirstTimeHitInClick = true;
     
     private Body hitBody;
     
@@ -199,7 +202,8 @@ public class GameScreen implements Screen{
     public void render(float f) {
 
         if (Inputs.instance.pause){
-            saveGame();
+            if (player.IsAlive())
+                saveGame();
             parent.changeScreen(MyGdxGame.PAUSE);
             return;
         }
@@ -236,8 +240,10 @@ public class GameScreen implements Screen{
 
         map.draw(spriteBatch, cam);
 
-        villager.updatePosition();
-        villager.draw(spriteBatch);
+        entitiesManager.updatePosition();
+        entitiesManager.draw(spriteBatch);
+        //villager.updatePosition();
+        //villager.draw(spriteBatch);
 
         if (!Inputs.instance.showInventory)
             player.updatePosition(camera);
@@ -251,7 +257,7 @@ public class GameScreen implements Screen{
         spriteBatch.begin();
 
        
-        if (!Inputs.instance.showInventory)
+        if (!Inputs.instance.showInventory && player.IsAlive() ) 
         {
             camera.unproject(v3.set(Inputs.instance.mouseX, Inputs.instance.mouseY, 0f));
             hitBody = null;
@@ -275,7 +281,7 @@ public class GameScreen implements Screen{
                 }
             }
             
-            if (Inputs.instance.mouseLeft )
+            if ( Inputs.instance.mouseLeft && isFirstTimeHitInClick)
             {
                 isEnemies = false;
                 foo = null;
@@ -284,10 +290,20 @@ public class GameScreen implements Screen{
                 if (foo != null)
                 {
                     if (isEnemies && player.b2body.getPosition().dst(foo.getPosition()) < 1.0f )
-                        System.out.println("hiting of enemie");
+                    {
+                        System.out.println("hiting of enemie with id = " + (int)foo.getUserData());
+                        entitiesManager.hitEntity(foo);
+                        //player.update(camera);
+                    }
                 }
+                isFirstTimeHitInClick = false;
+            }
+            else if ( Inputs.instance.mouseLeft == false )
+            {
+                isFirstTimeHitInClick = true;
             }
             
+            entitiesManager.setPlayerPosition(player.b2body.getPosition());
             
             if (!Inputs.instance.mouseLeft || hitBody == null)
                 map.stopMining();
@@ -532,7 +548,8 @@ public class GameScreen implements Screen{
     public void createEntities() {
         // Create player
         player = new Player();
-        villager = new Villager(1);
+        entitiesManager = new EntitiesManager();
+        //villager = new Villager(1);
     }
     
 }

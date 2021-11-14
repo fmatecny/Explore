@@ -32,8 +32,7 @@ public class ExitScreen extends ExploreMenuScreen{
         
         // temporary until we have asset manager in
         Skin skin = getSkin();
-        
-        
+           
         Table table = new Table();
         table.setFillParent(true);
         table.top();
@@ -49,7 +48,6 @@ public class ExitScreen extends ExploreMenuScreen{
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                         getParent().changeScreen(MyGdxGame.MENU);
-
                 }
         });
         
@@ -72,7 +70,5 @@ public class ExitScreen extends ExploreMenuScreen{
         table.row().pad(10,0,10,0);
         table.add(noButton).width(titleLabel.getWidth()/2);
         table.add(yesButton).width(titleLabel.getWidth()/2);
-
     }
- 
 }

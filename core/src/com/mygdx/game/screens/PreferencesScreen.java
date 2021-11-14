@@ -18,8 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.MyMusic;
-import jdk.javadoc.internal.doclets.toolkit.util.DocPath;
-
 
 /**
  *
@@ -29,7 +27,6 @@ public class PreferencesScreen extends ExploreMenuScreen{
     
     public PreferencesScreen(MyGdxGame myGdxGame){
             super(myGdxGame);
-
     }
 
     @Override
@@ -89,9 +86,7 @@ public class PreferencesScreen extends ExploreMenuScreen{
             }
         });
         volumeSoundStack.add(volumeSoundSlider);
-        volumeSoundStack.add(soundLabel);
-
-        
+        volumeSoundStack.add(soundLabel);  
         
         // Music on/off
         final TextButton musicButton = new TextButton("Music: ON", skin);
@@ -161,6 +156,7 @@ public class PreferencesScreen extends ExploreMenuScreen{
             default:
                 throw new AssertionError();
         }
+        
         resolutionButton.addListener(new ChangeListener() {
             private int state = getParent().getPreferences().getResolution();
             @Override
@@ -220,6 +216,5 @@ public class PreferencesScreen extends ExploreMenuScreen{
         table.add(resolutionButton).colspan(2).fillX().uniformX();
         table.row().pad(10,0,10,0);
         table.add(backButton).colspan(2).fillX().uniformX();
-
     }
 }

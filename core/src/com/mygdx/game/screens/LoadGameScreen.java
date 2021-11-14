@@ -48,8 +48,7 @@ public class LoadGameScreen extends ExploreMenuScreen{
         table.padLeft(100);
         //table.setDebug(true);
         getStage().addActor(table);
-        
-        
+     
         scrolTable = new Table(skin);
         //scrolTable.setDebug(true);
         
