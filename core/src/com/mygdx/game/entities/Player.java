@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -21,7 +20,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.MyContactListener;
@@ -54,7 +52,8 @@ public class Player {
     private float WIDTH;
     private float HEIGHT;
     
-    private float speed = 0.4f;//2/GameScreen.PPM;
+    private final float DEFAULT_SPEED = 0.5f;
+    private float speed = DEFAULT_SPEED;//2/GameScreen.PPM;
     private float powerOfImpuls = 0.2f;
 
     private boolean isFalling = false;
@@ -68,13 +67,13 @@ public class Player {
 
     public Player() {
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
-        textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("player/Stand/stand.txt");
-        textureAtlas[typeOfMovement.walk.ordinal()] = new TextureAtlas("player/Walk/walk.txt");
-        textureAtlas[typeOfMovement.run.ordinal()] = new TextureAtlas("player/Run/run.txt");
-        textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("player/Jump/jump.txt");
-        textureAtlas[typeOfMovement.shot.ordinal()] = new TextureAtlas("player/Shot/shot.txt");
-        textureAtlas[typeOfMovement.hit.ordinal()] = new TextureAtlas("player/Hit/hit.txt");
-        textureAtlas[typeOfMovement.die.ordinal()] = new TextureAtlas("player/Die/die.txt");
+        textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("entities/player/Stand/stand.txt");
+        textureAtlas[typeOfMovement.walk.ordinal()] = new TextureAtlas("entities/player/Walk/walk.txt");
+        textureAtlas[typeOfMovement.run.ordinal()] = new TextureAtlas("entities/player/Run/run.txt");
+        textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("entities/player/Jump/jump.txt");
+        textureAtlas[typeOfMovement.shot.ordinal()] = new TextureAtlas("entities/player/Shot/shot.txt");
+        textureAtlas[typeOfMovement.hit.ordinal()] = new TextureAtlas("entities/player/Hit/hit.txt");
+        textureAtlas[typeOfMovement.die.ordinal()] = new TextureAtlas("entities/player/Die/die.txt");
         
         createAnimations();
         definePlayer();
@@ -90,9 +89,9 @@ public class Player {
         for (int i = 0; i < typeOfMovement.values().length; i++) 
         { 
             if (i == typeOfMovement.stand.ordinal())
-                animations.add(i, new Animation<>(0.1f, textureAtlas[i].getRegions()));
+                animations.add(i, new Animation<>(0.15f, textureAtlas[i].getRegions()));
             else
-                animations.add(i, new Animation<>(0.03f, textureAtlas[i].getRegions()));  
+                animations.add(i, new Animation<>(0.04f, textureAtlas[i].getRegions()));  
         }
 
         float width = animations.get(0).getKeyFrame(0).getRegionWidth();
@@ -164,7 +163,7 @@ public class Player {
         if (b2body.getLinearVelocity().x == 0 && isShotFinished)
             currentTOM = typeOfMovement.stand;
         
-        speed = 2;
+        speed = DEFAULT_SPEED;
         powerOfImpuls = 0.2f;
         
         if (MyContactListener.swim){
@@ -175,7 +174,7 @@ public class Player {
         }
         
         if (Inputs.instance.run && currentTOM != typeOfMovement.stand){
-            speed *= 2;
+            speed *= 3;
             //currentTOM = typeOfMovement.run;
         }
         
@@ -287,7 +286,7 @@ public class Player {
         else
             currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
         currentFrame.flip(currentFrame.isFlipX() != turned, false);
-        spriteBatch.draw(currentFrame, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 7.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
+        spriteBatch.draw(currentFrame, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 11.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
         
         if (currentTOM == typeOfMovement.shot && animations.get(currentTOM.ordinal()).isAnimationFinished(stateTime))
             currentTOM = typeOfMovement.stand;

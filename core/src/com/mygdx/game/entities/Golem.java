@@ -20,14 +20,13 @@ import com.mygdx.game.world.Block;
  */
 public class Golem extends Entity{
 
-    public Golem(int id) {
-        super(id);
+    public Golem(int id, float x, float y) {
+        super(id, x, y, "golem");
     }
 
 
     
-    @Override
-    public void defineBody(float x, float y) {
+    /*public void defineBody(float x, float y) {
         BodyDef bdef = new BodyDef();
         bdef.position.set(x, y);
         bdef.type = BodyDef.BodyType.DynamicBody;
@@ -49,7 +48,7 @@ public class Golem extends Entity{
         b2body.createFixture(fdef);
 
         square.dispose();
-    }
+    }*/
 
     @Override
     public void updatePosition() {
@@ -63,6 +62,11 @@ public class Golem extends Entity{
 
     @Override
     public void dispose() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setPosition(float f, float f1) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

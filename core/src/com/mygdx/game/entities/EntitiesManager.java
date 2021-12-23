@@ -16,29 +16,39 @@ import java.util.ArrayList;
  */
 public class EntitiesManager {
 
-    //private int id = 0;
+    private int id = 1;
     
     private ArrayList<Villager> villagerList;
-    private Golem golem;
+    private ArrayList<Smith> smithList;
+    private ArrayList<Golem> golemList;
    
     
     public EntitiesManager() {
-        //id++;
-        //golem = new Golem(id);
         villagerList = new ArrayList<>();
+        smithList = new ArrayList<>();
+        golemList = new ArrayList<>();
         
         Villager villager;
-        for (int i = 1; i < 3; i++) {
-            villager = new Villager(i);
-            villager.setPosition(6+i, 20);
+        for (; id < 3; id++) {
+            villager = new Villager(id, 6+id, 20);
+            //villager.setPosition(6+id, 20);
             villagerList.add(villager);
+        }
+        
+        for (; id < 4; id++) {
+            golemList.add(new Golem(id, 10.0f, 20.0f));
         }
     }
         
-    private Villager getEntityById(int id){
+    private Entity getEntityById(int id){
         for (Villager villager : villagerList) {
             if (villager.id == id)
                 return villager;
+        }
+        
+        for (Golem golem : golemList) {
+            if (golem.id == id)
+                return golem;
         }
         return null;
     }
@@ -55,17 +65,23 @@ public class EntitiesManager {
         }
     }
 
-    public void hitEntity(Body foo) {
-        Villager v = getEntityById((int)foo.getUserData());
-        if (v.health > 0)
-            v.health -= 10;
-        System.out.println("Entity id = " + v.id + "| health = " + v.health);
+    public void hitEntity(Body body) {
+        Entity e = getEntityById((int)body.getUserData());
+        if (e.health > 0)
+            e.health -= 10;
+        System.out.println("Entity id = " + e.id + "| health = " + e.health);
     }
 
     public void setPlayerPosition(Vector2 position) {
         for (Villager villager : villagerList) {
             if (villager.health < 100)
                 villager.goToPosition(position);
+        }
+    }
+    
+    public void dispose(){
+        for (Villager villager : villagerList) {
+            villager.dispose();
         }
     }
 }

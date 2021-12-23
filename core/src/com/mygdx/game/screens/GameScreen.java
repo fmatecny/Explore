@@ -376,7 +376,7 @@ public class GameScreen implements Screen{
         
         
         
-        /*if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isBlock())
+        if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isBlock())
         {
             if(player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.torch.id)
                 shaders_box2dlights.lightTorch(player);
@@ -387,7 +387,7 @@ public class GameScreen implements Screen{
             shaders_box2dlights.lightTorchOff();
         }
         
-        shaders_box2dlights.updateRayHandler();*/
+        shaders_box2dlights.updateRayHandler();
         
         player.getInventory().draw();
         player.getHud().draw();
