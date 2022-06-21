@@ -38,7 +38,7 @@ public class Player {
     private HUD hud;
     private float health = 100.0f;
     
-    private enum typeOfMovement { stand, walk, run, jump, shot, hit, die};
+    private enum typeOfMovement { stand, walk, run, jump, shot, hit, die, slash};
     private typeOfMovement currentTOM = typeOfMovement.stand;
     private typeOfMovement lastTOM = typeOfMovement.stand;
    
@@ -67,14 +67,14 @@ public class Player {
 
     public Player() {
         textureAtlas = new TextureAtlas[typeOfMovement.values().length];
-        textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("entities/player/Stand/stand.txt");
-        textureAtlas[typeOfMovement.walk.ordinal()] = new TextureAtlas("entities/player/Walk/walk.txt");
-        textureAtlas[typeOfMovement.run.ordinal()] = new TextureAtlas("entities/player/Run/run.txt");
-        textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("entities/player/Jump/jump.txt");
-        textureAtlas[typeOfMovement.shot.ordinal()] = new TextureAtlas("entities/player/Shot/shot.txt");
-        textureAtlas[typeOfMovement.hit.ordinal()] = new TextureAtlas("entities/player/Hit/hit.txt");
-        textureAtlas[typeOfMovement.die.ordinal()] = new TextureAtlas("entities/player/Die/die.txt");
-        
+        textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("entities/player/Default/Right/Stand/stand.txt");
+        textureAtlas[typeOfMovement.walk.ordinal()] = new TextureAtlas("entities/player/Default/Right/Walk/walk.txt");
+        textureAtlas[typeOfMovement.run.ordinal()] = new TextureAtlas("entities/player/Default/Right/Run/run.txt");
+        textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("entities/player/Default/Right/Jump/jump.txt");
+        textureAtlas[typeOfMovement.shot.ordinal()] = new TextureAtlas("entities/player/Default/Left/Shot/slash1.txt");
+        textureAtlas[typeOfMovement.hit.ordinal()] = new TextureAtlas("entities/player/Default/Right/Hit/hit.txt");
+        textureAtlas[typeOfMovement.die.ordinal()] = new TextureAtlas("entities/player/Default/Right/Die/die.txt");
+        textureAtlas[typeOfMovement.slash.ordinal()] = new TextureAtlas("tool/sword/Right/Slash/slash.txt");
         createAnimations();
         definePlayer();
 
@@ -281,12 +281,25 @@ public class Player {
             stateTime = 0;
         
         TextureRegion currentFrame;
+        TextureRegion currentFrame1;
         if (currentTOM == typeOfMovement.die || currentTOM == typeOfMovement.shot)
             currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
         else
             currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
-        currentFrame.flip(currentFrame.isFlipX() != turned, false);
+        if (currentTOM != typeOfMovement.shot)
+            currentFrame.flip(currentFrame.isFlipX() != turned, false);
+        
+                if (currentTOM == typeOfMovement.shot)
+        {
+            currentFrame1 = animations.get(typeOfMovement.slash.ordinal()).getKeyFrame(stateTime, false);
+            currentFrame1.flip(currentFrame1.isFlipX() != turned, false);
+            spriteBatch.draw(currentFrame1, b2body.getPosition().x - Block.size*2-0.02f, b2body.getPosition().y -(Block.size/2.0f + 11.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
+        }
+        
+        
         spriteBatch.draw(currentFrame, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 11.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
+        
+
         
         if (currentTOM == typeOfMovement.shot && animations.get(currentTOM.ordinal()).isAnimationFinished(stateTime))
             currentTOM = typeOfMovement.stand;

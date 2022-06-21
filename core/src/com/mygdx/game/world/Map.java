@@ -685,7 +685,7 @@ public class Map extends WorldObject{
                         
             shapeRenderer.begin(ShapeType.Line);
             shapeRenderer.setColor(Color.BLACK);
-            System.out.println(v.X + "|" + v.Y);
+            //System.out.println(v.X + "|" + v.Y);
             if (getBlockByIdx(v) != null && player.dst(b.getPosition()) < 1.5f)
             {
                 shapeRenderer.rect( v.X * Block.size_in_pixels - cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,

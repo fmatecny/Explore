@@ -7,6 +7,7 @@ package com.mygdx.game.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.mygdx.game.entities.MyAssetManager;
 import java.util.ArrayList;
 
 /**
@@ -281,7 +282,8 @@ public class AllBlocks {
         stone.hardness = 5;
         stone.textureRotation = 0;
         stone.stackable = true;
-        stone.texture = new Texture(Gdx.files.internal("block/rocky.png"));  
+        stone.texture = new Texture(Gdx.files.internal("block/rocky.png"));
+        //stone.texture = MyAssetManager.manager.get("block/rocky.png",Texture.class); 
         blockList.add(stone);
         
         stone_stairs = new Block();

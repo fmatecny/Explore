@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  * @author Fery
  */
 public interface EntityIfc {
-   
+    
     void updatePosition();
     void setPosition(float x, float y);
     void draw(SpriteBatch spriteBatch);

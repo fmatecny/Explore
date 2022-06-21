@@ -93,6 +93,8 @@ public class MyGdxGame extends Game {
 
         preferences = new AppPreferences();
         
+        //MyAssetManager.instance = new MyAssetManager();
+        
         MyMusic.instance = new MyMusic(preferences);
 
         if (preferences.isMusicEnabled()){

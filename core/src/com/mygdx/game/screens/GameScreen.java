@@ -466,6 +466,7 @@ public class GameScreen implements Screen{
     @Override
     public void dispose() {
         player.dispose();
+        entitiesManager.dispose();
         // dispose of assets when not needed anymore
         stage.dispose();   
         

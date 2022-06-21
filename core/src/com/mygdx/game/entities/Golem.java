@@ -6,13 +6,6 @@
 package com.mygdx.game.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.mygdx.game.Constants;
-import com.mygdx.game.screens.GameScreen;
-import com.mygdx.game.world.Block;
 
 /**
  *
@@ -22,33 +15,8 @@ public class Golem extends Entity{
 
     public Golem(int id, float x, float y) {
         super(id, x, y, "golem");
+        //changeScale(6f);
     }
-
-
-    
-    /*public void defineBody(float x, float y) {
-        BodyDef bdef = new BodyDef();
-        bdef.position.set(x, y);
-        bdef.type = BodyDef.BodyType.DynamicBody;
-        b2body = GameScreen.world.createBody(bdef);
-        b2body.setUserData(id);
-
-        FixtureDef fdef = new FixtureDef();
-       
-        CircleShape square = new CircleShape();
-        square.setRadius(Block.size/2.0f + 2.0f/GameScreen.PPM);
-
-        fdef.shape = square;
-        fdef.filter.categoryBits = Constants.GOLEM_BIT;
-        fdef.filter.maskBits = Constants.BLOCK_BIT;
-        b2body.createFixture(fdef);//.setUserData(this);
-        
-        square.setRadius(Block.size/2.0f + 6.0f/GameScreen.PPM);
-        square.setPosition(new Vector2(0, (Block.size/2.0f + 1.0f/GameScreen.PPM)*2.0f));
-        b2body.createFixture(fdef);
-
-        square.dispose();
-    }*/
 
     @Override
     public void updatePosition() {
@@ -57,17 +25,8 @@ public class Golem extends Entity{
 
     @Override
     public void draw(SpriteBatch spriteBatch) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        super.draw(spriteBatch);
     }
 
-    @Override
-    public void dispose() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setPosition(float f, float f1) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     
 }

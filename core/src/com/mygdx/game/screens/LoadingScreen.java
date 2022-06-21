@@ -127,7 +127,7 @@ public class LoadingScreen extends ExploreMenuScreen{
         
 
         //progress += 0.1;
-        System.out.println(progress + "a");
+        //System.out.println(progress + "a");
         progressBar.setValue(progress);
           
         if (progress >= 100.0f){

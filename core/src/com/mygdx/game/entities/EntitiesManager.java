@@ -38,6 +38,10 @@ public class EntitiesManager {
         for (; id < 4; id++) {
             golemList.add(new Golem(id, 10.0f, 20.0f));
         }
+        
+        for (; id < 5; id++) {
+            smithList.add(new Smith(id, 15.0f, 20.0f));
+        }
     }
         
     private Entity getEntityById(int id){
@@ -46,10 +50,16 @@ public class EntitiesManager {
                 return villager;
         }
         
+        for (Smith smith : smithList) {
+            if (smith.id == id)
+                return smith;
+        }
+        
         for (Golem golem : golemList) {
             if (golem.id == id)
                 return golem;
         }
+
         return null;
     }
 
@@ -62,6 +72,14 @@ public class EntitiesManager {
     public void draw(SpriteBatch spriteBatch) {
         for (Villager villager : villagerList) {
             villager.draw(spriteBatch);
+        }
+        
+        for (Smith smith : smithList) {
+            smith.draw(spriteBatch);
+        }
+        
+        for (Golem golem : golemList) {
+            golem.draw(spriteBatch);
         }
     }
 
@@ -82,6 +100,12 @@ public class EntitiesManager {
     public void dispose(){
         for (Villager villager : villagerList) {
             villager.dispose();
+        }
+        for (Smith smith : smithList) {
+            smith.dispose();
+        }
+        for (Golem golem : golemList) {
+            golem.dispose();
         }
     }
 }

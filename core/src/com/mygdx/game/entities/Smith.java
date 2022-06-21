@@ -5,8 +5,6 @@
  */
 package com.mygdx.game.entities;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 /**
  *
  * @author Fery
@@ -20,21 +18,6 @@ public class Smith extends Entity{
 
     @Override
     public void updatePosition() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void draw(SpriteBatch spriteBatch) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void dispose() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setPosition(float f, float f1) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

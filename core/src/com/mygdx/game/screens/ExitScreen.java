@@ -56,7 +56,10 @@ public class ExitScreen extends ExploreMenuScreen{
         yesButton.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                        Gdx.app.exit();
+                    if (getParent().getGameScreen() != null)
+                        getParent().getGameScreen().dispose();
+                    
+                    Gdx.app.exit();
                 }
         });
         
