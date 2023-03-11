@@ -23,7 +23,7 @@ public class PerlinNoise2D {
     
     private double groundYOffset = groundYOffsetStd;
     private double time = 10;
-    private int noise = 0;
+    //private int noise = 0;
     private int[] noiseArr = new int[Constants.WIDTH_OF_MAP];
         
     public int[] getNoiseArr(int height){
@@ -31,10 +31,13 @@ public class PerlinNoise2D {
         double frequency = standardFrequency;
         double dx = 0;
         int mountainXidx = (int )(Math.random() * 100) + 100;
-        int mountainWidth = (int )(Math.random() * 100) + 100;
+        int mountainWidth = (int )(Math.random() * 50) + 90;
         
-        //System.out.println("x = " + mountainXidx + "|w = " + mountainWidth);
+        System.out.println("x = " + mountainXidx + "|w = " + mountainWidth);
         
+        //one index in noise are 2 blocks in map
+        //so if mountainXidx = 103 it means that mountain start on 206th block in x axis
+        //the same is for width
         for(int x = 0; x < Constants.WIDTH_OF_MAP/2; x++)
         {
             dx = (double) x / height;

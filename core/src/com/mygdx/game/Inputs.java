@@ -216,9 +216,9 @@ public class Inputs implements InputProcessor{
     }
 
     @Override
-    public boolean scrolled(int i) {
+    public boolean scrolled(float amountX, float amountY) {
         
-        scrollIdx += i;
+        scrollIdx += amountY;
         
         if (scrollIdx < 0)
             scrollIdx = maxScrolIdx;
@@ -226,7 +226,7 @@ public class Inputs implements InputProcessor{
         if (scrollIdx > maxScrolIdx)
             scrollIdx = 0;
         
-        //System.out.println(scrollIdx);
+        //System.out.println(amountX + "yy" + amountY);
         return false;
     }
 }

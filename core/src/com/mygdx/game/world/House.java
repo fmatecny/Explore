@@ -5,6 +5,8 @@
  */
 package com.mygdx.game.world;
 
+import com.mygdx.game.IntVector2;
+
 /**
  *
  * @author Fery
@@ -12,6 +14,7 @@ package com.mygdx.game.world;
 public class House{
 
     private Block[][] house;
+    private IntVector2 doorUpPos;
     
     public House(int width, int height, int x, int y) {
         this.house = new Block[width][height];
@@ -27,6 +30,7 @@ public class House{
                     }
                     else if (i == w/2 && j == 1){
                         this.house[i][j] = new Block(AllBlocks.door_up);
+                        doorUpPos = new IntVector2(x+i-1, y+j);
                     }
                     else if ((i == w/2-2 || i == w/2+2) && j == 1){
                         this.house[i][j] = new Block(AllBlocks.window);
@@ -54,6 +58,10 @@ public class House{
     
     public Block[][] getHouse() {
         return this.house;
+    }
+
+    public IntVector2 getDoorUpPos() {
+        return doorUpPos;
     }
     
 }

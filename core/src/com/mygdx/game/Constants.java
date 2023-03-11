@@ -11,13 +11,14 @@ package com.mygdx.game;
  */
 public final class Constants {
 
-    public static final int WIDTH_OF_MAP = 500;
+    public static final int WIDTH_OF_MAP = 50;
     public static final int HEIGHT_OF_MAP = 100;
     public static final int HEIGHT_OF_SKY = 30;
     public static final int SIZE_OF_CHUNK = 8;
     public static final float PPM = 100.0f;
     public static final float W_IN_M = MyGdxGame.width/PPM;
     public static final float H_IN_M = MyGdxGame.height/PPM;
+    public static final float ENTITY_SCREEN_OFFSET = 1.0f;
     
     public static final String SPLIT_CHAR = "_";
     
@@ -39,11 +40,22 @@ public final class Constants {
     public static final int RECEPIE_BUCKET = 8;
     public static final int RECEPIE_CHEST = 9;
     public static final int RECEPIE_FURNACE = 10;
-    public static final int RECEPIE_PICKAXE = 11;
-    public static final int RECEPIE_STONE_STAIRS = 12;
-    public static final int RECEPIE_HALF_STONE = 13;
+    public static final int RECEPIE_STONE_STAIRS = 11;
+    public static final int RECEPIE_HALF_STONE = 12;
     
-    public static final int RECEPIE_STONE_SWORD = 14;
+    public static final int RECEPIE_STONE_AXE = 100;
+    public static final int RECEPIE_IRON_AXE = 101;
+    public static final int RECEPIE_DIAMOND_AXE = 102;
+    
+    public static final int RECEPIE_WOOD_PICKAXE = 103;
+    public static final int RECEPIE_STONE_PICKAXE = 104;
+    public static final int RECEPIE_IRON_PICKAXE = 105;
+   // public static final int RECEPIE_DIAMOND_PICKAXE = 106;
+    
+   // public static final int RECEPIE_WOOD_SWORD = 107;
+    public static final int RECEPIE_STONE_SWORD = 108;
+   // public static final int RECEPIE_IRON_SWORD = 109;
+    public static final int RECEPIE_DIAMOND_SWORD = 110;
     
     public static final int DAY_IN_SECONDS = 600;
     public static final float HOUR_IN_SECONDS = DAY_IN_SECONDS/24;
@@ -53,6 +65,11 @@ public final class Constants {
     public static final int SUNSET_DURATION = 4;
     public static final float ALPHA_MIN = 0.3f;
     public static final float ALPHA_MAX = 1.0f;
+    
+    public static enum typeOfDirection { Left, Right };
+    public static enum typeOfMovement { Stand, Walk, Run, Jump, Slash, Hit, Die };
+    public static enum typeOfArmor { Default, Leather, Iron, Diamond };
+    public static enum typeOfEntity{ villager, smith, golem };
     
     
     private Constants() {

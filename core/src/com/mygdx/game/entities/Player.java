@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.mygdx.game.inventory.Inventory;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -24,9 +23,10 @@ import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.MyContactListener;
 import com.mygdx.game.screens.GameScreen;
+import com.mygdx.game.world.AllTools;
 import com.mygdx.game.world.Block;
+import com.mygdx.game.world.Tool;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -38,17 +38,15 @@ public class Player {
     private HUD hud;
     private float health = 100.0f;
     
-    private enum typeOfMovement { stand, walk, run, jump, shot, hit, die, slash};
-    private typeOfMovement currentTOM = typeOfMovement.stand;
-    private typeOfMovement lastTOM = typeOfMovement.stand;
+    private Constants.typeOfMovement currentTOM = Constants.typeOfMovement.Stand;
+    private Constants.typeOfMovement lastTOM = Constants.typeOfMovement.Stand;
+    private Constants.typeOfDirection direction = Constants.typeOfDirection.Right;
+    private Constants.typeOfArmor typeOfArmor = Constants.typeOfArmor.Default;
    
-    private TextureAtlas[] textureAtlas;
-    private List<Animation<AtlasRegion>> animations;
+    private ArrayList<ArrayList<Animation<AtlasRegion>>> animations;
     private float stateTime = 0;
 
-    private boolean turned = false;
-    
-    private final float SCALE = 4f;
+    private final float SCALE = 6f;
     private float WIDTH;
     private float HEIGHT;
     
@@ -60,50 +58,31 @@ public class Player {
     private boolean isJumping = false;
     
     public Body b2body;
-    private Vector2 position =new Vector2();
+    //private Vector2 position =new Vector2();
     
     private Vector3 v3 = new Vector3();
     private boolean isShotFinished = true;
+    
+    public boolean isMining = false;
 
     public Player() {
-        textureAtlas = new TextureAtlas[typeOfMovement.values().length];
-        textureAtlas[typeOfMovement.stand.ordinal()] = new TextureAtlas("entities/player/Default/Right/Stand/stand.txt");
-        textureAtlas[typeOfMovement.walk.ordinal()] = new TextureAtlas("entities/player/Default/Right/Walk/walk.txt");
-        textureAtlas[typeOfMovement.run.ordinal()] = new TextureAtlas("entities/player/Default/Right/Run/run.txt");
-        textureAtlas[typeOfMovement.jump.ordinal()] = new TextureAtlas("entities/player/Default/Right/Jump/jump.txt");
-        textureAtlas[typeOfMovement.shot.ordinal()] = new TextureAtlas("entities/player/Default/Left/Shot/slash1.txt");
-        textureAtlas[typeOfMovement.hit.ordinal()] = new TextureAtlas("entities/player/Default/Right/Hit/hit.txt");
-        textureAtlas[typeOfMovement.die.ordinal()] = new TextureAtlas("entities/player/Default/Right/Die/die.txt");
-        textureAtlas[typeOfMovement.slash.ordinal()] = new TextureAtlas("tool/sword/Right/Slash/slash.txt");
-        createAnimations();
-        definePlayer();
-
+    	definePlayer();
+        animations = MyAssetManager.instance.getPlayerAnimations(typeOfArmor);
+        setSize();
         inventory = new Inventory();
         hud = new HUD();
     }
 
-    private void createAnimations() {
-        
-        animations = new ArrayList<>(typeOfMovement.values().length);
-        
-        for (int i = 0; i < typeOfMovement.values().length; i++) 
-        { 
-            if (i == typeOfMovement.stand.ordinal())
-                animations.add(i, new Animation<>(0.15f, textureAtlas[i].getRegions()));
-            else
-                animations.add(i, new Animation<>(0.04f, textureAtlas[i].getRegions()));  
-        }
-
-        float width = animations.get(0).getKeyFrame(0).getRegionWidth();
-        float height = animations.get(0).getKeyFrame(0).getRegionHeight();
+    private void setSize(){
+        float width = animations.get(0).get(0).getKeyFrame(0).getRegionWidth();
+        float height = animations.get(0).get(0).getKeyFrame(0).getRegionHeight();
         WIDTH = ((Block.size*SCALE)/height)*width;
         HEIGHT = Block.size*SCALE;
     }
-
-
+    
     private void definePlayer(){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(450.0f/GameScreen.PPM, 20);
+        bdef.position.set(800.0f/GameScreen.PPM, 20);
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
         b2body.setFixedRotation(true);
@@ -157,11 +136,11 @@ public class Player {
     
     public void updatePosition(OrthographicCamera camera){
         
-        if (currentTOM == typeOfMovement.die)
+        if (currentTOM == Constants.typeOfMovement.Die)
             return;
         
         if (b2body.getLinearVelocity().x == 0 && isShotFinished)
-            currentTOM = typeOfMovement.stand;
+            currentTOM = Constants.typeOfMovement.Stand;
         
         speed = DEFAULT_SPEED;
         powerOfImpuls = 0.2f;
@@ -170,30 +149,34 @@ public class Player {
             speed /=4;
             powerOfImpuls = 0.03f;
             if (Inputs.instance.run)
-                currentTOM = typeOfMovement.stand;      
+                currentTOM = Constants.typeOfMovement.Stand;      
         }
         
-        if (Inputs.instance.run && currentTOM != typeOfMovement.stand){
+        if (Inputs.instance.run && currentTOM != Constants.typeOfMovement.Stand){
             speed *= 3;
             //currentTOM = typeOfMovement.run;
         }
         
-        if (Inputs.instance.mouseLeft && isShotFinished)
+        if (Inputs.instance.mouseLeft && (isShotFinished || isMining))
         {
-            currentTOM = typeOfMovement.shot;
+            currentTOM = Constants.typeOfMovement.Slash;
             isShotFinished = false;
         }
         else if (Inputs.instance.mouseLeft == false && isShotFinished == false)
             isShotFinished = true;
         
-        if (Inputs.instance.right && b2body.getLinearVelocity().x <= speed && MyContactListener.blockOnRight==0){
+        if (Inputs.instance.right && b2body.getLinearVelocity().x <= speed && MyContactListener.blockOnRight==0 && 
+            b2body.getPosition().x < Constants.WIDTH_OF_MAP*Block.size-Constants.W_IN_M/2)//stop player before end of map
+        {
             b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
-            currentTOM = typeOfMovement.walk;
+            currentTOM = Constants.typeOfMovement.Walk;
         }
         
-        if (Inputs.instance.left && b2body.getLinearVelocity().x >= -speed && MyContactListener.blockOnLeft==0){
+        if (Inputs.instance.left && b2body.getLinearVelocity().x >= -speed && MyContactListener.blockOnLeft==0 && 
+            b2body.getPosition().x > Constants.W_IN_M/3) //stop player before end of map
+        {
             b2body.applyLinearImpulse(new Vector2(-powerOfImpuls, 0), b2body.getWorldCenter(), true);
-            currentTOM = typeOfMovement.walk;
+            currentTOM = Constants.typeOfMovement.Walk;
         }
 
         /*if (Inputs.instance.up && b2body.getLinearVelocity().y <= speed/5){
@@ -222,23 +205,23 @@ public class Player {
         
         if (Inputs.instance.jump && !isJumping && (!isFalling || MyContactListener.swim)){
             b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
-            currentTOM = typeOfMovement.jump;
+            currentTOM = Constants.typeOfMovement.Jump;
             isJumping = true;
         }
 
-        if (Inputs.instance.run && currentTOM != typeOfMovement.stand){
+        if (Inputs.instance.run && currentTOM != Constants.typeOfMovement.Stand){
             //speed *= 2;
-            currentTOM = typeOfMovement.run;
+            currentTOM = Constants.typeOfMovement.Run;
         }
         
         camera.unproject(v3.set(Inputs.instance.mouseX, Inputs.instance.mouseY, 0f));
         
         //System.out.println(v3.x + "|" + b2body.getPosition().x);
         if (v3.x < b2body.getPosition().x)
-            turned = true;
+        	direction = Constants.typeOfDirection.Left;
         
         if (v3.x > b2body.getPosition().x)
-            turned = false;
+        	direction = Constants.typeOfDirection.Right;
     }
     
     /*private int getScaleOfMovement(){
@@ -261,18 +244,18 @@ public class Player {
         health -= 10;
         hud.setHealth(health);
         if (health <= 0)
-            currentTOM = typeOfMovement.die;
+            currentTOM = Constants.typeOfMovement.Die;
     }
     
     public void draw(SpriteBatch spriteBatch){
         //hud.draw();
-        if (currentTOM != typeOfMovement.jump)
+        if (currentTOM != Constants.typeOfMovement.Jump)
         {
             //backwalk
-            if ((turned && Inputs.instance.right) || (!turned && Inputs.instance.left))
-                animations.get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.REVERSED );
+            if ((direction == Constants.typeOfDirection.Left && Inputs.instance.right) || (direction == Constants.typeOfDirection.Right && Inputs.instance.left))
+                animations.get(direction.ordinal()).get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.REVERSED );
             else
-                animations.get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.NORMAL );
+                animations.get(direction.ordinal()).get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.NORMAL );
             
             stateTime += Gdx.graphics.getDeltaTime();
         }
@@ -281,39 +264,85 @@ public class Player {
             stateTime = 0;
         
         TextureRegion currentFrame;
-        TextureRegion currentFrame1;
-        if (currentTOM == typeOfMovement.die || currentTOM == typeOfMovement.shot)
-            currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
-        else
-            currentFrame = animations.get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
-        if (currentTOM != typeOfMovement.shot)
-            currentFrame.flip(currentFrame.isFlipX() != turned, false);
-        
-                if (currentTOM == typeOfMovement.shot)
-        {
-            currentFrame1 = animations.get(typeOfMovement.slash.ordinal()).getKeyFrame(stateTime, false);
-            currentFrame1.flip(currentFrame1.isFlipX() != turned, false);
-            spriteBatch.draw(currentFrame1, b2body.getPosition().x - Block.size*2-0.02f, b2body.getPosition().y -(Block.size/2.0f + 11.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
+        if (currentTOM == Constants.typeOfMovement.Die || currentTOM == Constants.typeOfMovement.Slash)
+            currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, isMining);
+        else if ((direction == Constants.typeOfDirection.Right) && (currentTOM == Constants.typeOfMovement.Walk || currentTOM == Constants.typeOfMovement.Run))
+        {//start form middle of movement - left arm animations = arm goes back and front, but right arm goes front and back
+        	currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime+0.03f*6, true);
         }
-        
-        
-        spriteBatch.draw(currentFrame, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 11.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
+        else if (currentTOM == Constants.typeOfMovement.Jump)
+            currentFrame = animations.get(direction.ordinal()).get(Constants.typeOfMovement.Stand.ordinal()).getKeyFrame(0.0f);
+        else
+            currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
         
 
+        //print tool
+        if (direction == Constants.typeOfDirection.Left)
+        	printTool(spriteBatch);
         
-        if (currentTOM == typeOfMovement.shot && animations.get(currentTOM.ordinal()).isAnimationFinished(stateTime))
-            currentTOM = typeOfMovement.stand;
+        //print player
+        spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
+        
+        //print tool
+        if (direction == Constants.typeOfDirection.Right)
+        {
+        	printTool(spriteBatch);
+        	printArm(spriteBatch);
+        }
+
+        
+        if (currentTOM == Constants.typeOfMovement.Slash && isMining == false && animations.get(direction.ordinal()).get(currentTOM.ordinal()).isAnimationFinished(stateTime))
+            currentTOM = Constants.typeOfMovement.Stand;
         
         lastTOM = currentTOM;
+        
+        if (Inputs.instance.showInventory)
+            inventory.setAvatar(typeOfArmor);
         
         
     }
     
-    public void dispose(){
-        for (int i = 0; i < typeOfMovement.values().length; i++) 
+    
+    public Tool getToolInUsed(){
+        if (inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool() != null)
         {
-            textureAtlas[i].dispose();
+            return inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool();
         }
+        
+        return null;
+    }
+    
+    
+    private void printTool(SpriteBatch spriteBatch) {
+        if (inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool() != null)
+        {
+        	TextureRegion currentFrame;
+        	int id = inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool().id;
+    		if (currentTOM == Constants.typeOfMovement.Die || currentTOM == Constants.typeOfMovement.Slash)
+    			currentFrame = MyAssetManager.instance.getToolsAnimations(AllTools.typeOfTools.values()[id]).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
+            else
+            	currentFrame = MyAssetManager.instance.getToolsAnimations(AllTools.typeOfTools.values()[id]).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
+    		
+    		spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
+        }
+    }
+    
+    private void printArm(SpriteBatch spriteBatch) {
+    	TextureRegion currentFrame;
+        if (inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool() != null)
+        {
+    		if (currentTOM == Constants.typeOfMovement.Die || currentTOM == Constants.typeOfMovement.Slash)
+    			currentFrame = MyAssetManager.instance.getPlayerArmAnimations(typeOfArmor).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
+            else
+            	currentFrame = MyAssetManager.instance.getPlayerArmAnimations(typeOfArmor).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
+    		
+    		spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
+        }
+    }
+    
+    
+    
+    public void dispose(){
         inventory.dispose();
     }
     

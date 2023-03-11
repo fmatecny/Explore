@@ -13,7 +13,8 @@ import com.mygdx.game.inventory.InventoryObject;
  */
 public class Tool extends InventoryObject{
     
-
+    public int damage = 1;
+    
     public Tool(Tool t) {
         this.id = t.id;
         this.texture = t.texture;

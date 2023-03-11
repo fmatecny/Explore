@@ -5,6 +5,8 @@
  */
 package com.mygdx.game.inventory;
 
+import com.mygdx.game.Constants;
+
 /**
  *
  * @author Fery

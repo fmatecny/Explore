@@ -10,7 +10,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -27,8 +26,8 @@ import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyContactListener;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.entities.EntitiesManager;
+import com.mygdx.game.entities.MyAssetManager;
 import com.mygdx.game.entities.Player;
-import com.mygdx.game.entities.Villager;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.inventory.AllItems;
 import com.mygdx.game.world.AllTools;
@@ -226,7 +225,7 @@ public class GameScreen implements Screen{
         // clear the screen ready for next set of images to be drawn
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        
         world.step(1 / 60f, 6, 2);
         // tell our stage to do actions and draw itself
         //stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
@@ -239,8 +238,8 @@ public class GameScreen implements Screen{
         bck.drawBackground(spriteBatch);
 
         map.draw(spriteBatch, cam);
-
-        entitiesManager.updatePosition();
+        
+        entitiesManager.updatePosition(cam);
         entitiesManager.draw(spriteBatch);
         //villager.updatePosition();
         //villager.draw(spriteBatch);
@@ -305,8 +304,10 @@ public class GameScreen implements Screen{
             
             entitiesManager.setPlayerPosition(player.b2body.getPosition());
             
-            if (!Inputs.instance.mouseLeft || hitBody == null)
+            if (!Inputs.instance.mouseLeft || hitBody == null){
+                player.isMining = false;
                 map.stopMining();
+            }
             
             // mine block to inventory
             if (Inputs.instance.mouseLeft && hitBody != null)
@@ -318,7 +319,8 @@ public class GameScreen implements Screen{
                     if (map.getBlockByIdx(v) != null)
                     {
                         //map.getBlock(v.X, v.Y).textureRotation = 0;
-                        map.mining(v);
+                        map.mining(v, player.getToolInUsed());
+                        player.isMining = true;
                         if (map.isMiningDone())
                         {
                             if (player.getInventory().addObjectToInvenotry(map.getBlockByIdx(v)))
@@ -330,12 +332,14 @@ public class GameScreen implements Screen{
                         }
                     }
                     else{
+                        player.isMining = false;
                         map.stopMining();}
                 }
                 else{
+                    player.isMining = false;
                     map.stopMining();}
             }
-            else if (Inputs.instance.mouseMiddle &&  hitBody != null && hitBody.getUserData() instanceof IntVector2 && allowRotation)
+            else if (Inputs.instance.mouseMiddle && hitBody != null && hitBody.getUserData() instanceof IntVector2 && allowRotation)
             {
                 allowRotation = false;
                 map.rotateBlock(hitBody);   
@@ -388,7 +392,7 @@ public class GameScreen implements Screen{
         }
         
         shaders_box2dlights.updateRayHandler();
-        
+
         player.getInventory().draw();
         player.getHud().draw();
         
@@ -401,10 +405,10 @@ public class GameScreen implements Screen{
         }
 
         //shaders.updatePlayerPos(player, cam, camera);
-        
-        
-      
+
+        //stage.act();
         stage.draw();
+        
     }
 
     private void updateCamera(){
@@ -427,6 +431,7 @@ public class GameScreen implements Screen{
             //cam.y+=0.01;//player.getSpeed()*2;
             cam.y = player.getY() + MyGdxGame.height/2/PPM - 4;
         }
+        
         /*
         if (Inputs.instance.left)
             cam.x--;
@@ -548,8 +553,9 @@ public class GameScreen implements Screen{
 
     public void createEntities() {
         // Create player
+    	MyAssetManager.instance = new MyAssetManager();
         player = new Player();
-        entitiesManager = new EntitiesManager();
+        entitiesManager = new EntitiesManager(map.getDoorsUpPos());
         //villager = new Villager(1);
     }
     

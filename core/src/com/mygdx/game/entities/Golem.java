@@ -6,6 +6,7 @@
 package com.mygdx.game.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.mygdx.game.Constants;
 
 /**
  *
@@ -14,8 +15,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Golem extends Entity{
 
     public Golem(int id, float x, float y) {
-        super(id, x, y, "golem");
-        //changeScale(6f);
+        super(id, x, y, Constants.typeOfEntity.golem);
+        changeScale(4f);
     }
 
     @Override

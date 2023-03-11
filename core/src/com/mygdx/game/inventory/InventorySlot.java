@@ -9,6 +9,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -24,6 +25,7 @@ import com.mygdx.game.world.Tool;
  */
 public class InventorySlot extends Table{
     
+    private boolean isOver = false;
     public int numOfItem;
     private Block block = null;
     private Item item = null;
@@ -54,31 +56,48 @@ public class InventorySlot extends Table{
 
 
         addListener(new ClickListener() {
-        @Override
-        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            //System.out.println(getName() + "   " + getX() + "m" + x + "," + y);
-            if (numOfItem > 0 && Inputs.instance.showInventory && button == Input.Buttons.LEFT){
-                splitItems = false;
-                touchDown = true;}
-            else if (numOfItem >= minItemsForSplit && Inputs.instance.showInventory && button == Input.Buttons.RIGHT){
-                if (touchDown == false)
-                    splitItems = true;
-                drag = true;//drag function doeas not call for right button
-                touchDown = true;
-            }  
-            return touchDown;
-        }
 
-        @Override
-        public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-            //System.out.println(getName() + "   " + getX()+ "mmm" + x + "," + y);
-            if (touchDown)
-            {
-                drop = true;
-                dropPos.setXY((int) x, (int) y);
-            }      
-        }
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                super.enter(event, x, y, pointer, fromActor);
+                isOver = true;
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                super.exit(event, x, y, pointer, toActor);
+                isOver = false;
+                //System.err.println("exit" + numOfItem + toActor.toString());
+            }
+
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                //System.out.println(getName() + "   " + getX() + "m" + x + "," + y);
+                if (numOfItem > 0 && Inputs.instance.showInventory && button == Input.Buttons.LEFT){
+                    splitItems = false;
+                    touchDown = true;}
+                else if (numOfItem >= minItemsForSplit && Inputs.instance.showInventory && button == Input.Buttons.RIGHT){
+                    if (touchDown == false)
+                        splitItems = true;
+                    drag = true;//drag function doeas not call for right button
+                    touchDown = true;
+                }  
+
+                return touchDown;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                //System.out.println(getName() + "   " + getX()+ "mmm" + x + "," + y);
+                if (touchDown)
+                {
+                    drop = true;
+                    dropPos.setXY((int) x, (int) y);
+                }      
+            }
         });
+        
+
         
     }
 
@@ -103,6 +122,10 @@ public class InventorySlot extends Table{
         return (numOfItem > 0 && tool != null && texture != null);
     }
     
+    public boolean isItem(){
+        return (numOfItem > 0 && item != null && texture != null);
+    }
+    
     public Block getBlock() {
         return isEmpty() ? null : block;
     }
@@ -115,6 +138,24 @@ public class InventorySlot extends Table{
         return isEmpty() ? null : tool;
     }
     
+    private InventoryObject getObject(){
+        if (this.isBlock()) return this.block;
+        if (this.isTool()) return this.tool;
+        if (this.isItem()) return this.item;
+        
+        return null;
+    }
+    
+    public String getObjectInfo(){
+        if (isBlock())
+            return block.info + "\n\nHardness = " + block.hardness;
+        else if (isTool())
+            return tool.info + "\n\nDamage = " + tool.damage;
+        else if (isItem())
+            return item.info;
+        else
+            return "";
+    }
     
     public void setObject(InventorySlot slot, int n){
         this.numOfItem = n;
@@ -208,6 +249,13 @@ public class InventorySlot extends Table{
     public boolean isObjectStackable(){
         return block != null ? block.stackable : !isTool();
     }
+
+    public boolean isOver() {
+        return isOver;
+    }
+    
+    
+    
     
     @Override
     public void draw(Batch batch, float parentAlpha){

@@ -6,11 +6,8 @@
 package com.mygdx.game.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -20,6 +17,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.mygdx.game.Constants;
 import com.mygdx.game.screens.GameScreen;
+import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
 import java.util.ArrayList;
 
@@ -33,14 +31,12 @@ public abstract class Entity implements EntityIfc{
     
     protected float WIDTH;
     protected float HEIGHT;
-    private float SCALE = 4f;
-    
-    protected enum typeOfDirection { Left, Right};
-    protected enum typeOfMovement { Stand, Walk, Run, Jump, Slash, Hit, Die};
+    private float SCALE = 6f;
+    private float heightOffset = Block.size/2f;
 
-    protected typeOfMovement currentTOM = typeOfMovement.Stand;
-    protected typeOfMovement lastTOM = typeOfMovement.Stand;
-    protected typeOfDirection direction = typeOfDirection.Right;
+    protected Constants.typeOfMovement currentTOM = Constants.typeOfMovement.Stand;
+    protected Constants.typeOfMovement lastTOM = Constants.typeOfMovement.Stand;
+    protected Constants.typeOfDirection direction = Constants.typeOfDirection.Right;
    
     protected ArrayList<ArrayList<Animation<AtlasRegion>>> animations;
     protected float stateTime = 0;
@@ -50,19 +46,20 @@ public abstract class Entity implements EntityIfc{
 
     public Entity(){}
     
-    public Entity(int id, float x, float y, String texturePathPrefix) {
+    public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity) {
         this.id = id;
         defineBody(x, y);
-        animations = getAnimations(texturePathPrefix);
+        animations = MyAssetManager.instance.getEntiryAnimations(typeOfEntity);
         setSize();
     }
     
     private void defineBody(float x, float y){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(x, y);
+        bdef.position.set(x*Block.size, y*Block.size);
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
         b2body.setUserData(id);
+        b2body.setActive(false);
 
         FixtureDef fdef = new FixtureDef();
        
@@ -81,71 +78,6 @@ public abstract class Entity implements EntityIfc{
         square.dispose();
     }
     
-    private ArrayList getAnimations(String path){
-        TextureAtlas[][] textureAtlas = loadTextures(path);
-        
-        ArrayList animations = new ArrayList<>(typeOfDirection.values().length);
-        ArrayList animationsOneDir = new ArrayList<>(typeOfMovement.values().length);
-        for (int i = 0; i < typeOfDirection.values().length; i++) 
-        {
-            for (int j = 0; j < typeOfMovement.values().length; j++) 
-            { 
-                if (j == typeOfMovement.Stand.ordinal())
-                    animationsOneDir.add(j, new Animation<>(0.1f, textureAtlas[i][j].getRegions()));
-                else
-                    animationsOneDir.add(j, new Animation<>(0.03f, textureAtlas[i][j].getRegions()));  
-            }
-            animations.add(new ArrayList<Animation<AtlasRegion>>(animationsOneDir));
-            animationsOneDir.clear();
-        }
-        animationsOneDir = null;
-        
-        return animations;
-    }
-    
-    private TextureAtlas[][] loadTextures(String path){        
-        TextureAtlas[][] textureAtlas = new TextureAtlas[typeOfDirection.values().length][typeOfMovement.values().length];
-        String direction;
-        String movement;
-        for (int i = 0; i < typeOfDirection.values().length; i++) 
-        {
-            direction = "/" + typeOfDirection.values()[i].name();
-            
-            for (int j = 0; j < typeOfMovement.values().length; j++) 
-            {            
-                movement = "/" + typeOfMovement.values()[j].name();
-                movement += "/" + typeOfMovement.values()[j].name().toLowerCase() + ".txt";
-                
-                try 
-                {
-                    textureAtlas[i][j] = new TextureAtlas("entities/" + path + direction + movement);                
-                } catch (Exception e) {
-                    try 
-                    {
-                        if (i == 0)
-                            direction = "/" + typeOfDirection.values()[i+1].name();
-                        else
-                            direction = "/" + typeOfDirection.values()[i-1].name();
-                        
-                        textureAtlas[i][j] = new TextureAtlas("entities/" + path + direction + movement);
-
-                        for (AtlasRegion region : textureAtlas[i][j].getRegions()) 
-                        {
-                            region.flip(true, false);
-                        }
-
-                    } catch (Exception ex) {
-                        //textureAtlas[i][j] = new TextureAtlas("entities/player/Default" + direction + movement);
-                        textureAtlas[i][j] = new TextureAtlas();
-                        textureAtlas[i][j].addRegion("Empty", new TextureRegion(new Texture(new Pixmap(0, 0, Pixmap.Format.RGB888))));
-                        System.err.println(ex);
-                    }
-                }
-            }
-        }
-        return textureAtlas;
-    }    
-    
     private void setSize(){
         float width = animations.get(0).get(0).getKeyFrame(0).getRegionWidth();
         float height = animations.get(0).get(0).getKeyFrame(0).getRegionHeight();
@@ -157,7 +89,7 @@ public abstract class Entity implements EntityIfc{
     @Override
     public void draw(SpriteBatch spriteBatch) {
         if (health <= 0)
-            currentTOM = typeOfMovement.Die;
+            currentTOM = Constants.typeOfMovement.Die;
         
         stateTime += Gdx.graphics.getDeltaTime();
         
@@ -166,12 +98,12 @@ public abstract class Entity implements EntityIfc{
         
         TextureRegion currentFrame;
         //TextureRegion o;
-        if (currentTOM == typeOfMovement.Die)
+        if (currentTOM == Constants.typeOfMovement.Die)
             currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
         else
             currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
         //currentFrame.flip(currentFrame.isFlipX() != leftDirection, false);
-        spriteBatch.draw(currentFrame, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 11.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
+        spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + heightOffset, WIDTH, HEIGHT);
         /*o = new TextureRegion(currentFrame);
         o.flip(true, false);
         spriteBatch.draw(o, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 11.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
@@ -213,6 +145,10 @@ public abstract class Entity implements EntityIfc{
         float height = animations.get(0).get(0).getKeyFrame(0).getRegionHeight();
         WIDTH = ((Block.size*SCALE)/height)*width;
         HEIGHT = Block.size*SCALE;
+    }
+    
+    public void setHeightOffset(float offset) {
+    	heightOffset = offset;
     }
 }
 

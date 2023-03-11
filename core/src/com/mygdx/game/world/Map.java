@@ -25,6 +25,8 @@ import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.water.Lake;
 import com.mygdx.game.world.water.Water;
 import static java.lang.Math.abs;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import java.util.ArrayList;
 
 /**
@@ -60,6 +62,7 @@ public class Map extends WorldObject{
     private TextureAtlas textureTorchAtlas;
     private Animation<AtlasRegion> torchAnimation;
     private ArrayList<IntVector2> torchsPos = new ArrayList<>();
+    private ArrayList<IntVector2> doorsUpPos = new ArrayList<>();
     private float stateTime = 0;
     private float stateTimeTorch = 0;
     
@@ -88,6 +91,12 @@ public class Map extends WorldObject{
         // initial value - [10, 20)
         groundIndexX = (int )(Math.random() * 10 + 10);
         
+        
+        boolean isVillageGenerating = false;
+        int numberOfHouseInVillage = 0;
+        int villageAvalaibleFromIndexX = 0;
+        int percent = 0;
+        
         // generate objects 
         while (groundIndexX < width-20) 
         {    
@@ -102,9 +111,40 @@ public class Map extends WorldObject{
             }           
             
             // based on percent generates object
-            int percent = (int )(Math.random() * 100);
-            if (percent > 70 && groundIndexY < 50) {
+            if (isVillageGenerating == false)
+                percent = (int )(Math.random() * 100);
+            
+            if (percent > 70 && groundIndexY < 50 && isVillageGenerating == false && villageAvalaibleFromIndexX <= groundIndexX)
+            {
+                numberOfHouseInVillage = (int )(Math.random() * 4) + 3; //3 - 7 houses
+                System.out.println("Number of Houses = " + numberOfHouseInVillage + ", groundIndexX = " + groundIndexX + ", groundIndexY = " + groundIndexY);
+            
+                isVillageGenerating = true;
+                int lastIndex = groundIndexY;
+                //check if is it possible to generate village - ground level needs to be <=3 on 10blocks
+                for (int i = 1; i <= numberOfHouseInVillage; i++) {
+                    for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
+                    {
+                        if (mapArray[groundIndexX+i*10-1][j] == null)//TODO out of range
+                        {
+                            System.out.println("j = " + j + ", lastIndex = " + lastIndex);
+                            if (abs(j - lastIndex) > 3){
+                                i = numberOfHouseInVillage+1;
+                                isVillageGenerating = false;
+                            }
+                            break;
+                        }
+                    } 
+                }
+            }
+            
+            if (isVillageGenerating) {
                 generateHouse();
+                if (--numberOfHouseInVillage <= 0)
+                {
+                    isVillageGenerating = false;
+                    villageAvalaibleFromIndexX = groundIndexX+300;
+                }
             }
             else if (percent > 5){
                 createTrees();
@@ -198,7 +238,7 @@ public class Map extends WorldObject{
     
     private void generateHouse() {
         int houseWidth = (int )(Math.random() * 2 + 9);
-        int houseHeight = 0;
+        int houseHeight;
         int verticalMetre = 0;
 
         for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
@@ -212,12 +252,13 @@ public class Map extends WorldObject{
             }
         }
         
-        // maximal vertical metre must be lower than 2 for generating of house
-        if (verticalMetre < 2)
+        // maximal vertical metre must be lower than 3 for generating of house
+        if (verticalMetre < 3)
         {
             houseHeight = (int )(Math.random() * 2 + 6);
             House house = new House(houseWidth,houseHeight,groundIndexX,groundIndexY);
             Block[][] houseArr = house.getHouse();
+            doorsUpPos.add(house.getDoorUpPos());
 
             for (int x = 0; x < houseWidth; x++) 
             {
@@ -464,9 +505,8 @@ public class Map extends WorldObject{
     }
     
     public boolean addBodyToIdx(int x, int y, Block b){
-        //if block is on background or front
-        b.blocked = !Inputs.instance.control_left;
-        
+        //if block is on background or front, torch is always on background
+        b.blocked = !Inputs.instance.control_left && b.id != AllBlocks.torch.id;
         
         //create new body beacuse in Inventar is only one body 
         if (b.id == AllBlocks.door.id || b.id == AllBlocks.door_up.id || b.id == AllBlocks.door_down.id)
@@ -708,17 +748,21 @@ public class Map extends WorldObject{
    
     }
     
-    public void mining(IntVector2 v){
+    public void mining(IntVector2 v, Tool tool){
         if (v.equal(rectVector) == false)
             return;
         
         if ((miningBlock == null && minedBlock == null) ||
             (getBlockByIdx(v) != miningBlock) ) 
         {
+            int damage = 1;
+            if (tool != null)
+                damage = tool.damage;
+            
             miningBlock = getBlockByIdx(v);
             stateTime = 0;
             isMining = true;
-            breakBlockAnimation.setFrameDuration(miningBlock.hardness/100.0f);
+            breakBlockAnimation.setFrameDuration(miningBlock.hardness/(10.0f*damage));
         }
     }
     
@@ -770,5 +814,11 @@ public class Map extends WorldObject{
     public ArrayList<Chest> getChestList() {
         return chestList;
     }
+
+    public ArrayList<IntVector2> getDoorsUpPos() {
+        return doorsUpPos;
+    }
+    
+    
     
 }

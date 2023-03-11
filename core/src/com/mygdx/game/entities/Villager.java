@@ -7,6 +7,7 @@ package com.mygdx.game.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.Constants;
 import com.mygdx.game.world.Block;
 
 /**
@@ -16,10 +17,10 @@ import com.mygdx.game.world.Block;
 public class Villager extends Entity{
         
     private int speed = 2;
-    private boolean fallDown = false;
-    private double counterJump = 4;
-    private boolean jump = false;
-    private boolean isJumping = false;
+    //private boolean fallDown = false;
+    //private double counterJump = 4;
+    //private boolean jump = false;
+    //private boolean isJumping = false;
        
     private long counter = 20;
     
@@ -29,16 +30,17 @@ public class Villager extends Entity{
     private Vector2 followPosition = null;
 
     public Villager(int id, float x, float y) {
-        super(id, x, y, "villager");    
+        super(id, x, y, Constants.typeOfEntity.villager); 
+        System.out.println("Villager " + id + " has position " + x + "|" + y);
     }
 
     @Override
     public void updatePosition(){
-        if (currentTOM == typeOfMovement.Die)
+        if (currentTOM == Constants.typeOfMovement.Die || b2body.isActive() == false)
             return;
         
         if (b2body.getLinearVelocity().x == 0)
-            currentTOM = typeOfMovement.Stand;
+            currentTOM = Constants.typeOfMovement.Stand;
         
         speed = 2;
         /*if (Inputs.instance.run){
@@ -50,28 +52,28 @@ public class Villager extends Entity{
         {
             if (followPosition.x-Block.size > b2body.getPosition().x && b2body.getLinearVelocity().x <= speed){
                 b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
-                currentTOM = typeOfMovement.Walk;
-                direction = typeOfDirection.Right;
+                currentTOM = Constants.typeOfMovement.Walk;
+                direction = Constants.typeOfDirection.Right;
             }
 
             if (followPosition.x+Block.size < b2body.getPosition().x && b2body.getLinearVelocity().x >= -speed){
                 b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
-                currentTOM = typeOfMovement.Walk;
-                direction = typeOfDirection.Left;
+                currentTOM = Constants.typeOfMovement.Walk;
+                direction = Constants.typeOfDirection.Left;
             }
         }
         else
         {
             if (doRight() && b2body.getLinearVelocity().x <= speed){
                 b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
-                currentTOM = typeOfMovement.Walk;
-                direction = typeOfDirection.Right;
+                currentTOM = Constants.typeOfMovement.Walk;
+                direction = Constants.typeOfDirection.Right;
             }
 
             if (doLeft() && b2body.getLinearVelocity().x >= -speed){
                 b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
-                currentTOM = typeOfMovement.Walk;
-                direction = typeOfDirection.Left;
+                currentTOM = Constants.typeOfMovement.Walk;
+                direction = Constants.typeOfDirection.Left;
             }
         }
     }
@@ -79,6 +81,9 @@ public class Villager extends Entity{
     
     @Override
     public void draw(SpriteBatch spriteBatch){
+        if (!b2body.isActive())
+            return;
+        
         if (health > 0)
             counter++;
         

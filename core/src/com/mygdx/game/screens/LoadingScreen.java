@@ -84,27 +84,29 @@ public class LoadingScreen extends ExploreMenuScreen{
                     progress = 60;
                     progressString = "Creating tools";
                     break;
-                  
-            case 8: getParent().getGameScreen().createAllTools();
+
+            case 8: getParent().getGameScreen().createMap();
                     progress = 70;
-                    progressString = "Creating entities";
                     break;
                     
-            case 10: getParent().getGameScreen().createEntities();
-                    progress = 80;
-                    progressString = "Creating map";
-                    break;     
-                    
-            case 12: getParent().getGameScreen().createMap();
-                    progress = 90;
-                    break;
-                    
-            case 14: if (worldID == 0){
-                        progress = 99;
+            case 10: if (worldID == 0){
+                        progress = 80;
                         getParent().getGameScreen().genrateMap();}
                      else
                         progressString = "Loading game";
+                    break;         
+                    
+            case 12: getParent().getGameScreen().createAllTools();
+                    progress += 10;
+                    progressString = "Creating entities";
                     break;
+                    
+            case 14: getParent().getGameScreen().createEntities();
+                    progress += 9;
+                    progressString = "Creating map";
+                    break;     
+                    
+
                     
             case 16: if (worldID > 0){
                         getParent().getGameScreen().loadGame();

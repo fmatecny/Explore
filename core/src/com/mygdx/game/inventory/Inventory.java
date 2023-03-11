@@ -9,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
@@ -43,6 +45,7 @@ public class Inventory implements Disposable{
     
     InputMultiplexer multiplexer;
     
+    private InventoryObjectInfo inventoryObjectInfo;
     private InventoryAvatar inventoryAvatar;
     private InventoryArmorSlots inventoryArmorSlots;
     private InventoryCraftingArea inventoryCraftingArea;
@@ -88,6 +91,7 @@ public class Inventory implements Disposable{
         //table.setDebug(true);
         table.setTouchable(Touchable.enabled);
 
+        inventoryObjectInfo = new InventoryObjectInfo();
         inventoryAvatar = new InventoryAvatar();
         inventoryArmorSlots = new InventoryArmorSlots();
         inventoryCraftingArea = new InventoryCraftingArea();
@@ -105,6 +109,9 @@ public class Inventory implements Disposable{
         table.add(inventoryBar).colspan(3);
 
         window.add(table).pad(20.0f);
+        mock.add(inventoryObjectInfo).top();
+        System.err.println(inventoryObjectInfo.getWidth());
+        mock.padRight(200);
         mock.add(window);//.colspan(2);//.expandY();
         
         //stageInventory.addActor(mock);
@@ -372,8 +379,12 @@ public class Inventory implements Disposable{
         if (inventoryCraftingArea.includes(realDropPos) && !isChestOpened())
             return inventoryCraftingArea.getDropInventorySlot(realDropPos);
 
-        if (chestPackage.includes(realDropPos) && isChestOpened())
-            return chestPackage.getDropInventorySlot(realDropPos);
+        if (isChestOpened())
+        {
+            if (chestPackage.includes(realDropPos))
+                return chestPackage.getDropInventorySlot(realDropPos);
+        }
+
         
         return null;
     }
@@ -381,7 +392,7 @@ public class Inventory implements Disposable{
     public void draw(){
         Gdx.input.setInputProcessor(multiplexer);
         mock.setVisible(Inputs.instance.showInventory);
-
+      
         if (!Inputs.instance.showInventory)
         {
             if(wasInventoryOpen){
@@ -413,68 +424,73 @@ public class Inventory implements Disposable{
                 }
             }
 
-                setZIndex();
-            
-                InventorySlot dragSlot = getDragInventorySlotAfterDrop();
-                
-                if (dragSlot != null)
-                {
-                    InventorySlot dropSlot = getDropInventorySlot(dragSlot);
-                    dragSlot.drag = false;
-                    dragSlot.drop = false;
-                    dragSlot.touchDown = false;
-                
-                    if (dropSlot != null)
-                    { 
-                        int n = dragSlot.numOfItem;
-                        //Block item = dragSlot.getBlock();
+            setZIndex();
 
-                        if (dropSlot.isEmpty())
-                        {
-                            if (dragSlot.splitItems)
-                            {
-                                n = dragSlot.numOfItem/2;
-                                dragSlot.numOfItem = n + dragSlot.numOfItem%2;
-                                dropSlot.setObject(dragSlot, n);
-                            }
-                            else
-                            {
-                                dropSlot.setObject(dragSlot);
-                                dragSlot.numOfItem = 0;
-                                dragSlot.removeObject();
-                            }
-                            //dropSlot.numOfItem = n;
-                            //dropSlot.setObject(dragSlot, n);
-          
-                        }
-                        else if (dropSlot.hasObject(dragSlot) && dragSlot.isObjectStackable())
-                        {
-                            if (dragSlot.splitItems)
-                            {
-                                n = dragSlot.numOfItem/2;
-                                dragSlot.numOfItem = n + dragSlot.numOfItem%2;
-                            }
-                            else{
-                                dragSlot.numOfItem = 0;
-                                dragSlot.removeObject();
-                            }
-                            dropSlot.numOfItem += n;
-                        }
-                        
-                        dragSlot.splitItems = false;
-                        
-                        if ("craftSlot".equals(dragSlot.getName()))
-                            inventoryCraftingArea.updateCraft(n);
+            InventorySlot dragSlot = getDragInventorySlotAfterDrop();
 
-                        inventoryCraftingArea.craft();
-                        
-                            
+            if (dragSlot != null)
+            {
+                InventorySlot dropSlot = getDropInventorySlot(dragSlot);
+                dragSlot.drag = false;
+                dragSlot.drop = false;
+                dragSlot.touchDown = false;
+
+                if (dropSlot != null)
+                { 
+                    int n = dragSlot.numOfItem;
+                    //Block item = dragSlot.getBlock();
+
+                    if (dropSlot.isEmpty())
+                    {
+                        if (dragSlot.splitItems)
+                        {
+                            n = dragSlot.numOfItem/2;
+                            dragSlot.numOfItem = n + dragSlot.numOfItem%2;
+                            dropSlot.setObject(dragSlot, n);
+                        }
+                        else
+                        {
+                            dropSlot.setObject(dragSlot);
+                            dragSlot.numOfItem = 0;
+                            dragSlot.removeObject();
+                        }
+                        //dropSlot.numOfItem = n;
+                        //dropSlot.setObject(dragSlot, n);
+
                     }
+                    else if (dropSlot.hasObject(dragSlot) && dragSlot.isObjectStackable())
+                    {
+                        if (dragSlot.splitItems)
+                        {
+                            n = dragSlot.numOfItem/2;
+                            dragSlot.numOfItem = n + dragSlot.numOfItem%2;
+                        }
+                        else{
+                            dragSlot.numOfItem = 0;
+                            dragSlot.removeObject();
+                        }
+                        dropSlot.numOfItem += n;
+                    }
+
+                    dragSlot.splitItems = false;
+
+                    if ("craftSlot".equals(dragSlot.getName()))
+                        inventoryCraftingArea.updateCraft(n);
+
+                    inventoryCraftingArea.craft();
+
+
                 }
+            }
+                
+            setObjectInfo();
+            
+            inventoryAvatar.setAvatar(inventoryArmorSlots.getTypeOfArmor());
+ 
             //mock.setPosition(MyGdxGame.width/2- mock.getWidth()/2, MyGdxGame.height - mock.getHeight() + 100);
             stageInventory.addActor(mock);
         }
-
+        stageInventory.act();
         stageInventory.draw();
     }
 
@@ -554,6 +570,105 @@ public class Inventory implements Disposable{
         table.add(inventoryPackage);
         table.row().padTop(space);
         table.add(inventoryBar);
+    }    
+
+    private void setObjectInfo() {
+            
+        for (int i = 0; i < inventoryBar.inventoryBar.length; i++) 
+        {
+            if (inventoryBar.inventoryBar[i].drag)
+                return;
+        }
+        
+        
+        for (int i = 0; i < inventoryPackage.inventoryPackageArray.length; i++) 
+        {
+            for (int j = 0; j < inventoryPackage.inventoryPackageArray[i].length; j++) 
+            {                
+                if (inventoryPackage.inventoryPackageArray[i][j].drag)
+                    return;
+            }
+        }
+        
+        
+        for (int i = 0; i < inventoryArmorSlots.inventoryArmorSlots.length; i++) 
+        {
+            if (inventoryArmorSlots.inventoryArmorSlots[i].drag)
+                return;
+        }
+        
+        for (int i = 0; i < inventoryCraftingArea.craftingSlots.length; i++) 
+        {
+            for (int j = 0; j < inventoryCraftingArea.craftingSlots[i].length; j++) 
+            {
+                if (inventoryCraftingArea.craftingSlots[i][j].drag)
+                    return;
+            }
+        }
+        
+        if (inventoryCraftingArea.craftedItem.drag)
+            return;
+        
+        
+        
+        
+        
+        
+        
+        for (int i = 0; i < inventoryBar.inventoryBar.length; i++) 
+        {
+            if (inventoryBar.inventoryBar[i].isOver())
+            {
+                //System.err.println(inventoryBar.inventoryBar[i].getObjectName());
+                inventoryObjectInfo.setInfo(inventoryBar.inventoryBar[i].getObjectInfo());
+                return;
+            }
+        }
+        
+        for (int i = 0; i < inventoryPackage.inventoryPackageArray.length; i++) 
+        {
+            for (int j = 0; j < inventoryPackage.inventoryPackageArray[i].length; j++) 
+            {                
+                if (inventoryPackage.inventoryPackageArray[i][j].isOver())
+                {
+                    inventoryObjectInfo.setInfo(inventoryPackage.inventoryPackageArray[i][j].getObjectInfo());
+                    return;
+                }
+            }
+        }
+        
+        for (int i = 0; i < inventoryArmorSlots.inventoryArmorSlots.length; i++) 
+        {
+            if(inventoryArmorSlots.inventoryArmorSlots[i].isOver())
+            {
+                inventoryObjectInfo.setInfo(inventoryArmorSlots.inventoryArmorSlots[i].getObjectInfo());
+                return;
+            }
+        }
+        
+        for (int i = 0; i < inventoryCraftingArea.craftingSlots.length; i++) 
+        {
+            for (int j = 0; j < inventoryCraftingArea.craftingSlots[i].length; j++) 
+            {
+                if (inventoryCraftingArea.craftingSlots[i][j].isOver())
+                {
+                    inventoryObjectInfo.setInfo(inventoryCraftingArea.craftingSlots[i][j].getObjectInfo());
+                    return;
+                }
+            }
+        }
+        
+        if (inventoryCraftingArea.craftedItem.isOver())
+        {
+            inventoryObjectInfo.setInfo(inventoryCraftingArea.craftedItem.getObjectInfo());
+            return;
+        }
+        
+        
+        inventoryObjectInfo.setInfo("");
     }
-    
+
+    public void setAvatar(Constants.typeOfArmor typeOfArmor) {
+        inventoryAvatar.setAvatar(typeOfArmor);   
+    }
 }

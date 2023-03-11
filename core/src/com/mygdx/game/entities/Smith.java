@@ -5,6 +5,8 @@
  */
 package com.mygdx.game.entities;
 
+import com.mygdx.game.Constants;
+
 /**
  *
  * @author Fery
@@ -12,7 +14,7 @@ package com.mygdx.game.entities;
 public class Smith extends Entity{
 
     public Smith(int id, float x, float y) {
-        super(id, x, y, "smith");
+        super(id, x, y, Constants.typeOfEntity.smith);
     }
 
 

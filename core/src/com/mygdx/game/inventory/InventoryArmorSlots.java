@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
+import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.Skins;
 
@@ -20,7 +21,7 @@ public class InventoryArmorSlots extends InventoryPack{
 
     public InventorySlot[] inventoryArmorSlots;
     
-    private final int numOfSlots = 4;
+    private final int numOfSlots = 1; //4;
     
     
     public InventoryArmorSlots() {
@@ -52,7 +53,7 @@ public class InventoryArmorSlots extends InventoryPack{
             });
 
             inventoryArmorSlots[i] = invenotryItem;
-            this.add(invenotryItem).size(50);
+            this.add(invenotryItem).size(Inventory.sizeOfSlot);
             this.row();
         }  
     }
@@ -90,4 +91,16 @@ public class InventoryArmorSlots extends InventoryPack{
         return false;
     }
     
+    public Constants.typeOfArmor getTypeOfArmor(){
+        if (inventoryArmorSlots[0].isItem())
+        {
+            if (inventoryArmorSlots[0].getItem().id == AllItems.ironArmor.id)
+                return Constants.typeOfArmor.Iron;
+            else if (inventoryArmorSlots[0].getItem().id == AllItems.diamondArmor.id)
+                return Constants.typeOfArmor.Diamond;
+        }
+        
+        return Constants.typeOfArmor.Default;
+    }
 }
+
