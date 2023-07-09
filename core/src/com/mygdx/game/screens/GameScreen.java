@@ -102,7 +102,8 @@ public class GameScreen implements Screen{
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
         
         if (hitBody == fixture.getBody() && 
-            fixture.getBody().getUserData() instanceof IntVector2)
+            fixture.getBody().getUserData() instanceof IntVector2 &&
+            player.b2body.getPosition().dst(hitBody.getPosition()) < 1.5f)//check distance
         {
             isBlockMinable = true;
             return fraction;
@@ -317,7 +318,7 @@ public class GameScreen implements Screen{
             // mine block to inventory
             if (Inputs.instance.mouseLeft && hitBody != null)
             {
-                if (hitBody.getUserData() instanceof IntVector2)
+                if (hitBody.getUserData() instanceof IntVector2 && isBlockMinable)
                 {
                     IntVector2 v = (IntVector2)hitBody.getUserData();
                     //System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v.X + "|" + v.Y);

@@ -35,6 +35,7 @@ public class Block extends InventoryObject{
         this.textureRotation = b.textureRotation;
         this.isRotationAllowed = b.isRotationAllowed;
         this.stackable = b.stackable;
+        this.info = b.info;
     }
 
     public Block() {

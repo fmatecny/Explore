@@ -316,14 +316,14 @@ public class Player {
     private void printTool(SpriteBatch spriteBatch) {
         if (inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool() != null)
         {
-        	TextureRegion currentFrame;
-        	int id = inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool().id;
-    		if (currentTOM == Constants.typeOfMovement.Die || currentTOM == Constants.typeOfMovement.Slash)
+            TextureRegion currentFrame;
+            int id = inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool().id;
+            if (currentTOM == Constants.typeOfMovement.Die) //|| currentTOM == Constants.typeOfMovement.Slash)
     			currentFrame = MyAssetManager.instance.getToolsAnimations(AllTools.typeOfTools.values()[id]).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
             else
             	currentFrame = MyAssetManager.instance.getToolsAnimations(AllTools.typeOfTools.values()[id]).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
     		
-    		spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
+            spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
         }
     }
     
@@ -331,12 +331,12 @@ public class Player {
     	TextureRegion currentFrame;
         if (inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool() != null)
         {
-    		if (currentTOM == Constants.typeOfMovement.Die || currentTOM == Constants.typeOfMovement.Slash)
-    			currentFrame = MyAssetManager.instance.getPlayerArmAnimations(typeOfArmor).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
+            if (currentTOM == Constants.typeOfMovement.Die)//|| currentTOM == Constants.typeOfMovement.Slash)
+    		currentFrame = MyAssetManager.instance.getPlayerArmAnimations(typeOfArmor).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
             else
             	currentFrame = MyAssetManager.instance.getPlayerArmAnimations(typeOfArmor).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
     		
-    		spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
+            spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
         }
     }
     

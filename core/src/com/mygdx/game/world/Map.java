@@ -735,7 +735,7 @@ public class Map extends WorldObject{
             shapeRenderer.begin(ShapeType.Line);
             shapeRenderer.setColor(Color.BLACK);
             //System.out.println(v.X + "|" + v.Y);
-            if (getBlockByIdx(v) != null && player.dst(b.getPosition()) < 1.5f)
+            if (getBlockByIdx(v) != null)
             {
                 shapeRenderer.rect( v.X * Block.size_in_pixels * Gdx.graphics.getWidth()/MyGdxGame.width - cam.x*ppm_viewport_ratio_x + Gdx.graphics.getWidth()/2.0f,
                                     v.Y * Block.size_in_pixels * Gdx.graphics.getHeight()/MyGdxGame.height - cam.y*ppm_viewport_ratio_y + Gdx.graphics.getHeight()/2.0f, 
@@ -768,6 +768,9 @@ public class Map extends WorldObject{
             if (tool != null)
                 damage = tool.damage;
             
+            if (Inputs.instance.debugMode)
+                damage = 100;
+ 
             miningBlock = getBlockByIdx(v);
             stateTime = 0;
             isMining = true;
