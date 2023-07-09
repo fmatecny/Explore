@@ -189,6 +189,26 @@ public class PreferencesScreen extends ExploreMenuScreen{
         //resolutionButton.setChecked(true); 
         
         
+        //fullscreen
+        final TextButton fullscreenButton = new TextButton("Fullscreen: ON", skin);
+        fullscreenButton.setChecked(getParent().getPreferences().isFullscreenEnabled());
+        if (!getParent().getPreferences().isFullscreenEnabled())
+            fullscreenButton.setText("Fullscreen: OFF");
+
+        fullscreenButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                if (!fullscreenButton.isChecked()) {
+                    getParent().getPreferences().setFullscreenEnabled(false);
+                    fullscreenButton.setText("Fullscreen: OFF");
+                } else {
+                    getParent().getPreferences().setFullscreenEnabled(true);
+                    fullscreenButton.setText("Fullscreen: ON");
+                }
+            }
+        });
+        
+        
 
         // return to main screen button
         final TextButton backButton = new TextButton("Back", skin);
@@ -214,6 +234,8 @@ public class PreferencesScreen extends ExploreMenuScreen{
         table.add(volumeMusicStack).width(titleLabel.getWidth()/2);
         table.row().pad(10,0,10,0);
         table.add(resolutionButton).colspan(2).fillX().uniformX();
+        table.row().pad(10,0,10,0);
+        table.add(fullscreenButton).colspan(2).fillX().uniformX();
         table.row().pad(10,0,10,0);
         table.add(backButton).colspan(2).fillX().uniformX();
     }

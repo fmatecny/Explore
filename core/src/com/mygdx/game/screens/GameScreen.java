@@ -79,6 +79,8 @@ public class GameScreen implements Screen{
     
     private double worldTime = Constants.HOUR_IN_SECONDS*(Constants.SUNRISE_HOUR+Constants.SUNRISE_DURATION);
     private double currentHour = 0.0;
+    
+    public boolean isLoading = true;
 
     QueryCallback callback = new QueryCallback() 
     {
@@ -200,6 +202,9 @@ public class GameScreen implements Screen{
     @Override
     public void render(float f) {
 
+        if (isLoading)
+            return;
+        
         if (Inputs.instance.pause){
             if (player.IsAlive())
                 saveGame();
@@ -412,7 +417,6 @@ public class GameScreen implements Screen{
     }
 
     private void updateCamera(){
-        
         if (player.getX()-cam.x + MyGdxGame.width/2/PPM > MyGdxGame.width/PPM-4) {
             //cam.x+=0.01;
             cam.x = player.getX()-(MyGdxGame.width/PPM-4 - MyGdxGame.width/2/PPM);
@@ -421,17 +425,17 @@ public class GameScreen implements Screen{
             //cam.x-=0.01;//player.getSpeed();
             cam.x= MyGdxGame.width/2/PPM +player.getX() - 4;
         }
-        
+
         if (player.getY()-cam.y + MyGdxGame.height/2/PPM < 3) {
             //cam.y-=0.01;//player.getSpeed()*2;
             cam.y = player.getY() + MyGdxGame.height/2/PPM - 3;
         }
-        
+
         if (player.getY()-cam.y + MyGdxGame.height/2/PPM > 4) {
             //cam.y+=0.01;//player.getSpeed()*2;
             cam.y = player.getY() + MyGdxGame.height/2/PPM - 4;
         }
-        
+
         /*
         if (Inputs.instance.left)
             cam.x--;
@@ -443,7 +447,6 @@ public class GameScreen implements Screen{
             cam.y++;*/
         camera.position.set(cam.x ,cam.y, camera.position.z);
         camera.update();
-        
     }
     
     @Override

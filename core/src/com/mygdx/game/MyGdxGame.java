@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.mygdx.game.screens.*;
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.mygdx.game.screens.PauseScreen;
 
 public class MyGdxGame extends Game {
@@ -38,6 +39,13 @@ public class MyGdxGame extends Game {
             switch(screen){
                     case MENU:
                             if(menuScreen == null) menuScreen = new MenuScreen(this);
+                            if (((Gdx.graphics.getWidth() != width) && Gdx.graphics.isFullscreen() == false) || 
+                               (Gdx.graphics.isFullscreen()&& preferences.isFullscreenEnabled() == false))
+                            {
+                                Gdx.graphics.setWindowedMode(width, height); 
+                            }
+                            if (Gdx.graphics.isFullscreen() == false && preferences.isFullscreenEnabled())
+                                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
                             this.setScreen(menuScreen);
                             break;
                     case NEWGAME:
@@ -57,12 +65,12 @@ public class MyGdxGame extends Game {
                             this.setScreen(exitScreen);
                             break;
                     case GAME:
-                            if(gameScreen != null && resolutionChanged) 
+                            /*if(gameScreen != null && resolutionChanged) 
                             {
                                 gameScreen.dispose();
                                 resolutionChanged = false;
                                 gameScreen = new GameScreen(this);
-                            }
+                            }*/
                             if (gameScreen == null) gameScreen = new GameScreen(this);
                             
                             this.setScreen(gameScreen);
@@ -92,6 +100,7 @@ public class MyGdxGame extends Game {
         Skins.instance = new Skins();
 
         preferences = new AppPreferences();
+        this.setWindowMode();
         
         //MyAssetManager.instance = new MyAssetManager();
         
@@ -132,6 +141,31 @@ public class MyGdxGame extends Game {
 
     public GameScreen getGameScreen() {
         return gameScreen;
+    }
+    
+    private void setWindowMode(){
+        switch (preferences.getResolution()) 
+        {
+            case 0: MyGdxGame.width = 640;
+                    MyGdxGame.height = 480;
+                    break;
+            case 1: MyGdxGame.width = 960;
+                    MyGdxGame.height = 540;
+                    break;
+            case 2: MyGdxGame.width = 1280;
+                    MyGdxGame.height = 720;
+                    break;
+            case 3: MyGdxGame.width = 1920;
+                    MyGdxGame.height = 1080;
+                    break;
+            default:
+                throw new AssertionError();
+        }
+        if (((Gdx.graphics.getWidth() != width) && Gdx.graphics.isFullscreen() == false) || 
+           (Gdx.graphics.isFullscreen()&& preferences.isFullscreenEnabled() == false))
+            Gdx.graphics.setWindowedMode(width, height);
+        if (Gdx.graphics.isFullscreen() == false && preferences.isFullscreenEnabled())
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
     }
    
 }

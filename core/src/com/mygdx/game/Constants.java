@@ -5,6 +5,8 @@
  */
 package com.mygdx.game;
 
+import com.badlogic.gdx.Gdx;
+
 /**
  *
  * @author Fery
@@ -16,6 +18,7 @@ public final class Constants {
     public static final int HEIGHT_OF_SKY = 30;
     public static final int SIZE_OF_CHUNK = 8;
     public static final float PPM = 100.0f;
+    //TODO can be changed during runtime -> cant be conctant
     public static final float W_IN_M = MyGdxGame.width/PPM;
     public static final float H_IN_M = MyGdxGame.height/PPM;
     public static final float ENTITY_SCREEN_OFFSET = 1.0f;

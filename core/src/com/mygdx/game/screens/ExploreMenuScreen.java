@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Skins;
@@ -28,7 +29,8 @@ public abstract class ExploreMenuScreen implements Screen{
     public ExploreMenuScreen(MyGdxGame myGdxGame) {
         parent = myGdxGame;
         // create stage and set it as input processor
-        stage = new Stage(new ScreenViewport());
+        //stage = new Stage(new ScreenViewport());
+        stage = new Stage(new FitViewport(1280,720));
 
     }
 

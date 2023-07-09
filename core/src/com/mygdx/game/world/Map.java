@@ -36,6 +36,10 @@ import java.util.ArrayList;
 public class Map extends WorldObject{
     private int width = Constants.WIDTH_OF_MAP;
     private int height = Constants.HEIGHT_OF_MAP;
+    private float w_in_m;
+    private float h_in_m;
+    private float ppm_viewport_ratio_x;
+    private float ppm_viewport_ratio_y;
     
     // Ground 
     private Block[][] mapArray;
@@ -74,6 +78,11 @@ public class Map extends WorldObject{
     ShapeRenderer shapeRenderer = new ShapeRenderer();
 
     public Map() {
+        w_in_m = MyGdxGame.width/Constants.PPM;
+        h_in_m = MyGdxGame.height/Constants.PPM;
+        ppm_viewport_ratio_x = (Gdx.graphics.getWidth()*Constants.PPM)/MyGdxGame.width;
+        ppm_viewport_ratio_y = (Gdx.graphics.getHeight()*Constants.PPM)/MyGdxGame.height;
+        
         mapArray = new Block[width][height];        
         groundBckArr = new Block[width][height-Constants.HEIGHT_OF_SKY];
         //generateMap();
@@ -122,7 +131,7 @@ public class Map extends WorldObject{
                 isVillageGenerating = true;
                 int lastIndex = groundIndexY;
                 //check if is it possible to generate village - ground level needs to be <=3 on 10blocks
-                for (int i = 1; i <= numberOfHouseInVillage; i++) {
+                for (int i = 1; i <= numberOfHouseInVillage && groundIndexX+i*10 < width; i++) {
                     for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
                     {
                         if (mapArray[groundIndexX+i*10-1][j] == null)//TODO out of range
@@ -728,20 +737,20 @@ public class Map extends WorldObject{
             //System.out.println(v.X + "|" + v.Y);
             if (getBlockByIdx(v) != null && player.dst(b.getPosition()) < 1.5f)
             {
-                shapeRenderer.rect( v.X * Block.size_in_pixels - cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
-                                    v.Y * Block.size_in_pixels - cam.y*GameScreen.PPM + MyGdxGame.height/2.0f, 
-                                    Block.size_in_pixels, 
-                                    Block.size_in_pixels);
+                shapeRenderer.rect( v.X * Block.size_in_pixels * Gdx.graphics.getWidth()/MyGdxGame.width - cam.x*ppm_viewport_ratio_x + Gdx.graphics.getWidth()/2.0f,
+                                    v.Y * Block.size_in_pixels * Gdx.graphics.getHeight()/MyGdxGame.height - cam.y*ppm_viewport_ratio_y + Gdx.graphics.getHeight()/2.0f, 
+                                    Block.size_in_pixels*Gdx.graphics.getWidth()/MyGdxGame.width, 
+                                    Block.size_in_pixels*Gdx.graphics.getHeight()/MyGdxGame.height);
                 rectVector.set(v);
                 
             }
             if (Inputs.instance.debugMode)
             {
                 shapeRenderer.line(
-                        b.getPosition().x*GameScreen.PPM - cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
-                        b.getPosition().y*GameScreen.PPM - cam.y*GameScreen.PPM + MyGdxGame.height/2.0f, 
-                        player.x*GameScreen.PPM- cam.x*GameScreen.PPM + MyGdxGame.width/2.0f,
-                        player.y*GameScreen.PPM- cam.y*GameScreen.PPM + MyGdxGame.height/2.0f);
+                        (b.getPosition().x  - cam.x + w_in_m/2)*ppm_viewport_ratio_x,
+                        (b.getPosition().y  - cam.y + h_in_m/2)*ppm_viewport_ratio_y, 
+                        (player.x           - cam.x + w_in_m/2)*ppm_viewport_ratio_x,
+                        (player.y           - cam.y + h_in_m/2)*ppm_viewport_ratio_y);
             }
             shapeRenderer.end();
         }

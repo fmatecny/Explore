@@ -114,7 +114,8 @@ public class LoadingScreen extends ExploreMenuScreen{
                     }
                     break;  
                     
-            case 18: progress = 100;
+            case 18: getParent().getGameScreen().isLoading = false;
+                    progress = 100;
                     break; 
                     
                     
@@ -129,7 +130,7 @@ public class LoadingScreen extends ExploreMenuScreen{
         
 
         //progress += 0.1;
-        //System.out.println(progress + "a");
+        System.out.println(renderIdx + "a");
         progressBar.setValue(progress);
           
         if (progress >= 100.0f){

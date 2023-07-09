@@ -19,6 +19,7 @@ public class AppPreferences {
     private static final String PREF_SOUND_VOL = "sound";
     
     private static final String PREF_RESOLUTION_TYPE = "resolution.type";
+    private static final String PREF_FULSCREEN_ENABLED = "fullscreen.enabled";
     
     private static final String PREFS_NAME = "explore.pref";
 
@@ -71,4 +72,14 @@ public class AppPreferences {
         return getPrefs().getInteger(PREF_RESOLUTION_TYPE);
     }
 
+    public boolean isFullscreenEnabled() {
+        return getPrefs().getBoolean(PREF_FULSCREEN_ENABLED, true);
+    }
+
+    public void setFullscreenEnabled(boolean fullscreenEnabled) {
+        getPrefs().putBoolean(PREF_FULSCREEN_ENABLED, fullscreenEnabled);
+        getPrefs().flush();
+    }
+    
+    
 }

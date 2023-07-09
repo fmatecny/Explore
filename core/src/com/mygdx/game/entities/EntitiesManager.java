@@ -30,7 +30,7 @@ public class EntitiesManager {
         villagerList = new ArrayList<>();
         smithList = new ArrayList<>();
         golemList = new ArrayList<>();
-        
+        /*
         Villager villager;
         for (; id <= housesPos.size(); id++) {
             villager = new Villager(id, housesPos.get(id-1).X, housesPos.get(id-1).Y);
@@ -44,7 +44,7 @@ public class EntitiesManager {
         
         for (; id < 5; id++) {
             smithList.add(new Smith(id, 15.0f, 20.0f));
-        }
+        }*/
     }
         
     private Entity getEntityById(int id){
