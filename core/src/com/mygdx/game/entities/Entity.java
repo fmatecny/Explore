@@ -28,6 +28,11 @@ import java.util.ArrayList;
 public abstract class Entity implements EntityIfc{
     
     protected int id;
+    private int speed = 2;
+    private Vector2 followPosition = null;
+    private long counter = 20;
+    private int timeMove = (int )(Math.random() * 20) + 5;
+    private int timeToState = (int )(Math.random() * 100) + 100;
     
     protected float WIDTH;
     protected float HEIGHT;
@@ -85,9 +90,58 @@ public abstract class Entity implements EntityIfc{
         HEIGHT = Block.size*SCALE;
     }
     
-    
+    @Override
+    public void updatePosition(){
+        if (currentTOM == Constants.typeOfMovement.Die || b2body.isActive() == false)
+            return;
+        
+        if (b2body.getLinearVelocity().x == 0)
+            currentTOM = Constants.typeOfMovement.Stand;
+        
+        speed = 2;
+        /*if (Inputs.instance.run){
+            speed *= 2;
+            //currentTOM = typeOfMovement.run;
+        }*/
+
+        if (followPosition != null)
+        {
+            if (followPosition.x-Block.size > b2body.getPosition().x && b2body.getLinearVelocity().x <= speed){
+                b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
+                currentTOM = Constants.typeOfMovement.Walk;
+                direction = Constants.typeOfDirection.Right;
+            }
+
+            if (followPosition.x+Block.size < b2body.getPosition().x && b2body.getLinearVelocity().x >= -speed){
+                b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
+                currentTOM = Constants.typeOfMovement.Walk;
+                direction = Constants.typeOfDirection.Left;
+            }
+        }
+        else
+        {
+            if (doRight() && b2body.getLinearVelocity().x <= speed){
+                b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
+                currentTOM = Constants.typeOfMovement.Walk;
+                direction = Constants.typeOfDirection.Right;
+            }
+
+            if (doLeft() && b2body.getLinearVelocity().x >= -speed){
+                b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
+                currentTOM = Constants.typeOfMovement.Walk;
+                direction = Constants.typeOfDirection.Left;
+            }
+        }
+    }
+
     @Override
     public void draw(SpriteBatch spriteBatch) {
+        if (!b2body.isActive())
+            return;
+        
+        if (health > 0)
+            counter++;
+        
         if (health <= 0)
             currentTOM = Constants.typeOfMovement.Die;
         
@@ -111,7 +165,24 @@ public abstract class Entity implements EntityIfc{
         lastTOM = currentTOM;
     }
     
+    private boolean doLeft(){ 
+        return counter < timeMove;
+    }
     
+    
+    private boolean doRight(){
+        
+        if (counter > 2*timeMove + 2*timeToState)
+            counter = 0;
+        
+        if (counter > 2*timeMove + timeToState)
+            return false;
+        
+        if (counter > timeMove + timeToState)
+            return true;
+
+        return false;
+    }
     
     
     public float getX(){
@@ -121,6 +192,10 @@ public abstract class Entity implements EntityIfc{
     public float getY(){
         return b2body.getPosition().y;
     }
+    
+    public int getSpeed() {
+        return speed;
+    } 
     
     /**
      *
@@ -132,7 +207,9 @@ public abstract class Entity implements EntityIfc{
         b2body.setTransform(x, y, 0);
     }
     
-    
+    void goToPosition(Vector2 position) {
+        followPosition = position;
+    } 
     
     @Override
     public void dispose(){
@@ -150,6 +227,7 @@ public abstract class Entity implements EntityIfc{
     public void setHeightOffset(float offset) {
     	heightOffset = offset;
     }
+    
 }
 
 

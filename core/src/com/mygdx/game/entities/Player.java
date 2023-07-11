@@ -275,7 +275,6 @@ public class Player {
         else
             currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
         
-
         //print tool
         if (direction == Constants.typeOfDirection.Left)
         	printTool(spriteBatch);
@@ -319,10 +318,12 @@ public class Player {
             TextureRegion currentFrame;
             int id = inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool().id;
             if (currentTOM == Constants.typeOfMovement.Die) //|| currentTOM == Constants.typeOfMovement.Slash)
-    			currentFrame = MyAssetManager.instance.getToolsAnimations(AllTools.typeOfTools.values()[id]).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
+    		currentFrame = MyAssetManager.instance.getToolsAnimations(AllTools.typeOfTools.values()[id]).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
+            else if (currentTOM == Constants.typeOfMovement.Jump)
+            	currentFrame = MyAssetManager.instance.getToolsAnimations(AllTools.typeOfTools.values()[id]).get(direction.ordinal()).get(Constants.typeOfMovement.Stand.ordinal()).getKeyFrame(stateTime, true);
             else
             	currentFrame = MyAssetManager.instance.getToolsAnimations(AllTools.typeOfTools.values()[id]).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
-    		
+    			
             spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
         }
     }
@@ -333,6 +334,8 @@ public class Player {
         {
             if (currentTOM == Constants.typeOfMovement.Die)//|| currentTOM == Constants.typeOfMovement.Slash)
     		currentFrame = MyAssetManager.instance.getPlayerArmAnimations(typeOfArmor).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
+            else if (currentTOM == Constants.typeOfMovement.Jump)
+                currentFrame = MyAssetManager.instance.getPlayerArmAnimations(typeOfArmor).get(direction.ordinal()).get(Constants.typeOfMovement.Stand.ordinal()).getKeyFrame(stateTime, true);
             else
             	currentFrame = MyAssetManager.instance.getPlayerArmAnimations(typeOfArmor).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
     		

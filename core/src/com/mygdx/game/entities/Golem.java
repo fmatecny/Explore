@@ -5,7 +5,6 @@
  */
 package com.mygdx.game.entities;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.Constants;
 
 /**
@@ -17,17 +16,5 @@ public class Golem extends Entity{
     public Golem(int id, float x, float y) {
         super(id, x, y, Constants.typeOfEntity.golem);
         changeScale(4f);
-    }
-
-    @Override
-    public void updatePosition() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void draw(SpriteBatch spriteBatch) {
-        super.draw(spriteBatch);
-    }
-
-    
+    }  
 }

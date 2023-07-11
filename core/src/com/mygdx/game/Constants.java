@@ -72,7 +72,7 @@ public final class Constants {
     public static enum typeOfDirection { Left, Right };
     public static enum typeOfMovement { Stand, Walk, Run, Jump, Slash, Hit, Die };
     public static enum typeOfArmor { Default, Leather, Iron, Diamond };
-    public static enum typeOfEntity{ villager, smith, golem };
+    public static enum typeOfEntity{ villager, girl, smith, golem };
     
     
     private Constants() {

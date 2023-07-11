@@ -22,35 +22,51 @@ public class EntitiesManager {
     private int id = 1;
     
     private ArrayList<Villager> villagerList;
+    private ArrayList<Girl> girlList;
     private ArrayList<Smith> smithList;
     private ArrayList<Golem> golemList;
    
     
     public EntitiesManager(ArrayList<IntVector2> housesPos) {
         villagerList = new ArrayList<>();
+        girlList = new ArrayList<>();
         smithList = new ArrayList<>();
         golemList = new ArrayList<>();
-        /*
+        
         Villager villager;
-        for (; id <= housesPos.size(); id++) {
-            villager = new Villager(id, housesPos.get(id-1).X, housesPos.get(id-1).Y);
+        Girl girl;
+        for (int i = 0; i < housesPos.size(); i++) {
+            villager = new Villager(id, housesPos.get(i).X, housesPos.get(i).Y);
             //villager.setPosition(6+id, 20);
             villagerList.add(villager);
+            id++;
+            if ((int )(Math.random() * 100) > 60 )
+            {
+                girl = new Girl(id, housesPos.get(i).X+2, housesPos.get(i).Y);
+                girlList.add(girl);
+                id++;
+            }    
         }
+
         
-        for (; id < 4; id++) {
-            golemList.add(new Golem(id, 10.0f, 20.0f));
-        }
+        //for (; id < 4; id++) {
+            golemList.add(new Golem(id, housesPos.get(0).X+4, housesPos.get(0).Y));
+        //}
         
-        for (; id < 5; id++) {
-            smithList.add(new Smith(id, 15.0f, 20.0f));
-        }*/
+        //for (; id < 5; id++) {
+            smithList.add(new Smith(id, housesPos.get(0).X+6, housesPos.get(0).Y));
+        //}
     }
         
     private Entity getEntityById(int id){
         for (Villager villager : villagerList) {
             if (villager.id == id)
                 return villager;
+        }
+        
+        for (Girl girl : girlList) {
+            if (girl.id == id)
+                return girl;
         }
         
         for (Smith smith : smithList) {
@@ -81,11 +97,58 @@ public class EntitiesManager {
                 villager.updatePosition();
             }
         }
+        
+        for (Girl girl : girlList) 
+        {
+            //if entity is out of screen -> freeze them 
+            //if entoty is on screen -> set to active (unfreeze them)
+            if (isOutOfScreen(cam, girl))
+            {
+                girl.b2body.setActive(false);
+            }
+            else
+            {
+                girl.b2body.setActive(true);
+                girl.updatePosition();
+            }
+        }
+        for (Golem golem : golemList) 
+        {
+            //if entity is out of screen -> freeze them 
+            //if entoty is on screen -> set to active (unfreeze them)
+            if (isOutOfScreen(cam, golem))
+            {
+                golem.b2body.setActive(false);
+            }
+            else
+            {
+                golem.b2body.setActive(true);
+                golem.updatePosition();
+            }
+        }
+        for (Smith smith : smithList) 
+        {
+            //if entity is out of screen -> freeze them 
+            //if entoty is on screen -> set to active (unfreeze them)
+            if (isOutOfScreen(cam, smith))
+            {
+                smith.b2body.setActive(false);
+            }
+            else
+            {
+                smith.b2body.setActive(true);
+                smith.updatePosition();
+            }
+        }
     }
 
     public void draw(SpriteBatch spriteBatch) {
         for (Villager villager : villagerList) {
             villager.draw(spriteBatch);
+        }
+        
+        for (Girl girl : girlList) {
+            girl.draw(spriteBatch);
         }
         
         for (Smith smith : smithList) {
@@ -120,6 +183,9 @@ public class EntitiesManager {
     public void dispose(){
         for (Villager villager : villagerList) {
             villager.dispose();
+        }
+        for (Girl girl : girlList) {
+            girl.dispose();
         }
         for (Smith smith : smithList) {
             smith.dispose();
