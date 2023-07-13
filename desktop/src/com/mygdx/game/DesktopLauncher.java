@@ -9,7 +9,8 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
                 //config.useGL30 = true;
                 config.setWindowedMode(1280, 720);
-                //config.setWindowedMode(1920, 1080);
+                //config.setFullscreenMode(config.getDisplayMode());
+                //config.setWindowedMode(640, 480);
                 config.setTitle("Explore");
                 config.setWindowIcon(Files.FileType.Internal, "icon-256.jpg");
                 config.setWindowIcon(Files.FileType.Internal, "icon-64.jpg");
