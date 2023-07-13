@@ -15,7 +15,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Constants;
+import com.mygdx.game.IntVector2;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
@@ -31,7 +33,7 @@ public abstract class Entity implements EntityIfc{
     private int speed = 2;
     private Vector2 followPosition = null;
     private long counter = 20;
-    private int timeMove = (int )(Math.random() * 20) + 5;
+    private int timeMove = (int )(Math.random() * 40) + 10;
     private int timeToState = (int )(Math.random() * 100) + 100;
     
     protected float WIDTH;
@@ -120,17 +122,32 @@ public abstract class Entity implements EntityIfc{
         }
         else
         {
-            if (doRight() && b2body.getLinearVelocity().x <= speed){
+            if (doRight() && b2body.getLinearVelocity().x <= speed &&
+                b2body.getPosition().x < Constants.WIDTH_OF_MAP*Block.size-Constants.W_IN_M/2)
+            {
                 b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
                 currentTOM = Constants.typeOfMovement.Walk;
                 direction = Constants.typeOfDirection.Right;
             }
 
-            if (doLeft() && b2body.getLinearVelocity().x >= -speed){
+            if (doLeft() && b2body.getLinearVelocity().x >= -speed &&
+                b2body.getPosition().x > Constants.W_IN_M/3)
+            {
                 b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
                 currentTOM = Constants.typeOfMovement.Walk;
                 direction = Constants.typeOfDirection.Left;
             }
+            /*Array<Body> bodies = new Array<>();
+            b2body.getWorld().getBodies(bodies);
+            for (Body body : bodies) {
+                if (body.getPosition().dst(b2body.getPosition()) < 0.2 && 
+                        Math.abs(body.getPosition().y - b2body.getPosition().y) < 0.2 &&
+                        body.getUserData() instanceof IntVector2) 
+                {
+                    IntVector2 a = (IntVector2)body.getUserData();
+                    System.err.println(a.X + " | " + a.Y);
+                }
+            }*/
         }
     }
 

@@ -247,8 +247,6 @@ public class GameScreen implements Screen{
         
         entitiesManager.updatePosition(cam);
         entitiesManager.draw(spriteBatch);
-        //villager.updatePosition();
-        //villager.draw(spriteBatch);
 
         if (!Inputs.instance.showInventory)
             player.updatePosition(camera);
@@ -260,7 +258,6 @@ public class GameScreen implements Screen{
         map.drawLake();
         
         spriteBatch.begin();
-
        
         if (!Inputs.instance.showInventory && player.IsAlive() ) 
         {
@@ -285,7 +282,7 @@ public class GameScreen implements Screen{
                     }
                 }
             }
-            
+
             if ( Inputs.instance.mouseLeft && isFirstTimeHitInClick)
             {
                 isEnemies = false;
@@ -297,7 +294,7 @@ public class GameScreen implements Screen{
                     if (isEnemies && player.b2body.getPosition().dst(foo.getPosition()) < 1.0f )
                     {
                         System.out.println("hiting of enemie with id = " + (int)foo.getUserData());
-                        entitiesManager.hitEntity(foo);
+                        entitiesManager.hitEntity(foo, player.b2body.getPosition());
                         //player.update(camera);
                     }
                 }

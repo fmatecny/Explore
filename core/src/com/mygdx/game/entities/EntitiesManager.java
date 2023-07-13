@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.world.Block;
 import java.util.ArrayList;
 
 /**
@@ -35,9 +36,8 @@ public class EntitiesManager {
         
         Villager villager;
         Girl girl;
-        for (int i = 0; i < housesPos.size(); i++) {
+        for (int i = 0; i < 1/*housesPos.size()*/; i++) {
             villager = new Villager(id, housesPos.get(i).X, housesPos.get(i).Y);
-            //villager.setPosition(6+id, 20);
             villagerList.add(villager);
             id++;
             if ((int )(Math.random() * 100) > 60 )
@@ -45,7 +45,7 @@ public class EntitiesManager {
                 girl = new Girl(id, housesPos.get(i).X+2, housesPos.get(i).Y);
                 girlList.add(girl);
                 id++;
-            }    
+            }  
         }
 
         
@@ -160,17 +160,22 @@ public class EntitiesManager {
         }
     }
 
-    public void hitEntity(Body body) {
+    public void hitEntity(Body body, Vector2 position) {
         Entity e = getEntityById((int)body.getUserData());
         if (e.health > 0)
             e.health -= 10;
         System.out.println("Entity id = " + e.id + "| health = " + e.health);
+        
+        e.goToPosition(position);
     }
 
-    public void setPlayerPosition(Vector2 position) {
-        for (Villager villager : villagerList) {
-            if (villager.health < 100)
-                villager.goToPosition(position);
+    public void setPlayerPosition(Vector2 position) {    
+        //if distance between player and golem is 11blocks and less - golem will follow player
+        for (Golem golem : golemList) {
+            if (golem.b2body.getPosition().dst(position) <= 11*Block.size)
+                golem.goToPosition(position);
+            else
+                golem.goToPosition(null);
         }
     }
     
