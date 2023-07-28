@@ -29,9 +29,12 @@ public final class Constants {
     public static final int PLAYER_RIGHT_BIT = 2;
     public static final int BLOCK_BIT = 4;
     public static final int UNBLOCK_BIT = 16;
-    public static final int VILLAGER_BIT = 32;
-    public static final int PLAYER_BIT = 64;
-    public static final int GOLEM_BIT = 128;
+    //public static final int VILLAGER_BIT = 32;
+    public static final int PLAYER_BIT = 32;
+    public static final int ENTITY_BIT = 64;
+    public static final int ENTITY_LEFT_BIT = 128;
+    public static final int ENTITY_RIGHT_BIT = 256;
+    //public static final int GOLEM_BIT = 128;
     
     public static final int RECEPIE_PLANK = 1;
     public static final int RECEPIE_HALF_PLANK = 2;
@@ -74,7 +77,20 @@ public final class Constants {
     public static enum typeOfArmor { Default, Leather, Iron, Diamond };
     public static enum typeOfEntity{ villager, girl, smith, golem };
     
-    
     private Constants() {
     }
+    
+   /* public int GetCategoryBit(typeOfEntity toe){
+        
+        switch (toe) 
+        {
+            case villager:  return VILLAGER_BIT;
+            case girl:      return VILLAGER_BIT;
+            case smith:     return VILLAGER_BIT;
+            case golem:     return GOLEM_BIT;
+                
+            default:
+                throw new AssertionError();
+        }
+    }*/
 }

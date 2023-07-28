@@ -15,5 +15,6 @@ public class Smith extends Entity{
 
     public Smith(int id, float x, float y) {
         super(id, x, y, Constants.typeOfEntity.smith);
+        this.demage = 20;
     }  
 }

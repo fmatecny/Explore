@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
-import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.world.Block;
 import java.util.ArrayList;
 
@@ -22,28 +21,29 @@ public class EntitiesManager {
 
     private int id = 1;
     
-    private ArrayList<Villager> villagerList;
-    private ArrayList<Girl> girlList;
-    private ArrayList<Smith> smithList;
-    private ArrayList<Golem> golemList;
+    private Player player;
+    
+    private ArrayList<ArrayList<Entity>> entityList;
+    
+    private ArrayList<Entity> villagerList;
+    private ArrayList<Entity> girlList;
+    private ArrayList<Entity> smithList;
+    private ArrayList<Entity> golemList;
    
     
     public EntitiesManager(ArrayList<IntVector2> housesPos) {
+        entityList = new ArrayList<ArrayList<Entity>>();
         villagerList = new ArrayList<>();
         girlList = new ArrayList<>();
         smithList = new ArrayList<>();
         golemList = new ArrayList<>();
         
-        Villager villager;
-        Girl girl;
-        for (int i = 0; i < 1/*housesPos.size()*/; i++) {
-            villager = new Villager(id, housesPos.get(i).X, housesPos.get(i).Y);
-            villagerList.add(villager);
+        for (int i = 0; i < housesPos.size(); i++) {
+            villagerList.add(new Villager(id, housesPos.get(i).X, housesPos.get(i).Y));
             id++;
             if ((int )(Math.random() * 100) > 60 )
             {
-                girl = new Girl(id, housesPos.get(i).X+2, housesPos.get(i).Y);
-                girlList.add(girl);
+                girlList.add(new Girl(id, housesPos.get(i).X+2, housesPos.get(i).Y));
                 id++;
             }  
         }
@@ -51,133 +51,158 @@ public class EntitiesManager {
         
         //for (; id < 4; id++) {
             golemList.add(new Golem(id, housesPos.get(0).X+4, housesPos.get(0).Y));
+            id++;
         //}
         
         //for (; id < 5; id++) {
-            smithList.add(new Smith(id, housesPos.get(0).X+6, housesPos.get(0).Y));
+            //smithList.add(new Smith(id, housesPos.get(0).X+6, housesPos.get(0).Y));
+            //id++;
         //}
+        
+        
+        entityList.add(Constants.typeOfEntity.villager.ordinal(), villagerList);
+        entityList.add(Constants.typeOfEntity.girl.ordinal(), girlList);
+        entityList.add(Constants.typeOfEntity.smith.ordinal(), smithList);
+        entityList.add(Constants.typeOfEntity.golem.ordinal(), golemList);
     }
         
     private Entity getEntityById(int id){
-        for (Villager villager : villagerList) {
-            if (villager.id == id)
-                return villager;
-        }
-        
-        for (Girl girl : girlList) {
-            if (girl.id == id)
-                return girl;
-        }
-        
-        for (Smith smith : smithList) {
-            if (smith.id == id)
-                return smith;
-        }
-        
-        for (Golem golem : golemList) {
-            if (golem.id == id)
-                return golem;
+        for (ArrayList<Entity> entities : entityList) 
+        {
+            for (Entity entity : entities) 
+            {
+                if (entity.id == id)
+                    return entity;
+            }
         }
 
         return null;
     }
 
     public void updatePosition(Vector2 cam) {
-        for (Villager villager : villagerList) 
+        for (ArrayList<Entity> entities : entityList) 
         {
-            //if entity is out of screen -> freeze them 
-            //if entoty is on screen -> set to active (unfreeze them)
-            if (isOutOfScreen(cam, villager))
+            for (Entity entity : entities) 
             {
-                villager.b2body.setActive(false);
-            }
-            else
-            {
-                villager.b2body.setActive(true);
-                villager.updatePosition();
-            }
-        }
-        
-        for (Girl girl : girlList) 
-        {
-            //if entity is out of screen -> freeze them 
-            //if entoty is on screen -> set to active (unfreeze them)
-            if (isOutOfScreen(cam, girl))
-            {
-                girl.b2body.setActive(false);
-            }
-            else
-            {
-                girl.b2body.setActive(true);
-                girl.updatePosition();
-            }
-        }
-        for (Golem golem : golemList) 
-        {
-            //if entity is out of screen -> freeze them 
-            //if entoty is on screen -> set to active (unfreeze them)
-            if (isOutOfScreen(cam, golem))
-            {
-                golem.b2body.setActive(false);
-            }
-            else
-            {
-                golem.b2body.setActive(true);
-                golem.updatePosition();
-            }
-        }
-        for (Smith smith : smithList) 
-        {
-            //if entity is out of screen -> freeze them 
-            //if entoty is on screen -> set to active (unfreeze them)
-            if (isOutOfScreen(cam, smith))
-            {
-                smith.b2body.setActive(false);
-            }
-            else
-            {
-                smith.b2body.setActive(true);
-                smith.updatePosition();
+                //if entity is out of screen -> freeze them 
+                //if entoty is on screen -> set to active (unfreeze them)
+                if (isOutOfScreen(cam, entity))
+                {
+                    entity.b2body.setActive(false);
+                }
+                else
+                {
+                    entity.b2body.setActive(true);
+                    entity.updatePosition();
+                }
             }
         }
     }
 
     public void draw(SpriteBatch spriteBatch) {
-        for (Villager villager : villagerList) {
-            villager.draw(spriteBatch);
-        }
-        
-        for (Girl girl : girlList) {
-            girl.draw(spriteBatch);
-        }
-        
-        for (Smith smith : smithList) {
-            smith.draw(spriteBatch);
-        }
-        
-        for (Golem golem : golemList) {
-            golem.draw(spriteBatch);
+        for (ArrayList<Entity> entities : entityList) 
+        {
+            for (Entity entity : entities) 
+            {
+                entity.draw(spriteBatch);
+            }
         }
     }
 
-    public void hitEntity(Body body, Vector2 position) {
-        Entity e = getEntityById((int)body.getUserData());
-        if (e.health > 0)
-            e.health -= 10;
-        System.out.println("Entity id = " + e.id + "| health = " + e.health);
-        
-        e.goToPosition(position);
+    public void playerHitEntity(Body hitEntityBody){
+        if (hitEntityBody.getUserData() != null)
+        {
+            System.out.println((int)hitEntityBody.getUserData());
+            if ((int)hitEntityBody.getUserData() != 0)
+            {
+                Entity e = getEntityById((int)hitEntityBody.getUserData());
+                e.hit(player.getHitForce());
+                e.followBody(player.b2body);
+            }
+        }
     }
-
-    public void setPlayerPosition(Vector2 position) {    
+    
+    public void hitEntity(Entity hitEntity, Entity attackEntity) {
+        //fixture.getBody().getUserData() instanceof IntVector2
+        
+        if (hitEntity.b2body.getUserData() != null)
+        {
+            System.out.println((int)hitEntity.b2body.getUserData());
+            if ((int)hitEntity.b2body.getUserData() != 0)
+            {
+                hitEntity.hit(attackEntity.getHitForce());
+                hitEntity.followEntity(attackEntity);
+                if (hitEntity.IsAlive() == false)
+                    attackEntity.followEntity(null);
+            }
+        }
+    }
+    
+    public void manageHit() {
+        for (ArrayList<Entity> entities : entityList) 
+        {
+            for (Entity entity : entities) 
+            {
+                if (entity.getFollowedBody() != null && entity.isGaveHit() && entity.IsAlive() && entity.b2body.isActive())
+                {
+                    if (entity.getFollowedEntity() != null)
+                    {
+                        //System.out.println("managegit");
+                        this.hitEntity(entity.getFollowedEntity(), entity);
+                        entity.gaveHitDone();
+                    }
+                    else
+                    {
+                        if ((int)entity.getFollowedBody().getUserData() != 0)
+                        {
+                            Entity e = getEntityById((int)entity.getFollowedBody().getUserData());
+                            this.hitEntity(e, entity);
+                            entity.gaveHitDone();
+                        }
+                        else
+                        {
+                            player.hit(entity.getHitForce());
+                            entity.gaveHitDone();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public void findNearestEntity() {    
+        Entity nearestEntity = null;
+        float minDst;
+        float dst = 1000;
         //if distance between player and golem is 11blocks and less - golem will follow player
-        for (Golem golem : golemList) {
-            if (golem.b2body.getPosition().dst(position) <= 11*Block.size)
-                golem.goToPosition(position);
+        for (Entity golem : golemList) 
+        {
+            minDst = 50*Block.size;
+            if (golem.b2body.getPosition().dst(player.b2body.getPosition()) <= 11*Block.size && player.IsAlive())
+            {
+                golem.followBody(player.b2body);
+            }
             else
-                golem.goToPosition(null);
+            {
+                for (ArrayList<Entity> entities : entityList) 
+                {
+                    for (Entity entity : entities) 
+                    {
+                        if (entity instanceof Golem == false) //except golem
+                        {
+                            dst = golem.b2body.getPosition().dst(entity.b2body.getPosition());
+                            if (dst <= 11*Block.size && dst < minDst && entity.IsAlive())
+                            {
+                               nearestEntity = entity;
+                            }
+                        }
+                    }
+                }     
+                golem.followEntity(nearestEntity);
+            }
         }
     }
+    
     
     private boolean isOutOfScreen(Vector2 cam, Entity entity){
         return ((cam.x - Constants.W_IN_M/2 - Constants.ENTITY_SCREEN_OFFSET > entity.b2body.getPosition().x) ||
@@ -186,17 +211,17 @@ public class EntitiesManager {
     
     
     public void dispose(){
-        for (Villager villager : villagerList) {
-            villager.dispose();
-        }
-        for (Girl girl : girlList) {
-            girl.dispose();
-        }
-        for (Smith smith : smithList) {
-            smith.dispose();
-        }
-        for (Golem golem : golemList) {
-            golem.dispose();
+        for (ArrayList<Entity> entities : entityList) 
+        {
+            for (Entity entity : entities) 
+            {
+                entity.dispose();
+            }
         }
     }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+    
 }

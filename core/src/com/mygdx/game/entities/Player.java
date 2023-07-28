@@ -64,6 +64,8 @@ public class Player {
     private boolean isShotFinished = true;
     
     public boolean isMining = false;
+    
+    private final int DEMAGE_BY_HAND = 5;
 
     public Player() {
     	definePlayer();
@@ -86,6 +88,7 @@ public class Player {
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
         b2body.setFixedRotation(true);
+        b2body.setUserData(0);
 
         FixtureDef fdef = new FixtureDef();
         fdef.friction = 5.0f;
@@ -239,9 +242,9 @@ public class Player {
     }*/
     
     
-    public void update(OrthographicCamera camera){
+    public void hit(int demage){
         //updatePosition(camera);
-        health -= 10;
+        health -= demage;
         hud.setHealth(health);
         if (health <= 0)
             currentTOM = Constants.typeOfMovement.Die;
@@ -252,7 +255,8 @@ public class Player {
         if (currentTOM != Constants.typeOfMovement.Jump)
         {
             //backwalk
-            if ((direction == Constants.typeOfDirection.Left && Inputs.instance.right) || (direction == Constants.typeOfDirection.Right && Inputs.instance.left))
+            if (((direction == Constants.typeOfDirection.Left && Inputs.instance.right) || 
+                (direction == Constants.typeOfDirection.Right && Inputs.instance.left)) && IsAlive())
                 animations.get(direction.ordinal()).get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.REVERSED );
             else
                 animations.get(direction.ordinal()).get(currentTOM.ordinal()).setPlayMode(Animation.PlayMode.NORMAL );
@@ -277,7 +281,7 @@ public class Player {
         
         //print tool
         if (direction == Constants.typeOfDirection.Left)
-        	printTool(spriteBatch);
+            printTool(spriteBatch);
         
         //print player
         spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
@@ -298,7 +302,6 @@ public class Player {
         if (Inputs.instance.showInventory)
             inventory.setAvatar(typeOfArmor);
         
-        
     }
     
     
@@ -311,6 +314,14 @@ public class Player {
         return null;
     }
     
+    public int getHitForce(){
+        Tool t = this.getToolInUsed();
+        if (t == null)
+            return DEMAGE_BY_HAND;
+        else
+            return t.damage;
+            
+    }
     
     private void printTool(SpriteBatch spriteBatch) {
         if (inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getTool() != null)

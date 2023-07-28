@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mygdx.game.world.water.Water;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 
 public class MyContactListener implements ContactListener {
 
@@ -20,6 +21,11 @@ public class MyContactListener implements ContactListener {
     public static boolean swim = false;
     public static int blockOnLeft = 0;
     public static int blockOnRight = 0;
+    public static ArrayList<AbstractMap.SimpleEntry<Integer,Integer>> entityLeftContactArray = new ArrayList<>();
+    public static ArrayList<AbstractMap.SimpleEntry> entityRightContactArray = new ArrayList<>();
+    
+    private int entityIdBeginContact = 0;
+    private int entityIdEndContact = 0;
 
 	@Override
 	public void beginContact(Contact contact) {
@@ -48,6 +54,42 @@ public class MyContactListener implements ContactListener {
             }
             else if ( cDef == (Constants.PLAYER_RIGHT_BIT | Constants.BLOCK_BIT) ){
                 blockOnRight++;
+            }
+            else if( cDef == (Constants.ENTITY_LEFT_BIT | Constants.BLOCK_BIT) )
+            {
+                if (fixtureA.getFilterData().categoryBits == Constants.ENTITY_LEFT_BIT)
+                    entityIdBeginContact = (int)fixtureA.getBody().getUserData();
+                else
+                    entityIdBeginContact = (int)fixtureB.getBody().getUserData();
+                
+                for (AbstractMap.SimpleEntry simpleEntry : entityLeftContactArray) 
+                {
+                    if ((int)simpleEntry.getKey() == entityIdBeginContact)
+                    {
+                        System.out.println("ID = " + entityIdBeginContact + ", value = " + (int)simpleEntry.getValue());
+                        simpleEntry.setValue(((int)simpleEntry.getValue())+1);
+                        return;
+                    }
+                }
+                entityLeftContactArray.add(new AbstractMap.SimpleEntry<Integer, Integer>(entityIdBeginContact, 1));
+            }
+            else if ( cDef == (Constants.ENTITY_RIGHT_BIT | Constants.BLOCK_BIT) )
+            {
+                if (fixtureA.getFilterData().categoryBits == Constants.ENTITY_RIGHT_BIT)
+                    entityIdBeginContact = (int)fixtureA.getBody().getUserData();
+                else
+                    entityIdBeginContact = (int)fixtureB.getBody().getUserData();
+                
+                for (AbstractMap.SimpleEntry simpleEntry : entityRightContactArray) 
+                {
+                    if ((int)simpleEntry.getKey() == entityIdBeginContact)
+                    {
+                        System.out.println("ID = " + entityIdBeginContact + ", value = " + (int)simpleEntry.getValue());
+                        simpleEntry.setValue(((int)simpleEntry.getValue())+1);
+                        return;
+                    }
+                }
+                entityRightContactArray.add(new AbstractMap.SimpleEntry<Integer, Integer>(entityIdBeginContact, 1));
             }
             //System.out.println(blockOnRight); 
             
@@ -81,6 +123,40 @@ public class MyContactListener implements ContactListener {
             else if ( cDef == (Constants.PLAYER_RIGHT_BIT | Constants.BLOCK_BIT) ){
                 blockOnRight--;
             }
+            else if( cDef == (Constants.ENTITY_LEFT_BIT | Constants.BLOCK_BIT) )
+            {
+                if (fixtureA.getFilterData().categoryBits == Constants.ENTITY_LEFT_BIT)
+                    entityIdBeginContact = (int)fixtureA.getBody().getUserData();
+                else
+                    entityIdBeginContact = (int)fixtureB.getBody().getUserData();
+                
+                for (AbstractMap.SimpleEntry simpleEntry : entityLeftContactArray) 
+                {
+                    if ((int)simpleEntry.getKey() == entityIdBeginContact)
+                    {
+                        simpleEntry.setValue((int)simpleEntry.getValue()-1);
+                        return;
+                    }
+                }
+            }
+            else if ( cDef == (Constants.ENTITY_RIGHT_BIT | Constants.BLOCK_BIT) )
+            {
+                if (fixtureA.getFilterData().categoryBits == Constants.ENTITY_RIGHT_BIT)
+                    entityIdBeginContact = (int)fixtureA.getBody().getUserData();
+                else
+                    entityIdBeginContact = (int)fixtureB.getBody().getUserData();
+                
+                for (AbstractMap.SimpleEntry simpleEntry : entityRightContactArray) 
+                {
+                    if ((int)simpleEntry.getKey() == entityIdBeginContact)
+                    {
+                        simpleEntry.setValue((int)simpleEntry.getValue()-1);
+                        return;
+                    }
+                }
+            }
+            
+            
             //System.out.println(blockOnRight);
 	}
 

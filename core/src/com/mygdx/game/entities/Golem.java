@@ -16,5 +16,6 @@ public class Golem extends Entity{
     public Golem(int id, float x, float y) {
         super(id, x, y, Constants.typeOfEntity.golem);
         changeScale(4f);
+        this.demage = 15;
     }  
 }

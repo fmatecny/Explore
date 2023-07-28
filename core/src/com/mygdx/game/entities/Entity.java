@@ -14,13 +14,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.Constants;
-import com.mygdx.game.IntVector2;
+import com.mygdx.game.MyContactListener;
 import com.mygdx.game.screens.GameScreen;
-import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.Block;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 
 /**
@@ -30,8 +30,16 @@ import java.util.ArrayList;
 public abstract class Entity implements EntityIfc{
     
     protected int id;
-    private int speed = 2;
-    private Vector2 followPosition = null;
+    protected int demage = 2;
+    private float speed = 1.0f;
+    private float powerOfImpuls = 0.2f;
+    private final float dazedTimeout = 0.8f;
+    private float currentDazedTimeout = 0;
+    private boolean isDazed = false;
+    private boolean gotHit = false;
+    private boolean gaveHit = false;
+    private Entity followedEntity = null;
+    private Body followedBody = null;
     private long counter = 20;
     private int timeMove = (int )(Math.random() * 40) + 10;
     private int timeToState = (int )(Math.random() * 100) + 100;
@@ -74,15 +82,32 @@ public abstract class Entity implements EntityIfc{
         square.setRadius(Block.size/2.0f + 2.0f/GameScreen.PPM);
 
         fdef.shape = square;
-        fdef.filter.categoryBits = Constants.GOLEM_BIT;
+        fdef.filter.categoryBits = Constants.ENTITY_BIT;
         fdef.filter.maskBits = Constants.BLOCK_BIT;
         b2body.createFixture(fdef);//.setUserData(this);
         
-        square.setRadius(Block.size/2.0f + 6.0f/GameScreen.PPM);
+        square.setRadius(Block.size/2.0f + 4.0f/GameScreen.PPM);
         square.setPosition(new Vector2(0, (Block.size/2.0f + 1.0f/GameScreen.PPM)*2.0f));
         b2body.createFixture(fdef);
 
+        EdgeShape right = new EdgeShape();
+        right.set(new Vector2(0.15f, -0.1f), new Vector2(0.23f, -0.1f));
+        //right.set(new Vector2(0.23f, -0.15f), new Vector2(0.23f, 0.5f));
+        fdef.filter.categoryBits = Constants.ENTITY_RIGHT_BIT;
+        fdef.shape = right;
+        fdef.isSensor = true;
+        b2body.createFixture(fdef);
+        
+        EdgeShape left = new EdgeShape();
+        left.set(new Vector2(-0.15f, -0.1f), new Vector2(-0.23f, -0.1f));
+        fdef.filter.categoryBits = Constants.ENTITY_LEFT_BIT;
+        fdef.shape = left;
+        fdef.isSensor = true;
+        b2body.createFixture(fdef);
+        
         square.dispose();
+        right.dispose();
+        left.dispose();
     }
     
     private void setSize(){
@@ -100,24 +125,45 @@ public abstract class Entity implements EntityIfc{
         if (b2body.getLinearVelocity().x == 0)
             currentTOM = Constants.typeOfMovement.Stand;
         
-        speed = 2;
+        if (gotHit || isDazed)
+        {
+            // if - continue
+            // else - sleep for while due to hit
+            if (currentDazedTimeout > dazedTimeout)
+            {
+                gotHit = false;
+                isDazed = false;
+                //gaveHit = false;
+                currentDazedTimeout = 0;
+            }
+            else
+            {
+                currentDazedTimeout += Gdx.graphics.getDeltaTime();
+                return;
+            }
+        }
+        
+        //speed = 2;
         /*if (Inputs.instance.run){
             speed *= 2;
             //currentTOM = typeOfMovement.run;
         }*/
 
-        if (followPosition != null)
-        {
-            if (followPosition.x-Block.size > b2body.getPosition().x && b2body.getLinearVelocity().x <= speed){
-                b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
+        if (followedBody != null)
+        {   
+            if (followedBody.getPosition().x-1.8f*Block.size > b2body.getPosition().x && b2body.getLinearVelocity().x <= speed){
+                b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
                 currentTOM = Constants.typeOfMovement.Walk;
                 direction = Constants.typeOfDirection.Right;
             }
-
-            if (followPosition.x+Block.size < b2body.getPosition().x && b2body.getLinearVelocity().x >= -speed){
-                b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
+            else if (followedBody.getPosition().x+1.8f*Block.size < b2body.getPosition().x && b2body.getLinearVelocity().x >= -speed){
+                b2body.applyLinearImpulse(new Vector2(-powerOfImpuls, 0), b2body.getWorldCenter(), true);
                 currentTOM = Constants.typeOfMovement.Walk;
                 direction = Constants.typeOfDirection.Left;
+            }
+            else if (Math.abs(followedBody.getPosition().x - b2body.getPosition().x) < 1.5f*Block.size)
+            {
+               currentTOM = Constants.typeOfMovement.Slash;
             }
         }
         else
@@ -125,7 +171,7 @@ public abstract class Entity implements EntityIfc{
             if (doRight() && b2body.getLinearVelocity().x <= speed &&
                 b2body.getPosition().x < Constants.WIDTH_OF_MAP*Block.size-Constants.W_IN_M/2)
             {
-                b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
+                b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
                 currentTOM = Constants.typeOfMovement.Walk;
                 direction = Constants.typeOfDirection.Right;
             }
@@ -133,7 +179,7 @@ public abstract class Entity implements EntityIfc{
             if (doLeft() && b2body.getLinearVelocity().x >= -speed &&
                 b2body.getPosition().x > Constants.W_IN_M/3)
             {
-                b2body.applyLinearImpulse(new Vector2(-0.2f, 0), b2body.getWorldCenter(), true);
+                b2body.applyLinearImpulse(new Vector2(-powerOfImpuls, 0), b2body.getWorldCenter(), true);
                 currentTOM = Constants.typeOfMovement.Walk;
                 direction = Constants.typeOfDirection.Left;
             }
@@ -149,6 +195,29 @@ public abstract class Entity implements EntityIfc{
                 }
             }*/
         }
+        
+        if (currentTOM == Constants.typeOfMovement.Walk && direction == Constants.typeOfDirection.Left)
+        {
+            for (AbstractMap.SimpleEntry<Integer, Integer> simpleEntry : MyContactListener.entityLeftContactArray) 
+            {
+                if (simpleEntry.getKey() == id && simpleEntry.getValue() > 0)
+                {
+                    b2body.applyLinearImpulse(new Vector2(0, 0.4f), b2body.getWorldCenter(), true);
+                    currentTOM = Constants.typeOfMovement.Jump;
+                }
+            }
+        }
+        else if (currentTOM == Constants.typeOfMovement.Walk && direction == Constants.typeOfDirection.Right)
+        {
+            for (AbstractMap.SimpleEntry<Integer, Integer> simpleEntry : MyContactListener.entityRightContactArray) 
+            {
+                if (simpleEntry.getKey() == id && simpleEntry.getValue() > 0)
+                {
+                    b2body.applyLinearImpulse(new Vector2(0, 0.4f), b2body.getWorldCenter(), true);
+                    currentTOM = Constants.typeOfMovement.Jump;
+                }
+            }
+        }  
     }
 
     @Override
@@ -169,11 +238,22 @@ public abstract class Entity implements EntityIfc{
         
         TextureRegion currentFrame;
         //TextureRegion o;
-        if (currentTOM == Constants.typeOfMovement.Die)
+        // if slash is finished then wait - cant slash nonstop
+        if (currentTOM == Constants.typeOfMovement.Slash && 
+            animations.get(direction.ordinal()).get(currentTOM.ordinal()).isAnimationFinished(stateTime))
+        {
+            currentTOM = Constants.typeOfMovement.Stand;
+            currentDazedTimeout = 0;
+            gaveHit = true;
+            isDazed = true;
+        }
+        
+        if (currentTOM == Constants.typeOfMovement.Die || currentTOM == Constants.typeOfMovement.Slash)
             currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
         else
             currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
         //currentFrame.flip(currentFrame.isFlipX() != leftDirection, false);
+        
         spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + heightOffset, WIDTH, HEIGHT);
         /*o = new TextureRegion(currentFrame);
         o.flip(true, false);
@@ -210,7 +290,7 @@ public abstract class Entity implements EntityIfc{
         return b2body.getPosition().y;
     }
     
-    public int getSpeed() {
+    public float getSpeed() {
         return speed;
     } 
     
@@ -224,8 +304,12 @@ public abstract class Entity implements EntityIfc{
         b2body.setTransform(x, y, 0);
     }
     
-    void goToPosition(Vector2 position) {
-        followPosition = position;
+    void followEntity(Entity entity) {
+        followedEntity = entity;
+        if (entity == null)
+            followedBody = null;
+        else
+            followedBody = followedEntity.b2body;
     } 
     
     @Override
@@ -245,6 +329,42 @@ public abstract class Entity implements EntityIfc{
     	heightOffset = offset;
     }
     
+    public void hit(int demage){
+        if (health > 0)
+            health -= demage;
+        System.out.println("Entity id = " + id + "| health = " + health);
+        gotHit = true;
+        currentDazedTimeout = 0;
+    }
+    
+    protected int getHitForce(){
+        return demage;
+    }
+
+    public Entity getFollowedEntity() {
+        return followedEntity;
+    }
+
+    public void followBody(Body followedBody) {
+        followedEntity = null;
+        this.followedBody = followedBody;
+    }
+
+    public Body getFollowedBody() {
+        return followedBody;
+    }
+    
+    public boolean isGaveHit() {
+        return gaveHit;
+    }
+
+    public void gaveHitDone() {
+        this.gaveHit = false;
+    }
+    
+    public boolean IsAlive(){
+        return health > 0;
+    }
 }
 
 

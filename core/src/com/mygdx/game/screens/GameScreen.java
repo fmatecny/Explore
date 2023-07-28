@@ -82,7 +82,7 @@ public class GameScreen implements Screen{
     
     public boolean isLoading = true;
 
-    QueryCallback callback = new QueryCallback() 
+    QueryCallback callback_IsThereBody = new QueryCallback() 
     {
         @Override
         public boolean reportFixture(Fixture fxtr) {
@@ -97,80 +97,52 @@ public class GameScreen implements Screen{
     };
     
     private boolean isBlockMinable = false;
-    RayCastCallback callback1 = new RayCastCallback() {
-    @Override
-    public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
-        
-        if (hitBody == fixture.getBody() && 
-            fixture.getBody().getUserData() instanceof IntVector2 &&
-            player.b2body.getPosition().dst(hitBody.getPosition()) < 1.5f)//check distance
-        {
-            isBlockMinable = true;
-            return fraction;
+    RayCastCallback callback_IsMinable = new RayCastCallback() 
+    {
+        @Override
+        public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+
+            if (hitBody == fixture.getBody() && 
+                fixture.getBody().getUserData() instanceof IntVector2 &&
+                player.b2body.getPosition().dst(hitBody.getPosition()) < 1.5f)//check distance
+            {
+                isBlockMinable = true;
+                return fraction;
+            }
+            else if (fixture.getFilterData().categoryBits != Constants.BLOCK_BIT)
+            {
+                return -1;
+            }
+            else
+            {
+                //System.out.println("terminate");
+                isBlockMinable = false;
+                return 0;
+            }
         }
-        else if (fixture.getFilterData().categoryBits != Constants.BLOCK_BIT)
-        {
-            return -1;
-        }
-        else
-        {
-            //System.out.println("terminate");
-            isBlockMinable = false;
-            return 0;
-        }
-        
-    }
-};
+    };
     
-    private boolean isEnemies = false;
-    RayCastCallback callback2 = new RayCastCallback() {
+    private boolean isEntity = false;
+    private Body entityBody;
+    RayCastCallback callback_IsEntity = new RayCastCallback() {
     @Override
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
         
-        if (hitBody == fixture.getBody() && 
-            fixture.getBody().getUserData() instanceof Integer)
+        if (fixture.getFilterData().categoryBits == Constants.ENTITY_BIT)
         {
-            isEnemies = true;
+            entityBody = fixture.getBody();
+            isEntity = true;
             return fraction;
-        }
-        else if (fixture.getFilterData().categoryBits != Constants.VILLAGER_BIT)
-        {
-            return -1;
         }
         else
         {
             //System.out.println("terminate");
-            isEnemies = false;
+            isEntity = false;
             return 0;
         }
         
     }
-};
-    Body foo;
-    RayCastCallback callback3 = new RayCastCallback() {
-    @Override
-    public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
-        
-        if (fixture.getBody().getUserData() instanceof Integer)
-        {
-            foo = fixture.getBody();
-            isEnemies = true;
-            return fraction;
-        }
-        else if (fixture.getFilterData().categoryBits != Constants.VILLAGER_BIT)
-        {
-            isEnemies = false;
-            return 0;
-        }
-        else
-        {
-            //System.out.println("terminate");
-            isEnemies = false;
-            return 0;
-        }
-        
-    }
-};
+    };
     
     public GameScreen(MyGdxGame myGdxGame){
         parent = myGdxGame;
@@ -263,20 +235,20 @@ public class GameScreen implements Screen{
         {
             camera.unproject(v3.set(Inputs.instance.mouseX, Inputs.instance.mouseY, 0f));
             hitBody = null;
-            world.QueryAABB(callback, v3.x, v3.y, v3.x, v3.y);
+            world.QueryAABB(callback_IsThereBody, v3.x, v3.y, v3.x, v3.y);
             
             if (hitBody != null)
             {
                 if (hitBody.getUserData() instanceof IntVector2)
                 {
                     isBlockMinable = false;
-                    world.rayCast(callback1, player.b2body.getPosition(), hitBody.getPosition());
+                    world.rayCast(callback_IsMinable, player.b2body.getPosition(), hitBody.getPosition());
                     if (isBlockMinable){
                         map.drawRectOnBlock(hitBody, cam, player.b2body.getPosition());
                     }
                     else{
                         Vector2 v2 = new Vector2(player.b2body.getPosition().x, player.b2body.getPosition().y+0.5f);
-                        world.rayCast(callback1, v2, hitBody.getPosition());
+                        world.rayCast(callback_IsMinable, v2, hitBody.getPosition());
                         if (isBlockMinable)
                             map.drawRectOnBlock(hitBody, cam, v2);
                     }
@@ -285,16 +257,16 @@ public class GameScreen implements Screen{
 
             if ( Inputs.instance.mouseLeft && isFirstTimeHitInClick)
             {
-                isEnemies = false;
-                foo = null;
+                isEntity = false;
+                entityBody = null;
                 camera.unproject(v3.set(Inputs.instance.mouseX, Inputs.instance.mouseY, 0f));
-                world.rayCast(callback3, player.b2body.getPosition().x,player.b2body.getPosition().y, v3.x,v3.y);
-                if (foo != null)
+                world.rayCast(callback_IsEntity, player.b2body.getPosition().x,player.b2body.getPosition().y, v3.x,v3.y);
+                if (entityBody != null)
                 {
-                    if (isEnemies && player.b2body.getPosition().dst(foo.getPosition()) < 1.0f )
+                    if (isEntity && player.b2body.getPosition().dst(entityBody.getPosition()) < 2.5*Block.size )
                     {
-                        System.out.println("hiting of enemie with id = " + (int)foo.getUserData());
-                        entitiesManager.hitEntity(foo, player.b2body.getPosition());
+                        System.out.println("hiting of enemie with id = " + (int)entityBody.getUserData());
+                        entitiesManager.playerHitEntity(entityBody);
                         //player.update(camera);
                     }
                 }
@@ -305,7 +277,8 @@ public class GameScreen implements Screen{
                 isFirstTimeHitInClick = true;
             }
             
-            entitiesManager.setPlayerPosition(player.b2body.getPosition());
+
+            
             
             if (!Inputs.instance.mouseLeft || hitBody == null){
                 player.isMining = false;
@@ -378,6 +351,10 @@ public class GameScreen implements Screen{
                 spriteBatch.draw(AllBlocks.heard, player.b2body.getPosition().x-Block.size/2, player.b2body.getPosition().y+Block.size*2, Block.size, Block.size);
         }       
         
+        entitiesManager.manageHit();
+        entitiesManager.findNearestEntity();
+        
+        
         //spriteBatch.setProjectionMatrix(player.getInventory().getStageInventory().getCamera().combined);   
         spriteBatch.end();
         
@@ -396,7 +373,9 @@ public class GameScreen implements Screen{
         
         shaders_box2dlights.updateRayHandler();
 
-        player.getInventory().draw();
+        if (player.IsAlive())
+            player.getInventory().draw();
+        
         player.getHud().draw();
         
         //show debug informations
@@ -557,6 +536,7 @@ public class GameScreen implements Screen{
     	MyAssetManager.instance = new MyAssetManager();
         player = new Player();
         entitiesManager = new EntitiesManager(map.getDoorsUpPos());
+        entitiesManager.setPlayer(player);
         //villager = new Villager(1);
     }
     
