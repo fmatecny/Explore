@@ -136,7 +136,7 @@ public class MyAssetManager {
         return playerArmAnimations.get(type);
     }
     
-    public ArrayList<ArrayList<Animation<AtlasRegion>>> getEntiryAnimations(typeOfEntity type){
+    public ArrayList<ArrayList<Animation<AtlasRegion>>> getEntityAnimations(typeOfEntity type){
         return entityAnimations.get(type);
     }
     

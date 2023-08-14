@@ -29,41 +29,58 @@ public class EntitiesManager {
     private ArrayList<Entity> girlList;
     private ArrayList<Entity> smithList;
     private ArrayList<Entity> golemList;
+    private ArrayList<Entity> knightList;
    
     
-    public EntitiesManager(ArrayList<IntVector2> housesPos) {
+    public EntitiesManager(ArrayList<IntVector2> housesPos, ArrayList<IntVector2> knightPositions) {
         entityList = new ArrayList<ArrayList<Entity>>();
         villagerList = new ArrayList<>();
         girlList = new ArrayList<>();
         smithList = new ArrayList<>();
         golemList = new ArrayList<>();
+        knightList = new ArrayList<>();
         
-        for (int i = 0; i < housesPos.size(); i++) {
-            villagerList.add(new Villager(id, housesPos.get(i).X, housesPos.get(i).Y));
-            id++;
-            if ((int )(Math.random() * 100) > 60 )
+        for (int i = 0; i < housesPos.size(); i++) 
+        {
+            //generate smith
+            if ((int )(Math.random() * 100) > 80 )
             {
-                girlList.add(new Girl(id, housesPos.get(i).X+2, housesPos.get(i).Y));
+                smithList.add(new Smith(id, housesPos.get(0).X+6, housesPos.get(0).Y));
                 id++;
-            }  
+            }
+            //generate villager
+            else
+            {
+                villagerList.add(new Villager(id, housesPos.get(i).X, housesPos.get(i).Y));
+                id++;
+                if ((int )(Math.random() * 100) > 60 )
+                {
+                    girlList.add(new Girl(id, housesPos.get(i).X, housesPos.get(i).Y));
+                    id++;
+                } 
+            }
         }
 
-        
-        //for (; id < 4; id++) {
-            golemList.add(new Golem(id, housesPos.get(0).X+4, housesPos.get(0).Y));
+        Golem golem;
+        for (int i = 0; i < 3; i++) 
+        {
+            golem = new Golem(id, 0f, 0f);
+            golem.b2body.setActive(false);
+            golemList.add(golem);
             id++;
-        //}
+        }
         
-        //for (; id < 5; id++) {
-            //smithList.add(new Smith(id, housesPos.get(0).X+6, housesPos.get(0).Y));
-            //id++;
-        //}
+        for (IntVector2 knightPos : knightPositions) {
+            knightList.add(new Knight(id, knightPos.X, knightPos.Y));
+            id++;
+        }
         
         
         entityList.add(Constants.typeOfEntity.villager.ordinal(), villagerList);
         entityList.add(Constants.typeOfEntity.girl.ordinal(), girlList);
         entityList.add(Constants.typeOfEntity.smith.ordinal(), smithList);
         entityList.add(Constants.typeOfEntity.golem.ordinal(), golemList);
+        entityList.add(Constants.typeOfEntity.knight.ordinal(), knightList);
     }
         
     private Entity getEntityById(int id){
@@ -88,11 +105,11 @@ public class EntitiesManager {
                 //if entoty is on screen -> set to active (unfreeze them)
                 if (isOutOfScreen(cam, entity))
                 {
-                    entity.b2body.setActive(false);
+                    entity.setActive(false);
                 }
                 else
                 {
-                    entity.b2body.setActive(true);
+                    entity.setActive(true);
                     entity.updatePosition();
                 }
             }
@@ -174,6 +191,7 @@ public class EntitiesManager {
         Entity nearestEntity = null;
         float minDst;
         float dst = 1000;
+        boolean followPlayer = false;
         //if distance between player and golem is 11blocks and less - golem will follow player
         for (Entity golem : golemList) 
         {
@@ -181,25 +199,34 @@ public class EntitiesManager {
             if (golem.b2body.getPosition().dst(player.b2body.getPosition()) <= 11*Block.size && player.IsAlive())
             {
                 golem.followBody(player.b2body);
+                followPlayer = true;   
             }
-            else
+
+            for (ArrayList<Entity> entities : entityList) 
             {
-                for (ArrayList<Entity> entities : entityList) 
+                for (Entity entity : entities) 
                 {
-                    for (Entity entity : entities) 
+                    if (entity instanceof Golem == false) //except golem
                     {
-                        if (entity instanceof Golem == false) //except golem
+                        dst = golem.b2body.getPosition().dst(entity.b2body.getPosition());
+                        if (dst <= 11*Block.size && dst < minDst && entity.IsAlive() && entity.b2body.isActive())
                         {
-                            dst = golem.b2body.getPosition().dst(entity.b2body.getPosition());
-                            if (dst <= 11*Block.size && dst < minDst && entity.IsAlive())
+                            if (followPlayer == false)
                             {
-                               nearestEntity = entity;
+                                nearestEntity = entity;
+                                minDst = dst;
                             }
+                            entity.goToHouse();
+                        }
+                        else if (dst > 15*Block.size && entity.IsAlive() && entity.isInHouse())
+                        {
+                            entity.goOutOfHouse();
                         }
                     }
-                }     
-                golem.followEntity(nearestEntity);
+                }
             }
+            if (followPlayer == false)
+                golem.followEntity(nearestEntity);
         }
     }
     
@@ -222,6 +249,32 @@ public class EntitiesManager {
 
     public void setPlayer(Player player) {
         this.player = player;
+    }
+    
+    public void spawnGolems(Vector2 position){
+        if (position == null)
+            return;
+
+        for (Entity golem : golemList) 
+        {
+            if (golem.b2body.isActive() == false)
+            {
+                golem.setPosition(position.x, position.y);
+                golem.b2body.setActive(true);
+                golem.setSpawned(true);
+                return;
+            }
+        }
+    
+    }
+    
+    public void despawnGolems(){
+        for (Entity golem : golemList) {
+            golem.b2body.setActive(false);
+            golem.setSpawned(false);
+            golem.health = 100;
+        }
+    
     }
     
 }

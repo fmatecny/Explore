@@ -58,13 +58,18 @@ public abstract class Entity implements EntityIfc{
     
     protected float health = 100.0f;
     protected Body b2body;
+    private Vector2 housePos;
+    private boolean goToHouse = false;
+    private boolean spawned = true;
 
     public Entity(){}
     
     public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity) {
         this.id = id;
         defineBody(x, y);
-        animations = MyAssetManager.instance.getEntiryAnimations(typeOfEntity);
+        housePos = new Vector2(x*Block.size, y*Block.size);
+        System.out.println("id= " + id + " | HousePos = " + housePos);
+        animations = MyAssetManager.instance.getEntityAnimations(typeOfEntity);
         setSize();
     }
     
@@ -148,23 +153,14 @@ public abstract class Entity implements EntityIfc{
             speed *= 2;
             //currentTOM = typeOfMovement.run;
         }*/
-
-        if (followedBody != null)
+        if (goToHouse)
+        {
+            goToPosition(housePos.x, housePos.y);
+            System.out.println("id= " + id + " | HousePos = " + housePos + "| X = " + this.b2body.getPosition().x);
+        }
+        else if (followedBody != null)
         {   
-            if (followedBody.getPosition().x-1.8f*Block.size > b2body.getPosition().x && b2body.getLinearVelocity().x <= speed){
-                b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
-                currentTOM = Constants.typeOfMovement.Walk;
-                direction = Constants.typeOfDirection.Right;
-            }
-            else if (followedBody.getPosition().x+1.8f*Block.size < b2body.getPosition().x && b2body.getLinearVelocity().x >= -speed){
-                b2body.applyLinearImpulse(new Vector2(-powerOfImpuls, 0), b2body.getWorldCenter(), true);
-                currentTOM = Constants.typeOfMovement.Walk;
-                direction = Constants.typeOfDirection.Left;
-            }
-            else if (Math.abs(followedBody.getPosition().x - b2body.getPosition().x) < 1.5f*Block.size)
-            {
-               currentTOM = Constants.typeOfMovement.Slash;
-            }
+            goToPosition(followedBody.getPosition().x, followedBody.getPosition().y);
         }
         else
         {
@@ -217,7 +213,7 @@ public abstract class Entity implements EntityIfc{
                     currentTOM = Constants.typeOfMovement.Jump;
                 }
             }
-        }  
+        }
     }
 
     @Override
@@ -279,6 +275,31 @@ public abstract class Entity implements EntityIfc{
             return true;
 
         return false;
+    }
+    
+    private void goToPosition(float x, float y){
+        float positionOffset;
+        
+        if (goToHouse)
+            positionOffset = 0.3f*Block.size;
+        else
+            positionOffset = 1.5f*Block.size;
+        
+        if (x-positionOffset > b2body.getPosition().x && b2body.getLinearVelocity().x <= speed){
+            b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
+            currentTOM = Constants.typeOfMovement.Walk;
+            direction = Constants.typeOfDirection.Right;
+        }
+        else if (x+positionOffset < b2body.getPosition().x && b2body.getLinearVelocity().x >= -speed){
+            b2body.applyLinearImpulse(new Vector2(-powerOfImpuls, 0), b2body.getWorldCenter(), true);
+            currentTOM = Constants.typeOfMovement.Walk;
+            direction = Constants.typeOfDirection.Left;
+        }
+        else if (goToHouse && Math.abs(x - b2body.getPosition().x) < positionOffset)
+            this.b2body.setActive(false);
+        else if(goToHouse == false && (Math.abs(x - b2body.getPosition().x) < positionOffset) )
+            currentTOM = Constants.typeOfMovement.Slash;
+
     }
     
     
@@ -364,6 +385,29 @@ public abstract class Entity implements EntityIfc{
     
     public boolean IsAlive(){
         return health > 0;
+    }
+    
+    public void goToHouse(){
+        goToHouse = true;
+        followedBody = null;
+        followedEntity = null;
+    }
+    
+    public boolean isInHouse(){
+        return goToHouse && b2body.isAwake();
+    }
+    
+    public void goOutOfHouse(){
+        goToHouse = false;
+        b2body.setActive(true);
+    }
+    
+    public void setActive(boolean active){
+        b2body.setActive(active && spawned && IsAlive());
+    }
+    
+    public void setSpawned(boolean spawned){
+        this.spawned = spawned;
     }
 }
 

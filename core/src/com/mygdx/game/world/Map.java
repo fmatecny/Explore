@@ -67,6 +67,7 @@ public class Map extends WorldObject{
     private Animation<AtlasRegion> torchAnimation;
     private ArrayList<IntVector2> torchsPos = new ArrayList<>();
     private ArrayList<IntVector2> doorsUpPos = new ArrayList<>();
+    private ArrayList<IntVector2> knightPos = new ArrayList<>();
     private float stateTime = 0;
     private float stateTimeTorch = 0;
     
@@ -84,7 +85,7 @@ public class Map extends WorldObject{
         ppm_viewport_ratio_y = (Gdx.graphics.getHeight()*Constants.PPM)/MyGdxGame.height;
         
         mapArray = new Block[width][height];        
-        groundBckArr = new Block[width][height-Constants.HEIGHT_OF_SKY];
+        groundBckArr = new Block[width][height];
         //generateMap();
 
         textureAtlas = new TextureAtlas("block/cracking1.txt");
@@ -94,6 +95,7 @@ public class Map extends WorldObject{
     }
     
     public void generateMap() {
+        boolean isCaslteGenerated = false;
         
         generateGround(width, height-Constants.HEIGHT_OF_SKY);
         
@@ -155,11 +157,14 @@ public class Map extends WorldObject{
                     villageAvalaibleFromIndexX = groundIndexX+300;
                 }
             }
-            else if (percent > 5){
+            else if (percent > 50){//original was 5, increase due to castle testing
                 createTrees();
             }
             else{
-                createWater();
+                if (isCaslteGenerated)
+                    createWater();
+                else
+                    isCaslteGenerated = generateCastle();
             } 
         }
     }
@@ -248,6 +253,42 @@ public class Map extends WorldObject{
     private void generateHouse() {
         int houseWidth = (int )(Math.random() * 2 + 9);
         int houseHeight;
+        int verticalMetre = 10;
+
+        for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
+        {
+            if (mapArray[groundIndexX+houseWidth-1][j] == null)
+            {
+                verticalMetre = abs(j-groundIndexY);
+                // avarage of left and right ground indexes
+                groundIndexY = (j+groundIndexY)/2;
+                break;
+            }
+        }
+        
+        // maximal vertical metre must be lower than 3 for generating of house
+        if (verticalMetre < 3)
+        {
+            houseHeight = (int )(Math.random() * 2 + 6);
+            House house = new House(houseWidth,houseHeight,groundIndexX,groundIndexY);
+            Block[][] houseArr = house.getHouse();
+            doorsUpPos.add(house.getDoorUpPos());
+
+            for (int x = 0; x < houseWidth; x++) 
+            {
+                for (int y = 0; y < houseHeight; y++) 
+                {
+                    if (houseArr[x][y] != null)
+                        mapArray[x+groundIndexX-1][y+groundIndexY] = houseArr[x][y];
+                }
+            }
+            groundIndexX += (int )(Math.random() * 15 + houseWidth);
+        }
+    }
+    
+    /*private void generateSmithHouse(){ //TODO
+        int houseWidth = (int )(Math.random() * 2 + 9);
+        int houseHeight;
         int verticalMetre = 0;
 
         for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
@@ -279,6 +320,59 @@ public class Map extends WorldObject{
             }
             groundIndexX += (int )(Math.random() * 15 + houseWidth);
         }
+    }*/
+    
+    private boolean generateCastle(){
+        int castleWidth = (int )(Math.random() * 10 + 50);
+        int castleHeight;
+        int verticalMetre = 10;
+
+        for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
+        {
+            if (mapArray[groundIndexX+castleWidth-1][j] == null)
+            {
+                verticalMetre = abs(j-groundIndexY);
+                // avarage of left and right ground indexes
+                groundIndexY = (j+groundIndexY)/2;
+                break;
+            }
+        }
+        
+        // maximal vertical metre must be lower than 5 for generating of castle
+        if (verticalMetre < 7)
+        {
+            castleHeight = (int )(Math.random() * 5 + 20);
+            Castle castle = new Castle(castleWidth,castleHeight,groundIndexX,groundIndexY);
+            Block[][] castleArr = castle.getCastle();
+
+            for (int x = 0; x < castleWidth; x++) 
+            {
+                for (int y = 0; y < castleHeight; y++) 
+                {
+                    if (castleArr[x][y] == null)
+                    {
+                        removeBody(x+groundIndexX-1, y+groundIndexY);
+                        mapArray[x+groundIndexX-1][y+groundIndexY] = null;
+                    }
+                    else
+                    {
+                        mapArray[x+groundIndexX-1][y+groundIndexY] = castleArr[x][y];
+                        
+                        if (mapArray[x+groundIndexX-1][y+groundIndexY].id == AllBlocks.torch.id)
+                            torchsPos.add(new IntVector2(x+groundIndexX-1, y+groundIndexY));
+                    }
+                    groundBckArr[x+groundIndexX-1][y+groundIndexY] = AllBlocks.gravel;
+                }
+            }
+            System.out.println("Castle groundIndexX = " + groundIndexX + ", groundIndexY = " + groundIndexY);
+            groundIndexX += (int )(Math.random() * 15 + castleWidth);
+            
+            knightPos = castle.getKnightPositions();
+            
+            return true;
+        }
+        
+        return false;
     }
     
     private void createTrees(){
@@ -659,24 +753,20 @@ public class Map extends WorldObject{
                 if (mapArray[i][j] != null)
                 {
                     
-                    if (mapArray[i][j].id == AllBlocks.ladder.id && j < height-Constants.HEIGHT_OF_SKY)
+                    if (mapArray[i][j].id == AllBlocks.ladder.id || 
+                        mapArray[i][j].id == AllBlocks.torch.id || 
+                        mapArray[i][j].id == AllBlocks.stone_stairs.id ||
+                        mapArray[i][j].id == AllBlocks.half_plank.id    )
                     {
                         if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
                             spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
                     }
-                    
-                    
-                    //stage.getBatch().draw( mapArray[x][y].texture, x*Block.size, y*Block.size, Block.size, Block.size);
-                    if (mapArray[i][j].id == AllBlocks.torch.id && j < height-Constants.HEIGHT_OF_SKY)
-                    {
-                        if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
-                            spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
-                    }else
-                        drawWithRotation(spriteBatch, i, j);
+
+                    drawWithRotation(spriteBatch, i, j);
                 }
-                else if(j < height-Constants.HEIGHT_OF_SKY) {
-                    if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
-                        spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                else if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
+                {
+                    spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
                 }
             }
         }
@@ -831,6 +921,19 @@ public class Map extends WorldObject{
         return doorsUpPos;
     }
     
+    public ArrayList<IntVector2> getKnightPos(){
+        return knightPos;
+    }
     
+    public Vector2 getFreePosition(int x) {
+        
+        for (int i = 0; i < mapArray[x].length; i++)
+        {
+            if (mapArray[x][i] == null)
+                return new Vector2(x*Block.size, i*Block.size);
+        }
+        
+        return null;
+    }
     
 }

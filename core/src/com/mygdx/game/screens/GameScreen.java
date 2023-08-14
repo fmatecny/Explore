@@ -36,6 +36,7 @@ import com.mygdx.game.world.Block;
 import com.mygdx.game.world.Map;
 import com.mygdx.game.world.Shaders_box2dlights;
 import com.mygdx.game.world.save.SaveManager;
+import static java.lang.Math.abs;
 
 /**
  *
@@ -81,6 +82,7 @@ public class GameScreen implements Screen{
     private double currentHour = 0.0;
     
     public boolean isLoading = true;
+    private double spawnGolemHour = -1;
 
     QueryCallback callback_IsThereBody = new QueryCallback() 
     {
@@ -216,6 +218,21 @@ public class GameScreen implements Screen{
         bck.drawBackground(spriteBatch);
 
         map.draw(spriteBatch, cam);
+        
+        if (currentHour > 22 || currentHour < 7)
+        {
+            if (spawnGolemHour == -1)
+                spawnGolemHour = currentHour + Math.random() * 1.5f + 0.2f;
+            else if (abs(spawnGolemHour - currentHour) < 0.2f)
+            {
+                float xOffset = (float)(Math.random() * 10 + 5)+player.b2body.getPosition().x/Block.size;
+                entitiesManager.spawnGolems(map.getFreePosition((int)(xOffset)));
+                spawnGolemHour = -1;
+            }
+        }
+        else
+            entitiesManager.despawnGolems();
+        
         
         entitiesManager.updatePosition(cam);
         entitiesManager.draw(spriteBatch);
@@ -483,6 +500,7 @@ public class GameScreen implements Screen{
     
     public void genrateMap(){
         map.generateMap();
+        updateShaders();
     }
     
     private void saveGame(){
@@ -535,9 +553,8 @@ public class GameScreen implements Screen{
         // Create player
     	MyAssetManager.instance = new MyAssetManager();
         player = new Player();
-        entitiesManager = new EntitiesManager(map.getDoorsUpPos());
+        entitiesManager = new EntitiesManager(map.getDoorsUpPos(), map.getKnightPos());
         entitiesManager.setPlayer(player);
-        //villager = new Villager(1);
     }
     
 }
