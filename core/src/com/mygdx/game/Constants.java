@@ -16,7 +16,7 @@ public final class Constants {
     public static final int WIDTH_OF_MAP = 1000;
     public static final int HEIGHT_OF_MAP = 100;
     public static final int HEIGHT_OF_SKY = 30;
-    public static final int SIZE_OF_CHUNK = 8;
+    public static final int SIZE_OF_CHUNK = 16;
     public static final float PPM = 100.0f;
     //TODO can be changed during runtime -> cant be conctant
     public static final float W_IN_M = MyGdxGame.width/PPM;
@@ -75,7 +75,7 @@ public final class Constants {
     public static enum typeOfDirection { Left, Right };
     public static enum typeOfMovement { Stand, Walk, Run, Jump, Slash, Hit, Die };
     public static enum typeOfArmor { Default, Leather, Iron, Diamond };
-    public static enum typeOfEntity{ villager, girl, smith, golem, knight };
+    public static enum typeOfEntity{ villager, girl, smith, golem, skeleton, knight, king };
     
     private Constants() {
     }

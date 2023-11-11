@@ -50,7 +50,7 @@ public class Player {
     private float WIDTH;
     private float HEIGHT;
     
-    private final float DEFAULT_SPEED = 0.5f;
+    private final float DEFAULT_SPEED = 2;//0.5f;
     private float speed = DEFAULT_SPEED;//2/GameScreen.PPM;
     private float powerOfImpuls = 0.2f;
 
@@ -67,8 +67,8 @@ public class Player {
     
     private final int DEMAGE_BY_HAND = 5;
 
-    public Player() {
-    	definePlayer();
+    public Player(Vector2 position) {
+    	definePlayer(position);
         animations = MyAssetManager.instance.getPlayerAnimations(typeOfArmor);
         setSize();
         inventory = new Inventory();
@@ -82,9 +82,9 @@ public class Player {
         HEIGHT = Block.size*SCALE;
     }
     
-    private void definePlayer(){
+    private void definePlayer(Vector2 position){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(800.0f/GameScreen.PPM, 20);
+        bdef.position.set(position);
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
         b2body.setFixedRotation(true);
@@ -252,6 +252,9 @@ public class Player {
     
     public void draw(SpriteBatch spriteBatch){
         //hud.draw();
+        typeOfArmor = inventory.getTypeOfArmor();
+        animations = MyAssetManager.instance.getPlayerAnimations(typeOfArmor);
+        
         if (currentTOM != Constants.typeOfMovement.Jump)
         {
             //backwalk
@@ -299,8 +302,8 @@ public class Player {
         
         lastTOM = currentTOM;
         
-        if (Inputs.instance.showInventory)
-            inventory.setAvatar(typeOfArmor);
+        /*if (Inputs.instance.showInventory)
+            inventory.setAvatar(typeOfArmor);*/
         
     }
     

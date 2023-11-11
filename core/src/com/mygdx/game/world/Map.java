@@ -25,8 +25,6 @@ import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.water.Lake;
 import com.mygdx.game.world.water.Water;
 import static java.lang.Math.abs;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 import java.util.ArrayList;
 
 /**
@@ -68,6 +66,7 @@ public class Map extends WorldObject{
     private ArrayList<IntVector2> torchsPos = new ArrayList<>();
     private ArrayList<IntVector2> doorsUpPos = new ArrayList<>();
     private ArrayList<IntVector2> knightPos = new ArrayList<>();
+    private IntVector2 kingPos = new IntVector2();
     private float stateTime = 0;
     private float stateTimeTorch = 0;
     
@@ -157,7 +156,7 @@ public class Map extends WorldObject{
                     villageAvalaibleFromIndexX = groundIndexX+300;
                 }
             }
-            else if (percent > 50){//original was 5, increase due to castle testing
+            else if (percent > 5){
                 createTrees();
             }
             else{
@@ -341,7 +340,7 @@ public class Map extends WorldObject{
         // maximal vertical metre must be lower than 5 for generating of castle
         if (verticalMetre < 7)
         {
-            castleHeight = (int )(Math.random() * 5 + 20);
+            castleHeight = (int )(Math.random() * 5 + 24);
             Castle castle = new Castle(castleWidth,castleHeight,groundIndexX,groundIndexY);
             Block[][] castleArr = castle.getCastle();
 
@@ -356,18 +355,37 @@ public class Map extends WorldObject{
                     }
                     else
                     {
-                        mapArray[x+groundIndexX-1][y+groundIndexY] = castleArr[x][y];
+                        if (castleArr[x][y].id == AllBlocks.empty.id)
+                        {
+                            groundBckArr[x+groundIndexX-1][y+groundIndexY] = AllBlocks.gravel;
+                            if (mapArray[x+groundIndexX-1][y+groundIndexY] != null)//there should be empty block, only background
+                            {
+                                removeBody(x+groundIndexX-1, y+groundIndexY);
+                                mapArray[x+groundIndexX-1][y+groundIndexY] = null;
+                            }
+                        }
+                        else
+                        {
+                            mapArray[x+groundIndexX-1][y+groundIndexY] = castleArr[x][y];
                         
-                        if (mapArray[x+groundIndexX-1][y+groundIndexY].id == AllBlocks.torch.id)
-                            torchsPos.add(new IntVector2(x+groundIndexX-1, y+groundIndexY));
+                            if (mapArray[x+groundIndexX-1][y+groundIndexY].id == AllBlocks.torch.id)
+                                torchsPos.add(new IntVector2(x+groundIndexX-1, y+groundIndexY));
+
+                            if (castleArr[x][y].id == AllBlocks.torch.id ||
+                                castleArr[x][y].id == AllBlocks.stone_stairs.id || 
+                                castleArr[x][y].id == AllBlocks.half_plank.id)
+                            {
+                                groundBckArr[x+groundIndexX-1][y+groundIndexY] = AllBlocks.gravel;
+                            }
+                        }
                     }
-                    groundBckArr[x+groundIndexX-1][y+groundIndexY] = AllBlocks.gravel;
                 }
             }
             System.out.println("Castle groundIndexX = " + groundIndexX + ", groundIndexY = " + groundIndexY);
             groundIndexX += (int )(Math.random() * 15 + castleWidth);
             
             knightPos = castle.getKnightPositions();
+            kingPos = castle.getKingPosition();
             
             return true;
         }
@@ -677,7 +695,7 @@ public class Map extends WorldObject{
         left = left_cam_edge - Constants.SIZE_OF_CHUNK;
         right = left_cam_edge + (MyGdxGame.width/Block.size_in_pixels) + Constants.SIZE_OF_CHUNK;
         down = down_cam_edge;// + Constants.SIZE_OF_CHUNK;
-        up = down_cam_edge + MyGdxGame.height/Block.size_in_pixels + Constants.SIZE_OF_CHUNK;
+        up = height; //down_cam_edge + MyGdxGame.height/Block.size_in_pixels + Constants.SIZE_OF_CHUNK;
         
         /*
         int left = (int) (((cam.x*100.0f)-640)/40)+Constants.SIZE_OF_CHUNK;
@@ -689,22 +707,23 @@ public class Map extends WorldObject{
             left = 0;
         left = (((int)(left/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);
         
+
+        if (right%Constants.SIZE_OF_CHUNK != 0)
+            right = (((int)(right/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK)+1;
         if (right > width)
             right = width;
-        right = (((int)(right/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);
-        
         
         if (down < 0)
             down = 0;
         if (down > height)
             down = height;
         down = (((int)(down/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);
-        
+        /*
         if (up > height)
             up = height;
         if (up < 0)
             up = 0;
-        up = (((int)(up/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);
+        up = (((int)(up/Constants.SIZE_OF_CHUNK))*Constants.SIZE_OF_CHUNK);*/
         
         if(isFirstCycle)
         {
@@ -734,12 +753,12 @@ public class Map extends WorldObject{
         
         if (previousDown < down)
             removeBodyFromMap(left, right, previousDown, down);
-        
+        /*
         if (previousUp > up )
             removeBodyFromMap(left, right, up, previousUp);
         
         if (previousUp < up)
-            createBodyToMap(left, right, previousUp, up);
+            createBodyToMap(left, right, previousUp, up);*/
         
         previousLeft = left;
         previousRight = right;
@@ -752,7 +771,7 @@ public class Map extends WorldObject{
             {
                 if (mapArray[i][j] != null)
                 {
-                    
+                        
                     if (mapArray[i][j].id == AllBlocks.ladder.id || 
                         mapArray[i][j].id == AllBlocks.torch.id || 
                         mapArray[i][j].id == AllBlocks.stone_stairs.id ||
@@ -761,8 +780,9 @@ public class Map extends WorldObject{
                         if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
                             spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
                     }
-
-                    drawWithRotation(spriteBatch, i, j);
+                    
+                    if (mapArray[i][j].id != AllBlocks.torch.id)// dont need to show torch, it will be animate
+                        drawWithRotation(spriteBatch, i, j);
                 }
                 else if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
                 {
@@ -770,7 +790,7 @@ public class Map extends WorldObject{
                 }
             }
         }
-        
+
         
         if (isMining){
             stateTime += Gdx.graphics.getDeltaTime();
@@ -892,13 +912,13 @@ public class Map extends WorldObject{
 
     private void removeBodyFromMap(int fromX, int toX, int fromY, int toY) {
         for (int x = fromX; x < toX; x++) 
-                {
-                    for (int y = fromY; y < toY; y++) 
-                    {
-                        if (mapArray[x][y] != null)
-                            removeBody(x, y);
-                    }
-                }
+        {
+            for (int y = fromY; y < toY; y++) 
+            {
+                if (mapArray[x][y] != null)
+                    removeBody(x, y);
+            }
+        }
     }
     
     public void addTorchToPos(IntVector2 pos){
@@ -925,6 +945,10 @@ public class Map extends WorldObject{
         return knightPos;
     }
     
+    public IntVector2 getKingPos(){
+        return kingPos;
+    }
+    
     public Vector2 getFreePosition(int x) {
         
         for (int i = 0; i < mapArray[x].length; i++)
@@ -934,6 +958,20 @@ public class Map extends WorldObject{
         }
         
         return null;
+    }
+    
+    public Vector2 getRandomGroundPosForEntity(){
+        int positionX = (int) (Math.random() * width);
+        
+        for (int y = mapArray[positionX].length-1; y > 1; y--) 
+        {
+            if (mapArray[positionX][y-1] != null)
+            {
+                if (mapArray[positionX][y-1].blocked)
+                    return new Vector2(positionX*Block.size, y*Block.size);
+            }
+        }
+        return new Vector2(0, 0);
     }
     
 }

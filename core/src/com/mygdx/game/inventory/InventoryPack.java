@@ -15,7 +15,12 @@ import com.mygdx.game.IntVector2;
 public abstract class InventoryPack extends Table{
 
     public boolean includes(IntVector2 pos){
-    
+        System.out.println("Includes: posX = " + pos.X +
+                                    ", posY = " + pos.Y +
+                                    ", getX = " + getX() +
+                                    ", getY = " + getY() +
+                                    ", getW = " + getWidth() +
+                                    ", getH = " + getHeight());
         return (pos.X >= getX() && 
                 pos.X <= getX() + getWidth() &&
                 pos.Y >= getY() && 

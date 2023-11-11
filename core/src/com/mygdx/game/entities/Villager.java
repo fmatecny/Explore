@@ -16,5 +16,6 @@ public class Villager extends Entity{
     public Villager(int id, float x, float y) {
         super(id, x, y, Constants.typeOfEntity.villager); 
         System.out.println("Villager " + id + " has position " + x + "|" + y);
+        createInventoryShop();
     }
 }

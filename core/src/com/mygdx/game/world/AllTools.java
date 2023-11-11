@@ -105,16 +105,19 @@ public class AllTools {
         
     }
     
-    public Tool getToolById(int id){
+    public static Tool getToolById(int id){
         if (id < 0)
             return null;
         
         for (Tool tool : toolList) 
         {
             if (tool.id == id)
+            {
+                //System.err.println("GetToolById: Id " + id + " found");
                 return tool; 
+            }
         }
-        
+        System.err.println("GetToolById: Id " + id + " not found!");
         return null;
     }
     

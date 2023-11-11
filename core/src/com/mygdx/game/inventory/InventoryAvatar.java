@@ -33,12 +33,12 @@ public class InventoryAvatar extends Table{
     private float stateTime = 0;
 
     public InventoryAvatar() {
-            //this.setDebug(true);
-            this.setName(Integer.toString(0));
-            this.setTouchable(Touchable.enabled);
-            this.setBackground(Skins.skin.getDrawable("cell"));
-            this.add().width(3*Inventory.sizeOfSlot).height(4*Inventory.sizeOfSlot);
-
+        //this.setDebug(true);
+        this.setName(Integer.toString(0));
+        this.setTouchable(Touchable.enabled);
+        this.setBackground(Skins.skin.getDrawable("cell"));
+        this.add().width(3*Inventory.sizeOfSlot).height(4*Inventory.sizeOfSlot);
+        setAvatar(Constants.typeOfArmor.Default);
     }
     
     

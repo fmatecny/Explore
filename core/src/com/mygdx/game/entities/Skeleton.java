@@ -10,11 +10,9 @@ import com.mygdx.game.Constants;
  *
  * @author Fery
  */
-public class King extends Entity{
-    
-    public King(int id, float x, float y) {
-        super(id, x, y, Constants.typeOfEntity.king); 
-        System.out.println("King " + id + " has position " + x + "|" + y);
+public class Skeleton extends Entity{
+    public Skeleton(int id, float x, float y) {
+        super(id, x, y, Constants.typeOfEntity.skeleton); 
+        System.out.println("Skeleton " + id + " has position " + x + "|" + y);
     }
-    
 }

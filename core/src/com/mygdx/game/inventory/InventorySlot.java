@@ -88,7 +88,7 @@ public class InventorySlot extends Table{
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                //System.out.println(getName() + "   " + getX()+ "mmm" + x + "," + y);
+                System.out.println(getName() + "   " + getX()+ "mmm" + x + "," + y);
                 if (touchDown)
                 {
                     drop = true;

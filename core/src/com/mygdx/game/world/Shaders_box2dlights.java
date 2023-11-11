@@ -39,8 +39,9 @@ public class Shaders_box2dlights {
         rayHandler.setBlur(true);
         rayHandler.setShadows(true);
         
-        
-        sun =  new DirectionalLight(rayHandler, 620, color, -89f);
+        //set degree to -89f or -91f to shows light (it seems like bug)
+        //degree can be set to -90f when viewport is bigger - see bellow calling setCombinedMatrix
+        sun =  new DirectionalLight(rayHandler, 620, color, -90f);
         sun.setSoft(true);
         sun.setSoftnessLength(1f);
         sun.setStaticLight(false);
@@ -79,7 +80,17 @@ public class Shaders_box2dlights {
     
     
     public void updateRayHandler(){
-        rayHandler.setCombinedMatrix(GameScreen.camera);
+        //DirectionalLight is limitated by screen size dependent values which are set or updated when setCombinedMatric is called
+        //so we need to increase viewport height 
+        //to keep blocks on top (above player - e.g when player mine big "well") included in shader calculation
+        rayHandler.setCombinedMatrix(GameScreen.camera.combined,
+                                     GameScreen.camera.position.x,
+                                     GameScreen.camera.position.y,
+                                     GameScreen.camera.viewportWidth * GameScreen.camera.zoom,
+                                     GameScreen.camera.viewportHeight*8 * GameScreen.camera.zoom);
+        /*System.out.println("GameScreen.camera.viewportWidth = " + GameScreen.camera.viewportWidth +
+                            "GameScreen.camera.viewportHeight = " + GameScreen.camera.viewportHeight +
+                            ", Zoom = " + GameScreen.camera.zoom);*/
         rayHandler.updateAndRender();
     }
     

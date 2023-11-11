@@ -136,9 +136,12 @@ public class GameScreen implements Screen{
             isEntity = true;
             return fraction;
         }
+        else if (fixture.getFilterData().categoryBits != Constants.BLOCK_BIT)
+        {
+            return -1;
+        }
         else
         {
-            //System.out.println("terminate");
             isEntity = false;
             return 0;
         }
@@ -226,12 +229,12 @@ public class GameScreen implements Screen{
             else if (abs(spawnGolemHour - currentHour) < 0.2f)
             {
                 float xOffset = (float)(Math.random() * 10 + 5)+player.b2body.getPosition().x/Block.size;
-                entitiesManager.spawnGolems(map.getFreePosition((int)(xOffset)));
+                entitiesManager.spawnHostileEntity(map.getFreePosition((int)(xOffset)));
                 spawnGolemHour = -1;
             }
         }
         else
-            entitiesManager.despawnGolems();
+            entitiesManager.despawnHostileEntity();
         
         
         entitiesManager.updatePosition(cam);
@@ -347,7 +350,7 @@ public class GameScreen implements Screen{
                         player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
                     }
                 }
-            }// open chest
+            }// open chest or shop
             else if (Inputs.instance.mouseRight && hitBody != null)
             {
                 if (hitBody.getUserData() instanceof IntVector2)
@@ -359,6 +362,23 @@ public class GameScreen implements Screen{
                         Inputs.instance.showInventory = true;
                     }
                 }
+                else
+                {
+                    isEntity = false;
+                    entityBody = null;
+                    camera.unproject(v3.set(Inputs.instance.mouseX, Inputs.instance.mouseY, 0f));
+                    world.rayCast(callback_IsEntity, player.b2body.getPosition().x,player.b2body.getPosition().y, v3.x,v3.y);
+                    if (entityBody != null)
+                    {
+                        if (isEntity && player.b2body.getPosition().dst(entityBody.getPosition()) < 5*Block.size )
+                        {
+                            System.out.println("Open shop of entity with id = " + (int)entityBody.getUserData());
+                            player.getInventory().setShop(entitiesManager.getEntityShopById((int)entityBody.getUserData()));
+                            Inputs.instance.showInventory = true;
+                        }
+                    }
+                }
+                
             }
             else if (!Inputs.instance.mouseMiddle){
                 allowRotation = true;
@@ -552,8 +572,8 @@ public class GameScreen implements Screen{
     public void createEntities() {
         // Create player
     	MyAssetManager.instance = new MyAssetManager();
-        player = new Player();
-        entitiesManager = new EntitiesManager(map.getDoorsUpPos(), map.getKnightPos());
+        player = new Player(map.getRandomGroundPosForEntity());
+        entitiesManager = new EntitiesManager(map.getDoorsUpPos(), map.getKnightPos(), map.getKingPos());
         entitiesManager.setPlayer(player);
     }
     

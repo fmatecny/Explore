@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.mygdx.game.Constants;
 import com.mygdx.game.MyContactListener;
+import com.mygdx.game.inventory.InventoryShop;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.Block;
 import java.util.AbstractMap;
@@ -61,16 +62,28 @@ public abstract class Entity implements EntityIfc{
     private Vector2 housePos;
     private boolean goToHouse = false;
     private boolean spawned = true;
+    
+    private InventoryShop inventoryShop = null;
+    private Constants.typeOfEntity typeOfEntity;
 
     public Entity(){}
-    
+
     public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity) {
         this.id = id;
+        this.typeOfEntity = typeOfEntity;
         defineBody(x, y);
         housePos = new Vector2(x*Block.size, y*Block.size);
         System.out.println("id= " + id + " | HousePos = " + housePos);
-        animations = MyAssetManager.instance.getEntityAnimations(typeOfEntity);
+        animations = MyAssetManager.instance.getEntityAnimations(this.typeOfEntity);
         setSize();
+    }
+    
+    public void createInventoryShop(){
+        inventoryShop = new InventoryShop(typeOfEntity);
+    }
+    
+    public InventoryShop getInventoryShop(){
+        return inventoryShop;
     }
     
     private void defineBody(float x, float y){

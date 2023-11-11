@@ -58,6 +58,7 @@ public class Inventory implements Disposable{
     private boolean dragSlotInCraftingArea = false;
     private boolean dragSlotInArmorSlots = false;
     private boolean dragSlotInChest = false;
+    private boolean dragSlotInShop = false;
      
     private int dropPosOffsetY = 0;
     private int dropPosOffsetX = 0;
@@ -66,6 +67,7 @@ public class Inventory implements Disposable{
     private Stage stageInventory;
     
     private InventoryPackage chestPackage;
+    private InventoryShop inventoryShop;
 
     public Inventory() {
         
@@ -262,6 +264,7 @@ public class Inventory implements Disposable{
         dragSlotInCraftingArea = false;
         dragSlotInArmorSlots = false;
         dragSlotInChest = false;
+        dragSlotInShop = false;
         
         InventorySlot dragSlot = inventoryBar.getDragInventorySlotAfterDrop();
         if (dragSlot != null){
@@ -281,8 +284,15 @@ public class Inventory implements Disposable{
             if (dragSlot != null){
                 dragSlotInChest = true;
                 return dragSlot;
+            }     
+        }
+        else if (isShopOpened())
+        {
+            dragSlot = inventoryShop.getDragInventorySlotAfterDrop();
+            if (dragSlot != null){
+                dragSlotInShop = true;
+                return dragSlot;
             }
-            
         }
         else
         {
@@ -349,7 +359,12 @@ public class Inventory implements Disposable{
             dropPosOffsetX = (int) chestPackage.getX();
             dropPosOffsetY = (int) chestPackage.getY();  
         }
-            
+        else if (dragSlotInShop)
+        {
+            dropPosOffsetX = (int) inventoryShop.getX();
+            dropPosOffsetY = (int) inventoryShop.getY();  
+        }
+
         IntVector2 dropPos = dragSlot.getDropPosition();
         //System.out.println(dropPos.X + "|||" + dropPos.Y);
         if (dropPos.X >= 0 && 
@@ -357,7 +372,6 @@ public class Inventory implements Disposable{
             dropPos.Y >= 0 && 
             dropPos.Y <= Inventory.sizeOfSlot)
             return null;
-        
         
         realDropPos.X = (int) (dragSlot.getX() + dropPos.X + dropPosOffsetX);
         realDropPos.Y = (int) (dragSlot.getY() + dropPos.Y + dropPosOffsetY);
@@ -371,11 +385,11 @@ public class Inventory implements Disposable{
             return inventoryPackage.getDropInventorySlot(realDropPos);
 
         // from inventory bar to armor slots
-        if (inventoryArmorSlots.includes(realDropPos) && !isChestOpened())
+        if (inventoryArmorSlots.includes(realDropPos) && !isChestOpened() && !isShopOpened())
             return inventoryArmorSlots.getDropInventorySlot(realDropPos);
 
         // from inventory bar to craftig area
-        if (inventoryCraftingArea.includes(realDropPos) && !isChestOpened())
+        if (inventoryCraftingArea.includes(realDropPos) && !isChestOpened() && !isShopOpened())
             return inventoryCraftingArea.getDropInventorySlot(realDropPos);
 
         if (isChestOpened())
@@ -383,7 +397,11 @@ public class Inventory implements Disposable{
             if (chestPackage.includes(realDropPos))
                 return chestPackage.getDropInventorySlot(realDropPos);
         }
-
+        else if (isShopOpened())
+        {
+            if (inventoryShop.includes(realDropPos))
+                return inventoryShop.getDropInventorySlot(realDropPos);
+        }
         
         return null;
     }
@@ -396,7 +414,7 @@ public class Inventory implements Disposable{
         {
             if(wasInventoryOpen){
                 wasInventoryOpen = false;
-                if (isChestOpened()){
+                if (isChestOpened() || isShopOpened()){
                     setInventoryLayout();
                 }
                 
@@ -421,6 +439,8 @@ public class Inventory implements Disposable{
                 if (isChestOpened()){
                     setChestLayout();
                 }
+                else if (isShopOpened())
+                    setShopLayout();
             }
 
             setZIndex();
@@ -477,14 +497,20 @@ public class Inventory implements Disposable{
                         inventoryCraftingArea.updateCraft(n);
 
                     inventoryCraftingArea.craft();
-
-
+                    
+                    if (isShopOpened())
+                        inventoryShop.trade();
+                    else if ("ArmorSlot0".equals(dropSlot.getName()))
+                    {
+                        inventoryAvatar.setAvatar(inventoryArmorSlots.getTypeOfArmor());    
+                    }
                 }
             }
                 
             setObjectInfo();
             
-            inventoryAvatar.setAvatar(inventoryArmorSlots.getTypeOfArmor());
+            //inventoryAvatar.setAvatar(inventoryArmorSlots.getTypeOfArmor());
+            
  
             //mock.setPosition(MyGdxGame.width/2- mock.getWidth()/2, MyGdxGame.height - mock.getHeight() + 100);
             stageInventory.addActor(mock);
@@ -518,12 +544,16 @@ public class Inventory implements Disposable{
             inventoryPackage.setZIndex(0);
             inventoryCraftingArea.setZIndex(0);
             inventoryArmorSlots.setZIndex(0);
+            if (isChestOpened()) chestPackage.setZIndex(0);
+            if (isShopOpened()) inventoryShop.setZIndex(0);
         }
         else if (inventoryPackage.isDragInPackage()){
             inventoryBar.setZIndex(0);
             inventoryPackage.setZIndex(10);
             inventoryCraftingArea.setZIndex(0);
             inventoryArmorSlots.setZIndex(0);
+            if (isChestOpened()) chestPackage.setZIndex(0);
+            if (isShopOpened()) inventoryShop.setZIndex(0);
         }
         else if (inventoryCraftingArea.isDragInCraftingArea()){
             inventoryBar.setZIndex(0);
@@ -537,20 +567,47 @@ public class Inventory implements Disposable{
             inventoryCraftingArea.setZIndex(0);
             inventoryArmorSlots.setZIndex(10);
         }
+        else if (isChestOpened()){    
+            if (chestPackage.isDragInPackage()){
+                inventoryBar.setZIndex(0);
+                inventoryPackage.setZIndex(0);
+                inventoryCraftingArea.setZIndex(0);
+                inventoryArmorSlots.setZIndex(0);
+                chestPackage.setZIndex(10);
+            }
+        }
+        else if (isShopOpened()){    
+            if (inventoryShop.isDragInShop()){
+                inventoryBar.setZIndex(0);
+                inventoryPackage.setZIndex(0);
+                inventoryCraftingArea.setZIndex(0);
+                inventoryArmorSlots.setZIndex(0);
+                inventoryShop.setZIndex(10);
+            }
+        }
     }
     
     
     public void setChestPackage(InventoryPackage chestPckg){
-        chestPackage = chestPckg;
+        this.chestPackage = chestPckg;
     }
     
     private boolean isChestOpened(){
-        return chestPackage == null ? false : true;
+        return chestPackage != null;
+    }
+    
+    public void setShop(InventoryShop inventoryShop){
+        this.inventoryShop = inventoryShop;
+    }
+
+    private boolean isShopOpened(){
+        return inventoryShop != null;
     }
 
     private void setInventoryLayout() {
         windowLabel.setText("Inventory");
         chestPackage = null;
+        inventoryShop = null;
         table.clear();
         table.add(inventoryArmorSlots).left();
         table.add(inventoryAvatar).left();
@@ -563,55 +620,42 @@ public class Inventory implements Disposable{
 
     private void setChestLayout() {
         windowLabel.setText("Chest");
+        inventoryShop = null;
         table.clear();
         table.add(chestPackage);
         table.row().padTop(space + sizeOfSlot);
         table.add(inventoryPackage);
         table.row().padTop(space);
         table.add(inventoryBar);
-    }    
+    }  
+    
+    private void setShopLayout() {
+        windowLabel.setText("Shop");
+        chestPackage = null;
+        table.clear();
+        table.add(inventoryShop).left();
+        table.row().padTop(space + sizeOfSlot);
+        table.add(inventoryPackage);
+        table.row().padTop(space);
+        table.add(inventoryBar);
+    }  
 
     private void setObjectInfo() {
             
-        for (int i = 0; i < inventoryBar.inventoryBar.length; i++) 
+        if (inventoryBar.isDragInBar()) return;
+        if (inventoryPackage.isDragInPackage()) return;
+        if (inventoryArmorSlots.isDragInArmorSlots()) return;
+        if (inventoryCraftingArea.isDragInCraftingArea()) return;
+        
+        if (isChestOpened())
         {
-            if (inventoryBar.inventoryBar[i].drag)
-                return;
+            if (chestPackage.isDragInPackage()) return;
         }
         
-        
-        for (int i = 0; i < inventoryPackage.inventoryPackageArray.length; i++) 
+        if (isShopOpened())
         {
-            for (int j = 0; j < inventoryPackage.inventoryPackageArray[i].length; j++) 
-            {                
-                if (inventoryPackage.inventoryPackageArray[i][j].drag)
-                    return;
-            }
+            if (inventoryShop.isDragInShop()) return;
         }
-        
-        
-        for (int i = 0; i < inventoryArmorSlots.inventoryArmorSlots.length; i++) 
-        {
-            if (inventoryArmorSlots.inventoryArmorSlots[i].drag)
-                return;
-        }
-        
-        for (int i = 0; i < inventoryCraftingArea.craftingSlots.length; i++) 
-        {
-            for (int j = 0; j < inventoryCraftingArea.craftingSlots[i].length; j++) 
-            {
-                if (inventoryCraftingArea.craftingSlots[i][j].drag)
-                    return;
-            }
-        }
-        
-        if (inventoryCraftingArea.craftedItem.drag)
-            return;
-        
-        
-        
-        
-        
         
         
         for (int i = 0; i < inventoryBar.inventoryBar.length; i++) 
@@ -663,11 +707,43 @@ public class Inventory implements Disposable{
             return;
         }
         
+        if (isChestOpened())
+        {
+            for (int i = 0; i < chestPackage.inventoryPackageArray.length; i++) 
+            {
+                for (int j = 0; j < chestPackage.inventoryPackageArray[i].length; j++) 
+                {
+                    if (chestPackage.inventoryPackageArray[i][j].isOver())
+                    {
+                        inventoryObjectInfo.setInfo(chestPackage.inventoryPackageArray[i][j].getObjectInfo());
+                        return;
+                    }
+                }
+            }
+        }
+        
+        if (isShopOpened())
+        {
+            if (inventoryShop.buyItem.isOver())
+            {
+                inventoryObjectInfo.setInfo(inventoryShop.buyItem.getObjectInfo());
+                return;
+            }
+            if (inventoryShop.soldItem.isOver())
+            {
+                inventoryObjectInfo.setInfo(inventoryShop.soldItem.getObjectInfo());
+                return;
+            }
+        }
         
         inventoryObjectInfo.setInfo("");
     }
 
     public void setAvatar(Constants.typeOfArmor typeOfArmor) {
         inventoryAvatar.setAvatar(typeOfArmor);   
+    }
+
+    public Constants.typeOfArmor getTypeOfArmor() {
+        return inventoryArmorSlots.getTypeOfArmor();
     }
 }

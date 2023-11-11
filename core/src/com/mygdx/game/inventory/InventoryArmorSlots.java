@@ -32,7 +32,7 @@ public class InventoryArmorSlots extends InventoryPack{
         {
             final InventorySlot invenotryItem =  new InventorySlot();
             //invenotryItem.setDebug(true);
-            invenotryItem.setName(Integer.toString(i));
+            invenotryItem.setName("ArmorSlot" + Integer.toString(i));
             invenotryItem.setTouchable(Touchable.enabled);
             invenotryItem.setBackground(Skins.skin.getDrawable("cell"));
 

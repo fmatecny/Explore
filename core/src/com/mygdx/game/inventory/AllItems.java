@@ -106,7 +106,7 @@ public class AllItems {
         itemList.add(diamondArmor);
     }
     
-    public Item getItemById(int id){
+    public static Item getItemById(int id){
         if (id < 0)
             return null;
         

@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
+import com.mygdx.game.inventory.InventoryShop;
 import com.mygdx.game.world.Block;
 import java.util.ArrayList;
 
@@ -28,22 +29,23 @@ public class EntitiesManager {
     private ArrayList<Entity> villagerList;
     private ArrayList<Entity> girlList;
     private ArrayList<Entity> smithList;
-    private ArrayList<Entity> golemList;
     private ArrayList<Entity> knightList;
+    private ArrayList<Entity> hostileList;
+    private King king;
    
     
-    public EntitiesManager(ArrayList<IntVector2> housesPos, ArrayList<IntVector2> knightPositions) {
+    public EntitiesManager(ArrayList<IntVector2> housesPos, ArrayList<IntVector2> knightPositions, IntVector2 kingPos) {
         entityList = new ArrayList<ArrayList<Entity>>();
         villagerList = new ArrayList<>();
         girlList = new ArrayList<>();
         smithList = new ArrayList<>();
-        golemList = new ArrayList<>();
+        hostileList = new ArrayList<>();
         knightList = new ArrayList<>();
         
         for (int i = 0; i < housesPos.size(); i++) 
         {
             //generate smith
-            if ((int )(Math.random() * 100) > 80 )
+            if ((int )(Math.random() * 100) > 90 )
             {
                 smithList.add(new Smith(id, housesPos.get(0).X+6, housesPos.get(0).Y));
                 id++;
@@ -53,7 +55,7 @@ public class EntitiesManager {
             {
                 villagerList.add(new Villager(id, housesPos.get(i).X, housesPos.get(i).Y));
                 id++;
-                if ((int )(Math.random() * 100) > 60 )
+                if ((int )(Math.random() * 100) > 80 )
                 {
                     girlList.add(new Girl(id, housesPos.get(i).X, housesPos.get(i).Y));
                     id++;
@@ -66,7 +68,16 @@ public class EntitiesManager {
         {
             golem = new Golem(id, 0f, 0f);
             golem.b2body.setActive(false);
-            golemList.add(golem);
+            hostileList.add(golem);
+            id++;
+        }
+        
+        Skeleton skeleton;
+        for (int i = 0; i < 3; i++) 
+        {
+            skeleton = new Skeleton(id, 0f, 0f);
+            skeleton.b2body.setActive(false);
+            hostileList.add(skeleton);
             id++;
         }
         
@@ -74,13 +85,14 @@ public class EntitiesManager {
             knightList.add(new Knight(id, knightPos.X, knightPos.Y));
             id++;
         }
+        king = new King(id, kingPos.X, kingPos.Y);
+        knightList.add(king);
         
-        
-        entityList.add(Constants.typeOfEntity.villager.ordinal(), villagerList);
-        entityList.add(Constants.typeOfEntity.girl.ordinal(), girlList);
-        entityList.add(Constants.typeOfEntity.smith.ordinal(), smithList);
-        entityList.add(Constants.typeOfEntity.golem.ordinal(), golemList);
-        entityList.add(Constants.typeOfEntity.knight.ordinal(), knightList);
+        entityList.add(villagerList);
+        entityList.add(girlList);
+        entityList.add(smithList);
+        entityList.add(hostileList);
+        entityList.add(knightList);     
     }
         
     private Entity getEntityById(int id){
@@ -96,6 +108,11 @@ public class EntitiesManager {
         return null;
     }
 
+    public InventoryShop getEntityShopById(int id){
+        return getEntityById(id).getInventoryShop();
+    }
+    
+    
     public void updatePosition(Vector2 cam) {
         for (ArrayList<Entity> entities : entityList) 
         {
@@ -193,12 +210,12 @@ public class EntitiesManager {
         float dst = 1000;
         boolean followPlayer = false;
         //if distance between player and golem is 11blocks and less - golem will follow player
-        for (Entity golem : golemList) 
+        for (Entity hostile : hostileList) 
         {
             minDst = 50*Block.size;
-            if (golem.b2body.getPosition().dst(player.b2body.getPosition()) <= 11*Block.size && player.IsAlive())
+            if (hostile.b2body.getPosition().dst(player.b2body.getPosition()) <= 11*Block.size && player.IsAlive())
             {
-                golem.followBody(player.b2body);
+                hostile.followBody(player.b2body);
                 followPlayer = true;   
             }
 
@@ -206,9 +223,9 @@ public class EntitiesManager {
             {
                 for (Entity entity : entities) 
                 {
-                    if (entity instanceof Golem == false) //except golem
+                    if (entity instanceof Golem == false && entity instanceof Skeleton == false) //except hostile mobs
                     {
-                        dst = golem.b2body.getPosition().dst(entity.b2body.getPosition());
+                        dst = hostile.b2body.getPosition().dst(entity.b2body.getPosition());
                         if (dst <= 11*Block.size && dst < minDst && entity.IsAlive() && entity.b2body.isActive())
                         {
                             if (followPlayer == false)
@@ -226,7 +243,7 @@ public class EntitiesManager {
                 }
             }
             if (followPlayer == false)
-                golem.followEntity(nearestEntity);
+                hostile.followEntity(nearestEntity);
         }
     }
     
@@ -251,30 +268,29 @@ public class EntitiesManager {
         this.player = player;
     }
     
-    public void spawnGolems(Vector2 position){
+    public void spawnHostileEntity(Vector2 position){
         if (position == null)
             return;
 
-        for (Entity golem : golemList) 
+        for (Entity hostile : hostileList) 
         {
-            if (golem.b2body.isActive() == false)
+            if (hostile.b2body.isActive() == false)
             {
-                golem.setPosition(position.x, position.y);
-                golem.b2body.setActive(true);
-                golem.setSpawned(true);
+                hostile.setPosition(position.x, position.y);
+                hostile.b2body.setActive(true);
+                hostile.setSpawned(true);
                 return;
             }
         }
-    
     }
     
-    public void despawnGolems(){
-        for (Entity golem : golemList) {
-            golem.b2body.setActive(false);
-            golem.setSpawned(false);
-            golem.health = 100;
-        }
     
+    public void despawnHostileEntity(){
+        for (Entity hostile : hostileList) {
+            hostile.b2body.setActive(false);
+            hostile.setSpawned(false);
+            hostile.health = 100;
+        }
     }
     
 }
