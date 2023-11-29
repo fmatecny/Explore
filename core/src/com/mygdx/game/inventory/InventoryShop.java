@@ -4,17 +4,12 @@
  */
 package com.mygdx.game.inventory;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.utils.Disposable;
 import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.Skins;
 import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.AllTools;
-import java.util.ArrayList;
 
 /**
  *
@@ -28,31 +23,36 @@ public class InventoryShop extends InventoryPack{
     public InventorySlot soldItem;
     public InventorySlot buyItem;
     private final short NUM_OF_ITEMSFORTRADE = 3;
+    private int saleIndex = 0;
+    private boolean wasDefaultInSwitch = false;
     
     public InventoryShop(Constants.typeOfEntity toe) {
         this.typeOfEntity = toe;
         soldItem = new InventorySlot();
         soldItem.setBackground(Skins.invenotrySlotBck);
         soldItem.setTouchable(Touchable.enabled);
+        soldItem.setName("soldSlot");
+        soldItem.setMinObjectsForSplit(1000);
         buyItem = new InventorySlot();
         buyItem.setBackground(Skins.invenotrySlotBck);
         buyItem.setTouchable(Touchable.enabled);
+        buyItem.setName("buySlot");
+        buyItem.setMinObjectsForSplit(1000);
         
         itemsForSale = new InventorySlot[NUM_OF_ITEMSFORTRADE];
         itemsForTrade = new InventorySlot[NUM_OF_ITEMSFORTRADE];
         
         for (int i = 0; i < NUM_OF_ITEMSFORTRADE; i++) 
         {
-            itemsForSale[i] = GetItemForSale();//new InventorySlot();
-            //itemsForSale[i].setObject(AllItems.ironArmor);
-            //itemsForSale[i].numOfItem = 1;
+            itemsForSale[i] = new InventorySlot();
+            itemsForTrade[i] = new InventorySlot();
+            
+            SetItemForSaleAndTrade(itemsForSale[i],itemsForTrade[i]);//new InventorySlot();
+
             itemsForSale[i].setTouchable(Touchable.disabled);
             itemsForSale[i].setBackground(Skins.invenotrySlotBck);
             itemsForSale[i].setName(Integer.toString(i));
             
-            itemsForTrade[i] = new InventorySlot();
-            itemsForTrade[i].setObject(AllItems.stick);
-            itemsForTrade[i].numOfItem = 10;
             itemsForTrade[i].setTouchable(Touchable.disabled);
             itemsForTrade[i].setBackground(Skins.invenotrySlotBck);
             itemsForTrade[i].setName(Integer.toString(i));
@@ -76,21 +76,32 @@ public class InventoryShop extends InventoryPack{
     }
 
     public InventorySlot getDragInventorySlotAfterDrop() {
-        if (soldItem.drop)
-            return soldItem;
-        else if (buyItem.drop)
-            return buyItem;
+        if (soldItem != null)
+        {
+            if (soldItem.drop)
+                return soldItem;
+        }
+        if (buyItem != null)
+        {
+            if (buyItem.drop)
+                return buyItem;
+        }
+
         
         return null;
     }
 
     public InventorySlot getDropInventorySlot(IntVector2 pos) {
-        if (includesInSlot(pos, soldItem))
+        /*if (includesInSlot(pos, soldItem))
             return soldItem;
-        else if (includesInSlot(pos, buyItem))
+        else */if (includesInSlot(pos, buyItem))
             return buyItem;
         
         return null;
+    }
+    
+    public void update(){
+        buyItem.numOfItem -= itemsForTrade[saleIndex].numOfItem;
     }
     
     public boolean includesInSlot(IntVector2 pos, InventorySlot slot){
@@ -107,52 +118,99 @@ public class InventoryShop extends InventoryPack{
     }
 
     public boolean isDragInShop() {
+        if (soldItem == null || buyItem == null)
+            return false;
         return ( soldItem.drag || buyItem.drag );
     }
 
     public void trade() {
-        if (buyItem.isItem())
+        if (buyItem.isEmpty())
+            soldItem.numOfItem = 0;   
+        else if (soldItem.isEmpty())
         {
-            for (int i = 0; i < itemsForTrade.length && soldItem.isEmpty(); i++) 
+            for (int i = 0; i < itemsForTrade.length && soldItem.isEmpty() && !itemsForTrade[i].isEmpty(); i++) 
             {
-                if ((itemsForTrade[i].getItem().id == buyItem.getItem().id) &&
+                if ((itemsForTrade[i].getObject().id == buyItem.getObject().id) &&
                    (itemsForTrade[i].numOfItem <= buyItem.numOfItem))
                 {
                     soldItem.setObject(itemsForSale[i]);
-                    buyItem.numOfItem -= itemsForTrade[i].numOfItem;
+                    saleIndex = i;
+                    //buyItem.numOfItem -= itemsForTrade[i].numOfItem;
+                    return;
                 }
             }
+            soldItem.numOfItem = 0;
         }
     }
     
-    private InventorySlot GetItemForSale()
-    {
-        InventorySlot slot = new InventorySlot();
-        int id;
-        //if (typeOfEntity == Constants.typeOfEntity.villager)
-        //{
-            // tools
-            if ((Math.random() * 10) > 5)
-            {
-                id = (int)((Math.random() * AllTools.toolList.size()));
-                if (id == 0) id = 1;
-                slot.setObject(AllTools.getToolById(id));
-                slot.numOfItem = 1;
-            }
-            else //items
-            {
-                id = (int)((Math.random() * AllTools.toolList.size()));
-                if (id == 0) id = 1;
-                slot.setObject(AllItems.getItemById(id));
-                slot.numOfItem = (int)((Math.random()*5)+1);
-            }
-        
-        //}
 
+    private void SetItemForSaleAndTrade(InventorySlot saleSlot, InventorySlot tradeSlot) {
+        if (typeOfEntity == Constants.typeOfEntity.villager)
+        {
+            int idx = (int)(Math.random() * 10);
+            switch (idx) 
+            {
+                case 0: saleSlot.setObject(AllItems.stick);
+                        saleSlot.numOfItem = (int)(Math.random() * 10) + 1;
+                        tradeSlot.setObject(AllBlocks.coal);
+                        tradeSlot.numOfItem = (int)(Math.random() * 10) + 1;
+                        break;
+                case 1: saleSlot.setObject(AllItems.bucket);
+                        saleSlot.numOfItem = 1;
+                        tradeSlot.setObject(AllBlocks.plank);
+                        tradeSlot.numOfItem = (int)(Math.random() * 15) + 20;
+                        break;
+                case 2: saleSlot.setObject(AllItems.coalIngot);
+                        saleSlot.numOfItem = 5;
+                        tradeSlot.setObject(AllBlocks.iron);
+                        tradeSlot.numOfItem = 5;
+                        break;
+                default:
+                        if (wasDefaultInSwitch)
+                            break;
+                        int id = (int)((Math.random() * AllBlocks.blockList.size()));
+                        if (id == 0) id = 1;
+                        saleSlot.setObject(AllBlocks.getBlockById(id));
+                        saleSlot.numOfItem = (int)((Math.random() * 3f + 1));
+                        tradeSlot.setObject(AllItems.stick);
+                        tradeSlot.numOfItem = (int)((Math.random() * 50f + 2));
+                        wasDefaultInSwitch = true;
+                    
+            }        
+        }
+        else if (typeOfEntity == Constants.typeOfEntity.smith)
+        {
+            int idx = (int)(Math.random() * 10);
+            switch (idx) 
+            {
+                case 0: saleSlot.setObject(AllTools.diamondSword);
+                        saleSlot.numOfItem = 1;
+                        tradeSlot.setObject(AllItems.diamondIngot);
+                        tradeSlot.numOfItem = (int)(Math.random() * 15) + 20;
+                        break;
+                case 1: saleSlot.setObject(AllItems.ironArmor);
+                        saleSlot.numOfItem = 1;
+                        tradeSlot.setObject(AllItems.ironIngot);
+                        tradeSlot.numOfItem = (int)(Math.random() * 15) + 20;
+                        break;
+                case 2: saleSlot.setObject(AllItems.diamondArmor);
+                        saleSlot.numOfItem = 1;
+                        tradeSlot.setObject(AllItems.diamondIngot);
+                        tradeSlot.numOfItem = (int)(Math.random() * 15) + 20;;
+                        break;
+                default:
+                        if (wasDefaultInSwitch)
+                            break;
+                        int id = (int)((Math.random() * AllTools.toolList.size()));
+                        if (id == 0) id = 1;
+                        saleSlot.setObject(AllTools.getToolById(id));
+                        saleSlot.numOfItem = 1;
+                        tradeSlot.setObject(AllItems.diamondIngot);
+                        tradeSlot.numOfItem = (int)((Math.random() * 15f + 10));
+                        wasDefaultInSwitch = true;
+                    
+            }        
         
-        
-        
-        return slot;
+        }
     }
-   
 }

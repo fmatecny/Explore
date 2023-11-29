@@ -138,7 +138,7 @@ public class InventorySlot extends Table{
         return isEmpty() ? null : tool;
     }
     
-    private InventoryObject getObject(){
+    public InventoryObject getObject(){
         if (this.isBlock()) return this.block;
         if (this.isTool()) return this.tool;
         if (this.isItem()) return this.item;

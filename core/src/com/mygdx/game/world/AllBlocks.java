@@ -370,7 +370,7 @@ public class AllBlocks {
 
     }
 
-    public Block getBlockById(int id){
+    public static Block getBlockById(int id){
         if (id < 0)
             return null;
         

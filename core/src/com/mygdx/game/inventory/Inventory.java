@@ -492,14 +492,22 @@ public class Inventory implements Disposable{
                     }
 
                     dragSlot.splitItems = false;
-
-                    if ("craftSlot".equals(dragSlot.getName()))
-                        inventoryCraftingArea.updateCraft(n);
-
-                    inventoryCraftingArea.craft();
                     
-                    if (isShopOpened())
+                    if (isShopOpened() == false)
+                    {
+                        if ("craftSlot".equals(dragSlot.getName()))
+                            inventoryCraftingArea.updateCraft(n);
+
+                        inventoryCraftingArea.craft();
+                    }
+                    else if (isShopOpened())
+                    {
+                        if ("soldSlot".equals(dragSlot.getName()))
+                            inventoryShop.update();
+                        
                         inventoryShop.trade();
+                        
+                    }
                     else if ("ArmorSlot0".equals(dropSlot.getName()))
                     {
                         inventoryAvatar.setAvatar(inventoryArmorSlots.getTypeOfArmor());    
@@ -724,15 +732,20 @@ public class Inventory implements Disposable{
         
         if (isShopOpened())
         {
-            if (inventoryShop.buyItem.isOver())
-            {
-                inventoryObjectInfo.setInfo(inventoryShop.buyItem.getObjectInfo());
-                return;
-            }
-            if (inventoryShop.soldItem.isOver())
-            {
-                inventoryObjectInfo.setInfo(inventoryShop.soldItem.getObjectInfo());
-                return;
+            try {
+                if (inventoryShop.buyItem.isOver())
+                {
+                    inventoryObjectInfo.setInfo(inventoryShop.buyItem.getObjectInfo());
+                    return;
+                }
+                if (inventoryShop.soldItem.isOver())
+                {
+                    inventoryObjectInfo.setInfo(inventoryShop.soldItem.getObjectInfo());
+                    return;
+                }
+            } 
+            catch (Exception e) {
+                System.err.println(e);
             }
         }
         
