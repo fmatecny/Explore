@@ -24,21 +24,33 @@ public class PerlinNoise2D {
     private double groundYOffset = groundYOffsetStd;
     private double time = 10;
     //private int noise = 0;
-    private int[] noiseArr = new int[Constants.WIDTH_OF_MAP];
+    private int[] noiseArr = new int[Constants.WIDTH_OF_MAP*2];
+    private int[][] noiseArr2d;
         
     public int[] getNoiseArr(int height){
+        return getNoiseArr(height, false);
+    }
+    
+    public int[] getNoiseArr(int height, boolean createCave){
         double noise;
-        double frequency = standardFrequency;
+        double frequency = createCave ? 3 : standardFrequency;
         double dx = 0;
         int mountainXidx = (int )(Math.random() * 100) + 100;
         int mountainWidth = (int )(Math.random() * 50) + 90;
-        
+        if (createCave)
+        {
+            mountainXidx = 0;
+            mountainWidth = Constants.WIDTH_OF_MAP;
+            groundYOffset = 0.7;
+            time = 10;
+        }    
+            
         System.out.println("x = " + mountainXidx + "|w = " + mountainWidth);
         
         //one index in noise are 2 blocks in map
         //so if mountainXidx = 103 it means that mountain start on 206th block in x axis
         //the same is for width
-        for(int x = 0; x < Constants.WIDTH_OF_MAP/2; x++)
+        for(int x = 0; x < (createCave ? noiseArr.length : Constants.WIDTH_OF_MAP/2); x++)
         {
             dx = (double) x / height;
 
@@ -65,7 +77,7 @@ public class PerlinNoise2D {
                     groundYOffset -= 0.03;
             
             noise = noise((dx * frequency) + time, 0.5) + groundYOffset;
-            
+            //System.out.println("x = " + x + ", noise = " + (noise-groundYOffset));
             int y = abs((int)(noise*20))%height;
             //System.out.println(x + "|" + y + "|" + time);
             //image.setRGB(x, noise, 255);
@@ -76,6 +88,44 @@ public class PerlinNoise2D {
 
     	return noiseArr;
     }
+    
+    
+    public int[][] getNoiseArr2d(int width, int height, boolean createCave){
+
+        noiseArr2d = new int[width][height];
+        time = 0;
+        
+        //one index in noise are 2 blocks in map
+        //so if mountainXidx = 103 it means that mountain start on 206th block in x axis
+        //the same is for width
+        for(int y = 0; y < height; y++)
+        {
+            for(int x = 0; x < width; x++)
+            {
+                double dx = (double) x / height;
+                double dy = (double) y / width;
+                int frequency = 5;
+                double noise = noise((dx * frequency) + time, (dy * frequency) + time);
+                //System.out.println(x + "|" + y + "|noise = " + noise);
+                //noise = (noise - 1) / 2;
+                /*int b = (int)(noise * 0xFF);
+                int g = b * 0x100;
+                int r = b * 0x10000;
+                int finalValue = r;*/
+                noiseArr2d[x][y] = (noise <= 0f ? -1 : 1);
+                //image.setRGB(x, y, finalValue);
+                time += TIME_STEP;
+            }
+    	}
+
+    	return noiseArr2d;
+    }
+    
+
+    
+    
+    
+    
     
     private static double noise(double x, double y){
     	int xi = (int) Math.floor(x) & 255;

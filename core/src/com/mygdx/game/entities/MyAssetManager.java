@@ -102,7 +102,7 @@ public class MyAssetManager {
                 } catch (Exception e) {
                     try 
                     {
-                    	System.err.println(e + "try to find other direction");
+                    	//System.err.println(e + "try to find other direction");
                         if (i == 0)
                             direction = "/" + typeOfDirection.values()[i+1].name();
                         else
@@ -119,7 +119,7 @@ public class MyAssetManager {
                         //textureAtlas[i][j] = new TextureAtlas("entities/player/Default" + direction + movement);
                         textureAtlas[i][j] = new TextureAtlas();
                         textureAtlas[i][j].addRegion("Empty", new TextureRegion(new Texture(new Pixmap(0, 0, Pixmap.Format.RGB888))));
-                        System.err.println(ex);
+                        //System.err.println(ex);
                     }
                 }
             }

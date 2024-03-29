@@ -95,6 +95,7 @@ public class Map extends WorldObject{
     
     public void generateMap() {
         boolean isCaslteGenerated = false;
+        boolean isUFGenerated = true ;//false;
         
         generateGround(width, height-Constants.HEIGHT_OF_SKY);
         
@@ -160,12 +161,16 @@ public class Map extends WorldObject{
                 createTrees();
             }
             else{
-                if (isCaslteGenerated)
-                    createWater();
-                else
+                if (isCaslteGenerated == false)
                     isCaslteGenerated = generateCastle();
+                else if (isUFGenerated == false)
+                    isUFGenerated = generateUndegroundFortress();
+                else
+                    createWater();
             } 
         }
+        
+        generateUndegroundFortress();
     }
     
     
@@ -326,6 +331,9 @@ public class Map extends WorldObject{
         int castleHeight;
         int verticalMetre = 10;
 
+        if (groundIndexX+castleWidth-1 >= mapArray.length)
+            castleWidth = mapArray.length-groundIndexX;
+        
         for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
         {
             if (mapArray[groundIndexX+castleWidth-1][j] == null)
@@ -391,6 +399,41 @@ public class Map extends WorldObject{
         }
         
         return false;
+    }
+    
+    private boolean generateUndegroundFortress(){
+        int UFWidth = Constants.WIDTH_OF_MAP;//(int )(Math.random() * 10 + 200);
+        int UFHeight = (int )(Math.random() * 7 + 90);
+
+        /*if ((groundIndexX + UFWidth >= mapArray.length) ||
+            (groundIndexY - UFHeight <= 0))
+            return false;*/
+        
+        //noiseArr = perlinNoise2D.getNoiseArr2d(UFWidth, UFHeight, true); 
+        
+        UndergroundFortress uf = new UndergroundFortress(UFWidth, UFHeight, perlinNoise2D.getNoiseArr2d(UFWidth, UFHeight, true));
+        Block[][] ufArr = uf.getUFArray();
+        groundIndexX = 1;
+        groundIndexY = 0;//(int )(Math.random() * 5 + 3);
+
+        for (int x = 1; x < ufArr.length; x++) 
+        {
+            for (int y = 1; y < ufArr[x].length; y++) 
+            {
+                if (ufArr[x][y/2] != null && mapArray[x+groundIndexX-1][y+groundIndexY] != null)
+                {
+                    removeBody(x+groundIndexX-1, y+groundIndexY);
+                    mapArray[x+groundIndexX-1][y+groundIndexY] = null;
+                    //mapArray[x+groundIndexX-1][y+groundIndexY] = ufArr[x][y];
+                }
+                /*else
+                {
+                    mapArray[x+groundIndexX-1][y+groundIndexY] = ufArr[x][y];
+                }*/
+            }
+        }
+        //groundIndexX += (int )(Math.random() * 15 + UFWidth);
+        return true;
     }
     
     private void createTrees(){

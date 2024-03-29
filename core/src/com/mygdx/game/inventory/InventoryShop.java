@@ -94,7 +94,9 @@ public class InventoryShop extends InventoryPack{
     public InventorySlot getDropInventorySlot(IntVector2 pos) {
         /*if (includesInSlot(pos, soldItem))
             return soldItem;
-        else */if (includesInSlot(pos, buyItem))
+        else */
+        // possible to put item only to bytItem slot
+        if (includesInSlot(pos, buyItem))
             return buyItem;
         
         return null;
