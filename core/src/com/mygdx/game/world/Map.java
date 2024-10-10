@@ -420,7 +420,7 @@ public class Map extends WorldObject{
         {
             for (int y = 1; y < ufArr[x].length; y++) 
             {
-                if (ufArr[x][y/2] != null && mapArray[x+groundIndexX-1][y+groundIndexY] != null)
+                if (ufArr[x][y] != null && mapArray[x+groundIndexX-1][y+groundIndexY] != null)//[y/2]
                 {
                     removeBody(x+groundIndexX-1, y+groundIndexY);
                     mapArray[x+groundIndexX-1][y+groundIndexY] = null;

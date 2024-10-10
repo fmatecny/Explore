@@ -100,21 +100,30 @@ public class PerlinNoise2D {
         //the same is for width
         for(int y = 0; y < height; y++)
         {
-            for(int x = 0; x < width; x++)
+            for(int x = 0; x < width*2; x++)
             {
-                double dx = (double) x / height;
-                double dy = (double) y / width;
-                int frequency = 5;
-                double noise = noise((dx * frequency) + time, (dy * frequency) + time);
-                //System.out.println(x + "|" + y + "|noise = " + noise);
+                double dx = (double) x / width;//height;
+                double dy = (double) y / height;//width;
+                int frequency = 12;
+                double noise = 0;
+                int octaves = 1;
+                for (int i = 0; i < octaves; i++){
+                //double noise = noise((dx * frequency) + time, (dy * frequency) + time);
+                noise += noise((dx * frequency), (dy * frequency));
                 //noise = (noise - 1) / 2;
+                //System.out.println(x + "|" + y + "|noise = " + noise);
                 /*int b = (int)(noise * 0xFF);
                 int g = b * 0x100;
                 int r = b * 0x10000;
                 int finalValue = r;*/
-                noiseArr2d[x][y] = (noise <= 0f ? -1 : 1);
+                frequency +=1;
+                }
+                noise = noise/octaves;
+                //System.out.println(x/2 + "|" + y + "|noise = " + noise);
+                noiseArr2d[x/2][y] = (noise >= -0.25f && noise <= 0.8f ? -1 : 1);
+                //noiseArr2d[x/2][y] = (noise >= -0.25f ? -1 : 1);
                 //image.setRGB(x, y, finalValue);
-                time += TIME_STEP;
+                //time += TIME_STEP;
             }
     	}
 
