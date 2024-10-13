@@ -7,6 +7,7 @@ package com.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -53,6 +54,15 @@ public class PauseScreen extends ExploreMenuScreen{
                 }
         });
         
+        // preferences
+        final TextButton preferencesButton = new TextButton("Preferences", skin);
+        preferencesButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                        getParent().changeScreen(MyGdxGame.SETTINGS);
+                }
+        });
+        
         // return back to menu
         final TextButton backButton = new TextButton("Back To Menu", skin);
         backButton.addListener(new ChangeListener() {
@@ -61,10 +71,19 @@ public class PauseScreen extends ExploreMenuScreen{
                         getParent().changeScreen(MyGdxGame.MENU);
                 }
         });
-        
-        table.add(backToGameButton);
-        table.row().pad(10, 0, 10, 0);
-        table.add(backButton);
+
+        Label titleLabel = new Label( "Explore", skin, "title" );
+        Label pauseLabel = new Label( "Pause", skin, "bold" );
+
+        table.add(titleLabel).padBottom(30);
+        table.row().pad(10, 0, 0, 0);
+        table.add(pauseLabel).fillX().uniformX();
+        table.row().pad(20, 0, 0, 0);
+        table.add(backToGameButton).fillX().uniformX();
+        table.row().pad(20, 0, 0, 0);
+        table.add(preferencesButton).fillX().uniformX();
+        table.row().pad(20, 0, 0, 0);
+        table.add(backButton).fillX().uniformX();
     }
     
 }

@@ -517,7 +517,7 @@ public class Inventory implements Disposable{
                 
             setObjectInfo();
             
-            //inventoryAvatar.setAvatar(inventoryArmorSlots.getTypeOfArmor());
+            inventoryAvatar.setAvatar(inventoryArmorSlots.getTypeOfArmor());
             
  
             //mock.setPosition(MyGdxGame.width/2- mock.getWidth()/2, MyGdxGame.height - mock.getHeight() + 100);

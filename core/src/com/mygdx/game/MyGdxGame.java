@@ -39,13 +39,13 @@ public class MyGdxGame extends Game {
             switch(screen){
                     case MENU:
                             if(menuScreen == null) menuScreen = new MenuScreen(this);
-                            if (((Gdx.graphics.getWidth() != width) && Gdx.graphics.isFullscreen() == false) || 
+                            /*if (((Gdx.graphics.getWidth() != width) && Gdx.graphics.isFullscreen() == false) || 
                                (Gdx.graphics.isFullscreen()&& preferences.isFullscreenEnabled() == false))
                             {
                                 Gdx.graphics.setWindowedMode(width, height); 
                             }
                             if (Gdx.graphics.isFullscreen() == false && preferences.isFullscreenEnabled())
-                                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+                                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());*/
                             this.setScreen(menuScreen);
                             break;
                     case NEWGAME:
@@ -56,8 +56,12 @@ public class MyGdxGame extends Game {
                             if(loadGameScreen == null) loadGameScreen = new LoadGameScreen(this);
                             this.setScreen(loadGameScreen);
                             break;
-                    case SETTINGS:
+                    case SETTINGS:                            
                             if(settingScreen == null) settingScreen = new PreferencesScreen(this);
+                            //when settingScreen is called from pauseScreen we want to go back to pauseScreen
+                            if (this.getScreen() == pauseScreen)
+                                settingScreen.setPause();
+                            
                             this.setScreen(settingScreen);
                             break;
                     case EXIT:
@@ -143,7 +147,7 @@ public class MyGdxGame extends Game {
         return gameScreen;
     }
     
-    private void setWindowMode(){
+    public void setWindowMode(){
         switch (preferences.getResolution()) 
         {
             case 0: MyGdxGame.width = 640;
@@ -166,6 +170,5 @@ public class MyGdxGame extends Game {
             Gdx.graphics.setWindowedMode(width, height);
         if (Gdx.graphics.isFullscreen() == false && preferences.isFullscreenEnabled())
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-    }
-   
+    }    
 }

@@ -20,7 +20,9 @@ import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
+import com.mygdx.game.inventory.AllItems;
 import com.mygdx.game.inventory.InventoryPackage;
+import com.mygdx.game.inventory.Item;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.water.Lake;
 import com.mygdx.game.world.water.Water;
@@ -378,6 +380,13 @@ public class Map extends WorldObject{
                         
                             if (mapArray[x+groundIndexX-1][y+groundIndexY].id == AllBlocks.torch.id)
                                 torchsPos.add(new IntVector2(x+groundIndexX-1, y+groundIndexY));
+                            else if (mapArray[x+groundIndexX-1][y+groundIndexY].id == AllBlocks.chest.id)
+                            {
+                                //TODO generate random items in chests
+                                Chest chest = new Chest(x+groundIndexX-1, y+groundIndexY);
+                                chest.chestPackage.addObject(new Item(AllItems.diamondArmor));
+                                chestList.add(chest);
+                            }
 
                             if (castleArr[x][y].id == AllBlocks.torch.id ||
                                 castleArr[x][y].id == AllBlocks.stone_stairs.id || 

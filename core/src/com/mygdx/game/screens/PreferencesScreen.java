@@ -25,6 +25,8 @@ import com.mygdx.game.MyMusic;
  */
 public class PreferencesScreen extends ExploreMenuScreen{
     
+    private boolean isPause = false;
+    
     public PreferencesScreen(MyGdxGame myGdxGame){
             super(myGdxGame);
     }
@@ -184,6 +186,7 @@ public class PreferencesScreen extends ExploreMenuScreen{
                         throw new AssertionError();
                 }
                 getParent().getPreferences().setResolution(state);
+                getParent().setWindowMode(); 
             }
         });
         //resolutionButton.setChecked(true); 
@@ -205,6 +208,8 @@ public class PreferencesScreen extends ExploreMenuScreen{
                     getParent().getPreferences().setFullscreenEnabled(true);
                     fullscreenButton.setText("Fullscreen: ON");
                 }
+                
+                getParent().setWindowMode();      
             }
         });
         
@@ -215,28 +220,36 @@ public class PreferencesScreen extends ExploreMenuScreen{
         backButton.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                        getParent().changeScreen(MyGdxGame.MENU);
-
+                        if (isPause)
+                            getParent().changeScreen(MyGdxGame.PAUSE);
+                        else
+                            getParent().changeScreen(MyGdxGame.MENU);
+                        
+                        isPause = false;
                 }
         });
 
-        Label preferencesLabel = new Label( "Preferences", skin, "bold" );
         Label titleLabel = new Label( "Explore", skin, "title" );
-
+        Label preferencesLabel = new Label( "Preferences", skin, "bold" );
+        
         table.add(titleLabel).padBottom(30).colspan(2);
         table.row().pad(10, 0, 10, 0); 
         table.add(preferencesLabel).colspan(2).fillX().uniformX();
-        table.row().pad(10,0,10,0);
+        table.row().pad(10, 0, 10, 0);
         table.add(soundEffectsButton).width(titleLabel.getWidth()/2);
         table.add(volumeSoundStack).width(titleLabel.getWidth()/2);
-        table.row().pad(10,0,10,0);
+        table.row().pad(10, 0, 10, 0);
         table.add(musicButton).width(titleLabel.getWidth()/2);
         table.add(volumeMusicStack).width(titleLabel.getWidth()/2);
-        table.row().pad(10,0,10,0);
+        table.row().pad(10, 0, 10, 0);
         table.add(resolutionButton).colspan(2).fillX().uniformX();
-        table.row().pad(10,0,10,0);
+        table.row().pad(10, 0, 10, 0);
         table.add(fullscreenButton).colspan(2).fillX().uniformX();
-        table.row().pad(10,0,10,0);
+        table.row().pad(10, 0, 10, 0);
         table.add(backButton).colspan(2).fillX().uniformX();
+    }
+
+    public void setPause(){
+        isPause = true;
     }
 }
