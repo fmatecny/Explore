@@ -36,7 +36,7 @@ public class House{
                         this.house[i][j] = new Block(AllBlocks.window);
                     }
                     else{
-                        this.house[i][j] = new Block(AllBlocks.stone);
+                        this.house[i][j] = new Block(AllBlocks.rock);
                    }
                     
                    this.house[i][j].blocked = false;

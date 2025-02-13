@@ -165,6 +165,13 @@ public class Inventory implements Disposable{
                 block.texture = AllBlocks.door.texture;
             }
             
+            if (block.id == AllBlocks.rock.id)
+            {
+                if (addObjectToInvenotryBar(AllBlocks.stone))
+                    return true;
+                else
+                    return inventoryPackage.addObject(AllBlocks.stone);
+            }
             if (block.id == AllBlocks.coal.id)
             {
                 if (addObjectToInvenotryBar(AllItems.coalIngot))

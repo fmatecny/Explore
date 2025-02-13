@@ -21,11 +21,11 @@ public class AllBlocks {
        
        leaf,//5
        
-       gravel, sand, stone, coal, iron, gold, diamond, unbreakable,//8,7,30,40,60,70,100
+       gravel, sand, rock, coal, iron, gold, diamond, unbreakable,//8,7,30,40,60,70,100
        
        wood_stairs, plank, half_plank,//25
        
-       stone_stairs, half_stone,//35
+       stone, stone_stairs, half_stone,//35
        
        door, door_down, door_up, window,//25,10
        
@@ -42,7 +42,7 @@ public class AllBlocks {
     public static Block ground;
     public static Block groundBck;
     public static Block gravel;
-    public static Block stone;
+    public static Block rock;
 //    public static Block houseStone;
 //    public static Block smoothstone;
     public static Block sand;
@@ -64,6 +64,7 @@ public class AllBlocks {
     public static Block half_plank;
     public static Block wood_stairs;
     
+    public static Block stone;
     public static Block stone_stairs;
     public static Block half_stone;
     
@@ -284,6 +285,17 @@ public class AllBlocks {
         plank.stackable = true;
         plank.texture = new Texture(Gdx.files.internal("block/plank.jpg"));
         blockList.add(plank);
+      
+        rock = new Block();
+        rock.id = t.rock.ordinal();
+        rock.info = "Rock";
+        rock.blocked = true;
+        rock.hardness = 30;
+        rock.textureRotation = 0;
+        rock.stackable = true;
+        rock.texture = new Texture(Gdx.files.internal("block/rocky.png"));
+        //stone.texture = MyAssetManager.manager.get("block/rocky.png",Texture.class); 
+        blockList.add(rock);
         
         sand = new Block();
         sand.id = t.sand.ordinal();
@@ -294,15 +306,15 @@ public class AllBlocks {
         sand.stackable = true;
         sand.texture = new Texture(Gdx.files.internal("block/sand.jpg"));
         blockList.add(sand);
-        
+
         stone = new Block();
         stone.id = t.stone.ordinal();
         stone.info = "Stone";
         stone.blocked = true;
-        stone.hardness = 30;
+        stone.hardness = 35;
         stone.textureRotation = 0;
         stone.stackable = true;
-        stone.texture = new Texture(Gdx.files.internal("block/rocky.png"));
+        stone.texture = new Texture(Gdx.files.internal("block/stone.jpg"));
         //stone.texture = MyAssetManager.manager.get("block/rocky.png",Texture.class); 
         blockList.add(stone);
         

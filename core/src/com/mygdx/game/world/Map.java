@@ -208,7 +208,7 @@ public class Map extends WorldObject{
                         else if (randomIdx < 10 && j > 3)
                             mapArray[i][j] = new Block(AllBlocks.coal);
                         else
-                            mapArray[i][j] = new Block(AllBlocks.stone);
+                            mapArray[i][j] = new Block(AllBlocks.rock);
                     
                     }//gold area
                     else if(j <= 13)
@@ -220,7 +220,7 @@ public class Map extends WorldObject{
                         else if (randomIdx < 17)
                             mapArray[i][j] = new Block(AllBlocks.iron);
                         else
-                            mapArray[i][j] = new Block(AllBlocks.stone);
+                            mapArray[i][j] = new Block(AllBlocks.rock);
                     }//iron area
                     else if(j <= 25)
                     {
@@ -229,7 +229,7 @@ public class Map extends WorldObject{
                         else if (randomIdx < 20)
                             mapArray[i][j] = new Block(AllBlocks.coal);
                         else
-                            mapArray[i][j] = new Block(AllBlocks.stone);
+                            mapArray[i][j] = new Block(AllBlocks.rock);
                     }//coal area
                     else if(j <= 35)
                     {
@@ -238,7 +238,7 @@ public class Map extends WorldObject{
                         else if (randomIdx < 30 && j > 30)
                             mapArray[i][j] = new Block(AllBlocks.ground);
                         else
-                            mapArray[i][j] = new Block(AllBlocks.stone);
+                            mapArray[i][j] = new Block(AllBlocks.rock);
                     }
                     else
                     {
@@ -247,7 +247,7 @@ public class Map extends WorldObject{
                         else if (randomIdx < 80)
                             mapArray[i][j] = new Block(AllBlocks.ground);
                         else
-                            mapArray[i][j] = new Block(AllBlocks.stone);
+                            mapArray[i][j] = new Block(AllBlocks.rock);
                     }
 
                     groundBckArr[i][j] = AllBlocks.groundBck;

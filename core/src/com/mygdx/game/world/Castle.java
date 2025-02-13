@@ -147,6 +147,27 @@ public class Castle {
         }
     }
     
+    private void createDefenseTower(int x, int y, int w, int h){
+        int moduloResult = 0;
+        if(x>0)
+        {
+            if (x%2!=0)
+                moduloResult = 1;
+        }
+        
+        for (int i = x; i < x+w; i++) 
+        {
+            for (int j = y; j < y+h; j++) 
+            {
+                if ((j == y+h-1 && i%2 == moduloResult) || j < y+h-1)
+                {
+                    castle[i][j] = new Block(AllBlocks.stone);
+                    castle[i][j].blocked = false;
+                }
+            } 
+        }
+    }
+    
     private void generateHorizontalLine(int fromX, int toX, int y){
         for (int i = fromX; i < toX; i++) {
             if (castle[i][y] == null)
