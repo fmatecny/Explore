@@ -94,6 +94,8 @@ public class Castle {
         generateVerticalLine(castle.length-1, 5, castle[0].length-towerHeigh);
         castle[castle.length-2][5] = new Block(AllBlocks.torch);
         
+        createDefenseTower(0, 0, towerWidth, 17);
+        
         //fill up empty space with background
         changeNullToEmptyblock(0, 0, castle.length-1, castle[0].length-towerHeigh);
     }
@@ -166,6 +168,30 @@ public class Castle {
                 }
             } 
         }
+        
+        // Add door (2) on both the left and right sides at the bottom of the tower
+        int doorStartLeftX = 0; // Left side
+        int doorStartRightX = w - 1; // Right side
+        int doorHeight = 3; // height of door is 3
+
+        for (int j = 0; j < doorHeight; j++) 
+        {
+            castle[doorStartLeftX][j] = new Block(AllBlocks.plank);
+            castle[doorStartRightX][j] = new Block(AllBlocks.plank);
+        }
+        
+        // Add windows (3) in the middle of the tower width
+        int windowHeight = 3;
+        int windowStartX = w / 2; // Middle of the tower width
+
+        // First window, 2 blocks from the bottom
+        int firstWindowStartY = 4;
+        int secondWindowStartY = firstWindowStartY + windowHeight + 3;
+        for (int i = 0; i < windowHeight; i++) 
+        {
+            castle[windowStartX][firstWindowStartY + i] = new Block(AllBlocks.window);
+            castle[windowStartX][secondWindowStartY + i] = new Block(AllBlocks.window);
+        }      
     }
     
     private void generateHorizontalLine(int fromX, int toX, int y){
