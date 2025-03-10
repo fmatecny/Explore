@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.mygdx.game.world.AllBlocks;
 import com.mygdx.game.world.water.Water;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class MyContactListener implements ContactListener {
     public static boolean swim = false;
     public static int blockOnLeft = 0;
     public static int blockOnRight = 0;
+    public static int climb = 0;
     public static ArrayList<AbstractMap.SimpleEntry<Integer,Integer>> entityLeftContactArray = new ArrayList<>();
     public static ArrayList<AbstractMap.SimpleEntry> entityRightContactArray = new ArrayList<>();
     
@@ -33,6 +35,14 @@ public class MyContactListener implements ContactListener {
             Fixture fixtureB = contact.getFixtureB();
             
             int cDef = fixtureA.getFilterData().categoryBits | fixtureB.getFilterData().categoryBits;
+            
+            int idA = -1;
+            int idB = -1;
+            if (fixtureA.getBody().getUserData() instanceof BlockObjectData)
+                idA = ((BlockObjectData) fixtureA.getBody().getUserData()).getId();
+            
+            if (fixtureB.getBody().getUserData() instanceof BlockObjectData)
+                idB = ((BlockObjectData) fixtureB.getBody().getUserData()).getId();
             
             if(fixtureA.getBody().getUserData() instanceof Water && fixtureB.getBody().getType() == BodyDef.BodyType.DynamicBody){
                 Water water = (Water) fixtureA.getBody().getUserData();
@@ -91,6 +101,11 @@ public class MyContactListener implements ContactListener {
                 }
                 entityRightContactArray.add(new AbstractMap.SimpleEntry<Integer, Integer>(entityIdBeginContact, 1));
             }
+            else if (idA == AllBlocks.ladder.id || idB == AllBlocks.ladder.id)
+            {
+                climb++;
+                System.out.println(climb);
+            }
             //System.out.println(blockOnRight); 
             
 
@@ -102,6 +117,13 @@ public class MyContactListener implements ContactListener {
             Fixture fixtureB = contact.getFixtureB();
 
             int cDef = fixtureA.getFilterData().categoryBits | fixtureB.getFilterData().categoryBits;
+            int idA = -1;
+            int idB = -1;
+            if (fixtureA.getBody().getUserData() instanceof BlockObjectData)
+                idA = ((BlockObjectData) fixtureA.getBody().getUserData()).getId();
+            
+            if (fixtureB.getBody().getUserData() instanceof BlockObjectData)
+                idB = ((BlockObjectData) fixtureB.getBody().getUserData()).getId();
             
             if(fixtureA.getBody().getUserData() instanceof Water && fixtureB.getBody().getType() == BodyDef.BodyType.DynamicBody){
                     Water water = (Water) fixtureA.getBody().getUserData();
@@ -112,7 +134,7 @@ public class MyContactListener implements ContactListener {
             }
             else if(fixtureB.getBody().getUserData() instanceof Water && fixtureA.getBody().getType() == BodyDef.BodyType.DynamicBody){
                     Water water = (Water) fixtureB.getBody().getUserData();
-                     water.getFixturePairs().add(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureA, fixtureB));
+                     water.getFixturePairs().remove(new AbstractMap.SimpleEntry<Fixture, Fixture>(fixtureA, fixtureB));
                      if (fixtureB.isSensor()){
                          swim = false;
                      }
@@ -154,6 +176,11 @@ public class MyContactListener implements ContactListener {
                         return;
                     }
                 }
+            }
+            else if (idA == AllBlocks.ladder.id || idB == AllBlocks.ladder.id)
+            {
+                climb--;
+                System.out.println(climb);
             }
             
             

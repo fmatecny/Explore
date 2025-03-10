@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.mygdx.game.BlockObjectData;
 import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
 
@@ -21,7 +22,7 @@ public abstract class WorldObject {
     
     
     
-    protected Body createBodie(World world, int x, int y, Boolean blocked) {
+    protected Body createBodie(World world, int x, int y, Boolean blocked, int id) {
         
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -50,15 +51,10 @@ public abstract class WorldObject {
 
         // Create our fixture and attach it to the body
         body.createFixture(fixtureDef);
-        body.setUserData(new IntVector2(x, y));
+        body.setUserData(new BlockObjectData(x, y, id));
 
         square.dispose();
         
         return body; 
-    }
-
-    
-    protected Body createBodie(World world, int idxX, int idxY) {
-        return createBodie(world, idxX, idxY, true);
     }
 }

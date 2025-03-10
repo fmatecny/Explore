@@ -5,6 +5,7 @@
  */
 package com.mygdx.game.entities;
 
+import com.mygdx.game.MyContactListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,7 +18,6 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.mygdx.game.Constants;
-import com.mygdx.game.MyContactListener;
 import com.mygdx.game.inventory.InventoryShop;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.Block;

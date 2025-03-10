@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.mygdx.game.BlockObjectData;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
@@ -679,7 +680,7 @@ public class Map extends WorldObject{
     
     public boolean addBodyToIdx(int x, int y, Block b){
         //if block is on background or front, torch is always on background
-        b.blocked = !Inputs.instance.control_left && b.id != AllBlocks.torch.id;
+        b.blocked = !Inputs.instance.control_left && b.id != AllBlocks.torch.id && b.id != AllBlocks.ladder.id;
         
         //create new body beacuse in Inventar is only one body 
         if (b.id == AllBlocks.door.id || b.id == AllBlocks.door_up.id || b.id == AllBlocks.door_down.id)
@@ -689,7 +690,7 @@ public class Map extends WorldObject{
             
             mapArray[x][y] = new Block(AllBlocks.door_down);
             mapArray[x][y+1] = new Block(AllBlocks.door_up);
-            mapArray[x][y+1].setBody(createBodie(GameScreen.world, x, y+1, b.blocked));
+            mapArray[x][y+1].setBody(createBodie(GameScreen.world, x, y+1, b.blocked, mapArray[x][y+1].id));
         }
         else{
             mapArray[x][y] = new Block(b);
@@ -700,7 +701,7 @@ public class Map extends WorldObject{
         else if (b.id == AllBlocks.chest.id)
             chestList.add(new Chest(x, y));
         
-        mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, b.blocked));
+        mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, b.blocked, mapArray[x][y].id));
         
         return true;
     }
@@ -847,7 +848,7 @@ public class Map extends WorldObject{
         if (isMining){
             stateTime += Gdx.graphics.getDeltaTime();
             TextureRegion currentFrame = breakBlockAnimation.getKeyFrame(stateTime);
-            IntVector2 v = (IntVector2)miningBlock.getBody().getUserData();
+            IntVector2 v = ((BlockObjectData)miningBlock.getBody().getUserData()).getPos();
             spriteBatch.draw(currentFrame, v.X*Block.size, v.Y*Block.size, Block.size, Block.size);
             if (breakBlockAnimation.isAnimationFinished(stateTime)){
                 isMining = false; 
@@ -888,9 +889,9 @@ public class Map extends WorldObject{
     }
 
     public void drawRectOnBlock(Body b, Vector2 cam, Vector2 player){
-        if (b.getUserData() instanceof IntVector2)
+        if (b.getUserData() instanceof BlockObjectData)
         {
-            IntVector2 v = (IntVector2)b.getUserData();
+            IntVector2 v = ((BlockObjectData)b.getUserData()).getPos();
             if (getBlockByIdx(v).id == AllBlocks.unbreakable.id)
                 return; 
                         
@@ -957,7 +958,7 @@ public class Map extends WorldObject{
             for (int y = fromY; y < toY; y++) 
             {
                 if (mapArray[x][y] != null)
-                    mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, mapArray[x][y].blocked));
+                    mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, mapArray[x][y].blocked, mapArray[x][y].id));
             }
         }
     }

@@ -5,6 +5,7 @@
  */
 package com.mygdx.game.entities;
 
+import com.mygdx.game.MyContactListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -21,7 +22,6 @@ import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
-import com.mygdx.game.MyContactListener;
 import com.mygdx.game.screens.GameScreen;
 import com.mygdx.game.world.AllTools;
 import com.mygdx.game.world.Block;
@@ -192,6 +192,21 @@ public class Player {
         vel.y = 0f;
         b2body.setLinearVelocity(vel);
         }*/
+        
+        //TODO fix gravity
+        if (MyContactListener.climb > 0 && b2body.getLinearVelocity().x <= speed/10)
+        {
+            b2body.setGravityScale(0);
+        }
+        else if (b2body.getGravityScale() == 0)
+        {
+            b2body.setGravityScale(1.0f);
+        }
+        
+        if (Inputs.instance.up && Math.abs(b2body.getLinearVelocity().x) <= speed/10 && b2body.getLinearVelocity().y <= speed/2 && MyContactListener.climb > 0)
+        {
+            b2body.applyLinearImpulse(new Vector2(0, powerOfImpuls), b2body.getWorldCenter(), true);
+        }
         
         if (Inputs.instance.down && MyContactListener.swim){
             b2body.applyLinearImpulse(new Vector2(0, -powerOfImpuls), b2body.getWorldCenter(), true);

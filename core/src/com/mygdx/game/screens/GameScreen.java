@@ -20,6 +20,7 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.mygdx.game.BlockObjectData;
 import com.mygdx.game.Constants;
 import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
@@ -105,7 +106,7 @@ public class GameScreen implements Screen{
         public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
 
             if (hitBody == fixture.getBody() && 
-                fixture.getBody().getUserData() instanceof IntVector2 &&
+                fixture.getBody().getUserData() instanceof BlockObjectData &&
                 player.b2body.getPosition().dst(hitBody.getPosition()) < 1.5f)//check distance
             {
                 isBlockMinable = true;
@@ -259,7 +260,7 @@ public class GameScreen implements Screen{
             
             if (hitBody != null)
             {
-                if (hitBody.getUserData() instanceof IntVector2)
+                if (hitBody.getUserData() instanceof BlockObjectData)
                 {
                     isBlockMinable = false;
                     world.rayCast(callback_IsMinable, player.b2body.getPosition(), hitBody.getPosition());
@@ -308,9 +309,9 @@ public class GameScreen implements Screen{
             // mine block to inventory
             if (Inputs.instance.mouseLeft && hitBody != null)
             {
-                if (hitBody.getUserData() instanceof IntVector2 && isBlockMinable)
+                if (hitBody.getUserData() instanceof BlockObjectData && isBlockMinable)
                 {
-                    IntVector2 v = (IntVector2)hitBody.getUserData();
+                    IntVector2 v = ((BlockObjectData)hitBody.getUserData()).getPos();
                     //System.err.println((int)(v3.x*100/40) + "|" + (int)(v3.y*100/40) + "|" + v.X + "|" + v.Y);
                     if (map.getBlockByIdx(v) != null)
                     {
@@ -335,7 +336,7 @@ public class GameScreen implements Screen{
                     player.isMining = false;
                     map.stopMining();}
             }
-            else if (Inputs.instance.mouseMiddle && hitBody != null && hitBody.getUserData() instanceof IntVector2 && allowRotation)
+            else if (Inputs.instance.mouseMiddle && hitBody != null && hitBody.getUserData() instanceof BlockObjectData && allowRotation)
             {
                 allowRotation = false;
                 map.rotateBlock(hitBody);   
@@ -353,9 +354,9 @@ public class GameScreen implements Screen{
             }// open chest or shop
             else if (Inputs.instance.mouseRight && hitBody != null)
             {
-                if (hitBody.getUserData() instanceof IntVector2)
+                if (hitBody.getUserData() instanceof BlockObjectData)
                 {
-                    IntVector2 v = (IntVector2)hitBody.getUserData();
+                    IntVector2 v = ((BlockObjectData)hitBody.getUserData()).getPos();
                     if (map.getBlockId(v) == AllBlocks.chest.id)
                     {
                         player.getInventory().setChestPackage(map.getChestPackage(v));
