@@ -182,33 +182,28 @@ public class Player {
             currentTOM = Constants.typeOfMovement.Walk;
         }
 
-        /*if (Inputs.instance.up && b2body.getLinearVelocity().y <= speed/5){
-            b2body.applyLinearImpulse(new Vector2(0, powerOfImpuls), b2body.getWorldCenter(), true);
-        }
-        else{
-            //if playerOnLadder
-        b2body.setGravityScale(0);
-        Vector2 vel = b2body.getLinearVelocity();
-        vel.y = 0f;
-        b2body.setLinearVelocity(vel);
-        }*/
         
-        //TODO fix gravity
-        if (MyContactListener.climb > 0 && b2body.getLinearVelocity().x <= speed/10)
+        if (MyContactListener.climb > 0 && Math.abs(b2body.getLinearVelocity().x) <= speed/10)
         {
             b2body.setGravityScale(0);
+            if (!Inputs.instance.up)
+                b2body.setLinearVelocity(0, 0);
         }
         else if (b2body.getGravityScale() == 0)
         {
             b2body.setGravityScale(1.0f);
         }
         
-        if (Inputs.instance.up && Math.abs(b2body.getLinearVelocity().x) <= speed/10 && b2body.getLinearVelocity().y <= speed/2 && MyContactListener.climb > 0)
+        if (Inputs.instance.up && Math.abs(b2body.getLinearVelocity().x) <= speed/10 && b2body.getLinearVelocity().y <= speed/2)
         {
-            b2body.applyLinearImpulse(new Vector2(0, powerOfImpuls), b2body.getWorldCenter(), true);
+            b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+            if (MyContactListener.climb > 1)
+                b2body.applyLinearImpulse(new Vector2(0, powerOfImpuls), b2body.getWorldCenter(), true);
+            else
+                b2body.setLinearVelocity(b2body.getLinearVelocity().x, 0);
         }
         
-        if (Inputs.instance.down && MyContactListener.swim){
+        if (Inputs.instance.down && (MyContactListener.swim || MyContactListener.climb > 0)){
             b2body.applyLinearImpulse(new Vector2(0, -powerOfImpuls), b2body.getWorldCenter(), true);
         }
         
@@ -221,7 +216,7 @@ public class Player {
             isFalling = false;
         }
         
-        if (Inputs.instance.jump && !isJumping && (!isFalling || MyContactListener.swim)){
+        if (Inputs.instance.jump && !isJumping && (!isFalling || MyContactListener.swim) && MyContactListener.climb == 0){
             b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
             currentTOM = Constants.typeOfMovement.Jump;
             isJumping = true;
