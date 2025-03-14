@@ -183,27 +183,45 @@ public class Player {
         }
 
         
-        if (MyContactListener.climb > 0 && Math.abs(b2body.getLinearVelocity().x) <= speed/10)
+        if (MyContactListener.climb > 0 && (isJumping == false || isFalling))
         {
+            // set gravity to 0 when there is ledder e.g. when we walk and under feed is ledder
             b2body.setGravityScale(0);
-            if (!Inputs.instance.up)
+            
+            // stop player in low velocity 
+            if (!Inputs.instance.left && !Inputs.instance.right && (Math.abs(b2body.getLinearVelocity().x) <= speed/10 ))
                 b2body.setLinearVelocity(0, 0);
+            else if (Inputs.instance.up || Inputs.instance.down)
+                // x velocity must be decreased in zero gravity
+                b2body.setLinearVelocity(b2body.getLinearVelocity().x*0.9f, b2body.getLinearVelocity().y);
+            else
+                // y velocity set to 0 - no request movement to up or down
+                b2body.setLinearVelocity(b2body.getLinearVelocity().x*0.9f, 0);
         }
+        // switch gravity to normal when player is out of ledder
         else if (b2body.getGravityScale() == 0)
         {
             b2body.setGravityScale(1.0f);
         }
         
+        // move up on ledder and only when x velocity is low
         if (Inputs.instance.up && Math.abs(b2body.getLinearVelocity().x) <= speed/10 && b2body.getLinearVelocity().y <= speed/2)
         {
-            b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+            // move player up 
             if (MyContactListener.climb > 1)
+            {
+                b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
                 b2body.applyLinearImpulse(new Vector2(0, powerOfImpuls), b2body.getWorldCenter(), true);
-            else
-                b2body.setLinearVelocity(b2body.getLinearVelocity().x, 0);
+            }
+            // stop movement at the top of ledder
+            else if (MyContactListener.climb == 1)
+                b2body.setLinearVelocity(0, 0);
         }
         
-        if (Inputs.instance.down && (MyContactListener.swim || MyContactListener.climb > 0)){
+        if (Inputs.instance.down && (MyContactListener.swim || 
+                                    (MyContactListener.climb > 0 && b2body.getLinearVelocity().y >= -speed/2))
+           )
+        {
             b2body.applyLinearImpulse(new Vector2(0, -powerOfImpuls), b2body.getWorldCenter(), true);
         }
         
@@ -216,7 +234,7 @@ public class Player {
             isFalling = false;
         }
         
-        if (Inputs.instance.jump && !isJumping && (!isFalling || MyContactListener.swim) && MyContactListener.climb == 0){
+        if (Inputs.instance.jump && !isJumping && (!isFalling || MyContactListener.swim) && MyContactListener.climb < 2){
             b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
             currentTOM = Constants.typeOfMovement.Jump;
             isJumping = true;
