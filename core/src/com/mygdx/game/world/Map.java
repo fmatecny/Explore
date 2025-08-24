@@ -22,6 +22,7 @@ import com.mygdx.game.Inputs;
 import com.mygdx.game.IntVector2;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.inventory.AllItems;
+import com.mygdx.game.inventory.InventoryFurnace;
 import com.mygdx.game.inventory.InventoryPackage;
 import com.mygdx.game.inventory.Item;
 import com.mygdx.game.screens.GameScreen;
@@ -44,15 +45,16 @@ public class Map extends WorldObject{
     
     // Ground 
     private Block[][] mapArray;
-    private Block[][] groundBckArr;
+    private Block[][] mapBackgroundArray;
     private PerlinNoise2D perlinNoise2D;
-    private int[] noiseArr;
+    private int[] groundIndexArray;
     
     private int groundIndexX = 0;
     private int groundIndexY = 0;
     
     private ArrayList<Lake> lakeList = new ArrayList<>();
     private ArrayList<Chest> chestList = new ArrayList<>();
+    private ArrayList<Furnace> furnaceList = new ArrayList<>();
     
     private int left, right, down, up, left_cam_edge, down_cam_edge;
     private int previousLeft = 0; //40; //should be position of camera(cam.x/Block.size) + min. 24
@@ -87,8 +89,8 @@ public class Map extends WorldObject{
         ppm_viewport_ratio_y = (Gdx.graphics.getHeight()*Constants.PPM)/MyGdxGame.height;
         
         mapArray = new Block[width][height];        
-        groundBckArr = new Block[width][height];
-        //generateMap();
+        mapBackgroundArray = new Block[width][height];
+        perlinNoise2D = new PerlinNoise2D();
 
         textureAtlas = new TextureAtlas("block/cracking1.txt");
         breakBlockAnimation = new Animation<>(0.5f, textureAtlas.getRegions());
@@ -96,9 +98,31 @@ public class Map extends WorldObject{
         torchAnimation = new Animation<>(0.1f, textureTorchAtlas.getRegions());
     }
     
+    
+    private void reset()
+    {
+        for (int x = 0; x < mapArray.length; x++) {
+            for (int y = 0; y < mapArray[x].length; y++) {
+                mapArray[x][y] = null;
+                mapBackgroundArray[x][y] = null;
+            }
+        }
+        groundIndexArray = null;
+
+        groundIndexX = 0;
+        groundIndexY = 0;
+
+        lakeList.clear();
+        chestList.clear();
+        furnaceList.clear();
+        doorsUpPos.clear();
+        knightPos.clear();
+    }
+    
     public void generateMap() {
+
+        
         boolean isCaslteGenerated = false;
-        boolean isUFGenerated = true ;//false;
         
         generateGround(width, height-Constants.HEIGHT_OF_SKY);
         
@@ -114,21 +138,14 @@ public class Map extends WorldObject{
         // generate objects 
         while (groundIndexX < width-20) 
         {    
-            // find top of the ground
-            for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
-            {
-                if (mapArray[groundIndexX][j] == null)
-                {
-                    groundIndexY = j;
-                    break;
-                }
-            }           
+            // find top of the ground  
+            groundIndexY = groundIndexArray[groundIndexX];
             
             // based on percent generates object
             if (isVillageGenerating == false)
                 percent = (int )(Math.random() * 100);
             
-            if (percent > 70 && groundIndexY < 50 && isVillageGenerating == false && villageAvalaibleFromIndexX <= groundIndexX)
+            if (percent > 50 && groundIndexY < 100 && isVillageGenerating == false && villageAvalaibleFromIndexX <= groundIndexX)
             {
                 numberOfHouseInVillage = (int )(Math.random() * 4) + 3; //3 - 7 houses
                 System.out.println("Number of Houses = " + numberOfHouseInVillage + ", groundIndexX = " + groundIndexX + ", groundIndexY = " + groundIndexY);
@@ -166,24 +183,30 @@ public class Map extends WorldObject{
             else{
                 if (isCaslteGenerated == false)
                     isCaslteGenerated = generateCastle();
-                else if (isUFGenerated == false)
-                    isUFGenerated = generateUndegroundFortress();
                 else
                     createWater();
             } 
         }
         
-        generateUndegroundFortress();
+        if (isCaslteGenerated == false)
+        {
+            reset();
+            System.err.println("Generation of map failed. Retry");
+            this.generateMap();
+            return;
+        }
+            
+        
+        generateCaves();
     }
     
     
     private void generateGround(int w, int h){
         int randomIdx = 0;
-        perlinNoise2D = new PerlinNoise2D();
-        noiseArr = perlinNoise2D.getNoiseArr(h);
+        int[] noiseArr = perlinNoise2D.getNoiseArr(w/2, h);
         
-        //groundBckArr = new Block[w][h];
-
+        groundIndexArray = new int[w];
+        
         for (int i = 0; i < w; i++) 
         {
             for (int j = 0; j < h; j++) 
@@ -192,10 +215,11 @@ public class Map extends WorldObject{
                     mapArray[i][j] = AllBlocks.unbreakable;
                 else if (j == noiseArr[i/2]){
                     mapArray[i][j] = new Block(AllBlocks.ground);
-                    groundBckArr[i][j] = AllBlocks.groundBck;
+                    mapBackgroundArray[i][j] = AllBlocks.groundBck;
                 }
                 else if (j-1 == noiseArr[i/2]){
                     mapArray[i][j] = new Block(AllBlocks.grassy_ground);
+                    groundIndexArray[i] = j;
                 }
                 else if (j < noiseArr[i/2]){
                      randomIdx = (int) (Math.random() * 100);
@@ -251,7 +275,7 @@ public class Map extends WorldObject{
                             mapArray[i][j] = new Block(AllBlocks.rock);
                     }
 
-                    groundBckArr[i][j] = AllBlocks.groundBck;
+                    mapBackgroundArray[i][j] = AllBlocks.groundBck;
                 } 
             }
         }
@@ -330,35 +354,50 @@ public class Map extends WorldObject{
     }*/
     
     private boolean generateCastle(){
-        int castleWidth = (int )(Math.random() * 10 + 50);
+        int castleWidth = (int )(Math.random() * 10 + 100);
         int castleHeight;
         int verticalMetre = 10;
 
         if (groundIndexX+castleWidth-1 >= mapArray.length)
-            castleWidth = mapArray.length-groundIndexX;
+            return false;
         
-        for (int j = 0; j < height-Constants.HEIGHT_OF_SKY; j++) 
+        int minIdxY = height;
+        int maxIdxY = 0;
+        for (int x = 0; x < castleWidth; x++) 
         {
-            if (mapArray[groundIndexX+castleWidth-1][j] == null)
+            if (minIdxY > groundIndexArray[groundIndexX+x])
             {
-                verticalMetre = abs(j-groundIndexY);
-                // avarage of left and right ground indexes
-                groundIndexY = (j+groundIndexY)/2;
-                break;
+                minIdxY = groundIndexArray[groundIndexX+x];
+            }
+            
+            if (maxIdxY < groundIndexArray[groundIndexX+x])
+            {
+                maxIdxY = groundIndexArray[groundIndexX+x];
             }
         }
         
+        verticalMetre = maxIdxY-minIdxY;
+        // avarage of left and right ground indexes
+        groundIndexY = (maxIdxY+minIdxY)/2;
+        
         // maximal vertical metre must be lower than 5 for generating of castle
-        if (verticalMetre < 7)
+        if (verticalMetre < 5)
         {
             castleHeight = (int )(Math.random() * 5 + 24);
             Castle castle = new Castle(castleWidth,castleHeight,groundIndexX,groundIndexY);
             Block[][] castleArr = castle.getCastle();
+            Block[][] castleBckArr = castle.getCastleBackground();
 
             for (int x = 0; x < castleWidth; x++) 
             {
                 for (int y = 0; y < castleHeight; y++) 
                 {
+                    if (castleBckArr[x][y] != null)
+                        mapBackgroundArray[x+groundIndexX-1][y+groundIndexY] = castleBckArr[x][y];
+                    else
+                        mapBackgroundArray[x+groundIndexX-1][y+groundIndexY] = null;
+                    
+                    
                     if (castleArr[x][y] == null)
                     {
                         removeBody(x+groundIndexX-1, y+groundIndexY);
@@ -368,7 +407,7 @@ public class Map extends WorldObject{
                     {
                         if (castleArr[x][y].id == AllBlocks.empty.id)
                         {
-                            groundBckArr[x+groundIndexX-1][y+groundIndexY] = AllBlocks.gravel;
+                            //mapBackgroundArray[x+groundIndexX-1][y+groundIndexY] = AllBlocks.gravel;
                             if (mapArray[x+groundIndexX-1][y+groundIndexY] != null)//there should be empty block, only background
                             {
                                 removeBody(x+groundIndexX-1, y+groundIndexY);
@@ -388,17 +427,18 @@ public class Map extends WorldObject{
                                 chest.chestPackage.addObject(new Item(AllItems.diamondArmor));
                                 chestList.add(chest);
                             }
-
-                            if (castleArr[x][y].id == AllBlocks.torch.id ||
-                                castleArr[x][y].id == AllBlocks.stone_stairs.id || 
-                                castleArr[x][y].id == AllBlocks.half_plank.id)
-                            {
-                                groundBckArr[x+groundIndexX-1][y+groundIndexY] = AllBlocks.gravel;
-                            }
                         }
                     }
                 }
             }
+            
+            // set new ground index to avoid caves go trough 
+            for (int x = 0; x < castleWidth; x++) 
+            {
+                groundIndexArray[groundIndexX+x] = groundIndexY-2;
+            }
+            
+            
             System.out.println("Castle groundIndexX = " + groundIndexX + ", groundIndexY = " + groundIndexY);
             groundIndexX += (int )(Math.random() * 15 + castleWidth);
             
@@ -411,38 +451,25 @@ public class Map extends WorldObject{
         return false;
     }
     
-    private boolean generateUndegroundFortress(){
-        int UFWidth = Constants.WIDTH_OF_MAP;//(int )(Math.random() * 10 + 200);
-        int UFHeight = (int )(Math.random() * 7 + 90);
+    private boolean generateCaves(){
+        int cavesArrayWidth = Constants.WIDTH_OF_MAP;
+        int cavesArrayHeight = Constants.HEIGHT_OF_MAP-Constants.HEIGHT_OF_SKY;
+        Caves caves = new Caves(cavesArrayWidth, cavesArrayHeight, perlinNoise2D.getNoiseArr2d(cavesArrayWidth, cavesArrayHeight, true));
+        Block[][] cavesArray = caves.getCavesArray();
 
-        /*if ((groundIndexX + UFWidth >= mapArray.length) ||
-            (groundIndexY - UFHeight <= 0))
-            return false;*/
-        
-        //noiseArr = perlinNoise2D.getNoiseArr2d(UFWidth, UFHeight, true); 
-        
-        UndergroundFortress uf = new UndergroundFortress(UFWidth, UFHeight, perlinNoise2D.getNoiseArr2d(UFWidth, UFHeight, true));
-        Block[][] ufArr = uf.getUFArray();
-        groundIndexX = 1;
-        groundIndexY = 0;//(int )(Math.random() * 5 + 3);
-
-        for (int x = 1; x < ufArr.length; x++) 
+        for (int x = 1; x < cavesArray.length; x++) 
         {
-            for (int y = 1; y < ufArr[x].length; y++) 
+            for (int y = 1; y < cavesArray[x].length; y++) 
             {
-                if (ufArr[x][y] != null && mapArray[x+groundIndexX-1][y+groundIndexY] != null)//[y/2]
+                // remove only when there is cave && block exists in map && is not above ground
+                if (cavesArray[x][y] != null && mapArray[x][y] != null && y <= groundIndexArray[x])
                 {
-                    removeBody(x+groundIndexX-1, y+groundIndexY);
-                    mapArray[x+groundIndexX-1][y+groundIndexY] = null;
-                    //mapArray[x+groundIndexX-1][y+groundIndexY] = ufArr[x][y];
+                    removeBody(x, y);
+                    mapArray[x][y] = null;
                 }
-                /*else
-                {
-                    mapArray[x+groundIndexX-1][y+groundIndexY] = ufArr[x][y];
-                }*/
             }
         }
-        //groundIndexX += (int )(Math.random() * 15 + UFWidth);
+
         return true;
     }
     
@@ -484,21 +511,21 @@ public class Map extends WorldObject{
                 {
                     //addBodyToIdx(water.x-1, water.y, AllBlocks.grassy_ground);
                     mapArray[water.x-1][water.y] = new Block(AllBlocks.sand);
-                    groundBckArr[water.x-1][water.y] = AllBlocks.groundBck;
+                    mapBackgroundArray[water.x-1][water.y] = AllBlocks.groundBck;
                     if (mapArray[water.x-1][water.y-1] != null){
                         removeBlock(water.x-1, water.y-1);
                         mapArray[water.x-1][water.y-1] = new Block(AllBlocks.sand);
-                        groundBckArr[water.x-1][water.y-1] = AllBlocks.groundBck;}
+                        mapBackgroundArray[water.x-1][water.y-1] = AllBlocks.groundBck;}
                 }
                 if (mapArray[water.x+(int)(water.width/0.4f)][water.y] == null)
                 {
                     //addBodyToIdx(water.x+(int)(water.width/0.4f), water.y, AllBlocks.grassy_ground);
                     mapArray[water.x+(int)(water.width/0.4f)][water.y] = new Block(AllBlocks.sand);
-                    groundBckArr[water.x+(int)(water.width/0.4f)][water.y] = AllBlocks.groundBck;
+                    mapBackgroundArray[water.x+(int)(water.width/0.4f)][water.y] = AllBlocks.groundBck;
                     if (mapArray[water.x+(int)(water.width/0.4f)][water.y-1] != null){
                         removeBlock(water.x+(int)(water.width/0.4f), water.y-1);
                         mapArray[water.x+(int)(water.width/0.4f)][water.y-1] = new Block(AllBlocks.sand);
-                        groundBckArr[water.x+(int)(water.width/0.4f)][water.y-1] = AllBlocks.groundBck;}
+                        mapBackgroundArray[water.x+(int)(water.width/0.4f)][water.y-1] = AllBlocks.groundBck;}
 
                 }
             }
@@ -516,7 +543,7 @@ public class Map extends WorldObject{
                     
                     if (mapArray[x][y] != null)
                         removeBlock(x, y);
-                    groundBckArr[x][y] = AllBlocks.groundBck;
+                    mapBackgroundArray[x][y] = AllBlocks.groundBck;
                     
                     if (groundIndexY-heightOfLake == water.y)
                     {
@@ -560,7 +587,7 @@ public class Map extends WorldObject{
                         removeBlock(water.x-i, water.y);
                     }
                     mapArray[water.x-i][water.y] = new Block(AllBlocks.sand);
-                    groundBckArr[water.x-i][water.y] = AllBlocks.groundBck;   
+                    mapBackgroundArray[water.x-i][water.y] = AllBlocks.groundBck;   
                 }
                 
                 numOfSands = (int )(Math.random() * 4 + 1);
@@ -572,7 +599,7 @@ public class Map extends WorldObject{
                         removeBlock(water.x+(int)(water.width/0.4f) + i, water.y);
                     }
                     mapArray[water.x+(int)(water.width/0.4f) + i][water.y] = new Block(AllBlocks.sand);
-                    groundBckArr[water.x+(int)(water.width/0.4f) + i][water.y] = AllBlocks.groundBck;
+                    mapBackgroundArray[water.x+(int)(water.width/0.4f) + i][water.y] = AllBlocks.groundBck;
                 }
                 
                 
@@ -634,7 +661,7 @@ public class Map extends WorldObject{
     }    
     
     public Block[][] getBckArray(){
-        return groundBckArr;
+        return mapBackgroundArray;
     }
         
     public void removeBlock(int x, int y){
@@ -672,6 +699,16 @@ public class Map extends WorldObject{
                     }
                 }
             }
+            
+            if (mapArray[x][y].id == AllBlocks.furnace.id)
+            {
+                for (Furnace furnace : furnaceList) {
+                    if (furnace.positon.X == x && furnace.positon.Y == y){
+                        furnaceList.remove(furnace);
+                        break;
+                    }
+                }
+            }
                 
             
             mapArray[x][y] = null;
@@ -700,6 +737,8 @@ public class Map extends WorldObject{
             torchsPos.add(new IntVector2(x, y));
         else if (b.id == AllBlocks.chest.id)
             chestList.add(new Chest(x, y));
+        else if (b.id == AllBlocks.furnace.id)
+            furnaceList.add(new Furnace(x, y));
         
         mapArray[x][y].setBody(createBodie(GameScreen.world, x, y, b.blocked, mapArray[x][y].id));
         
@@ -825,21 +864,18 @@ public class Map extends WorldObject{
                 if (mapArray[i][j] != null)
                 {
                         
-                    if (mapArray[i][j].id == AllBlocks.ladder.id || 
-                        mapArray[i][j].id == AllBlocks.torch.id || 
-                        mapArray[i][j].id == AllBlocks.stone_stairs.id ||
-                        mapArray[i][j].id == AllBlocks.half_plank.id    )
+                    if (mapArray[i][j].isWholeBlock == false)
                     {
-                        if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
-                            spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                        if (mapBackgroundArray[i][j] != AllBlocks.empty && mapBackgroundArray[i][j] != null)
+                            spriteBatch.draw(mapBackgroundArray[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
                     }
                     
                     if (mapArray[i][j].id != AllBlocks.torch.id)// dont need to show torch, it will be animate
                         drawWithRotation(spriteBatch, i, j);
                 }
-                else if (groundBckArr[i][j] != AllBlocks.empty && groundBckArr[i][j] != null)
+                else if (mapBackgroundArray[i][j] != AllBlocks.empty && mapBackgroundArray[i][j] != null)
                 {
-                    spriteBatch.draw( groundBckArr[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                    spriteBatch.draw(mapBackgroundArray[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
                 }
             }
         }
@@ -985,9 +1021,21 @@ public class Map extends WorldObject{
         }
         return null;
     }
+    
+    public InventoryFurnace getInvenotryFurnace(IntVector2 v){
+        for (Furnace furnace : furnaceList) {
+            if (furnace.positon.equal(v))
+                return furnace.inventoryFurnace;
+        }
+        return null;
+    }
 
     public ArrayList<Chest> getChestList() {
         return chestList;
+    }
+
+    public ArrayList<Furnace> getFurnaceList() {
+        return furnaceList;
     }
 
     public ArrayList<IntVector2> getDoorsUpPos() {

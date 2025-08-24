@@ -99,27 +99,29 @@ public class LoadGameScreen extends ExploreMenuScreen{
                 savedGameList.add(new SavedGameItem(player, world, getParent()));
                 
                 savedGameList.get(i).getLoadBtn().addListener(new ChangeListener() {
-                        @Override
-                        public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                                MyGdxGame.playerName = player;
-                                MyGdxGame.worldName = world;
-                                LoadingScreen.worldID = 1;
-                                System.out.println(MyGdxGame.playerName + "|load|"+ MyGdxGame.worldName);
-                                getParent().changeScreen(MyGdxGame.LOADING);
-                        }
-                    });
+                    @Override
+                    public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                        MyGdxGame.playerName = player;
+                        MyGdxGame.worldName = world;
+                        LoadingScreen.worldID = 1;
+                        System.out.println("Loading game");
+                        System.out.println("Player name: " + MyGdxGame.playerName);
+                        System.out.println("World name: " + MyGdxGame.worldName);
+                        getParent().changeScreen(MyGdxGame.LOADING);
+                    }
+                });
                 
                 savedGameList.get(i).getDeleteBtn().addListener(new ChangeListener() {
-                        @Override
-                        public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                                System.out.println(player + "|delete|" + world + Gdx.files.getExternalStoragePath());
-                                
-                                file.delete();
-                                savedGameList.clear();
-                                loadSavedGameList();
-                                updateTable();
-                        }
-                    });
+                    @Override
+                    public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                        System.out.println(player + "|delete|" + world + Gdx.files.getExternalStoragePath());
+
+                        file.delete();
+                        savedGameList.clear();
+                        loadSavedGameList();
+                        updateTable();
+                    }
+                });
                 
                 i++;
             }

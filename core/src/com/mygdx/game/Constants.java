@@ -13,7 +13,7 @@ import com.badlogic.gdx.Gdx;
  */
 public final class Constants {
 
-    public static final int WIDTH_OF_MAP = 700; //1000;
+    public static final int WIDTH_OF_MAP = 700;
     public static final int HEIGHT_OF_MAP = 150;
     public static final int HEIGHT_OF_SKY = 30;
     public static final int SIZE_OF_CHUNK = 16;

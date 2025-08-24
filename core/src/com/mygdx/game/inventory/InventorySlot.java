@@ -25,6 +25,9 @@ import com.mygdx.game.world.Tool;
  */
 public class InventorySlot extends Table{
     
+    public static float drawOffsetX = 0;
+    public static float drawOffsetY = 0;
+    
     private boolean isOver = false;
     public int numOfItem;
     private Block block = null;
@@ -88,7 +91,7 @@ public class InventorySlot extends Table{
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println(getName() + "   " + getX()+ "mmm" + x + "," + y);
+                //System.out.println(getName() + "   " + getX()+ "mmm" + x + "," + y);
                 if (touchDown)
                 {
                     drop = true;
@@ -254,9 +257,6 @@ public class InventorySlot extends Table{
         return isOver;
     }
     
-    
-    
-    
     @Override
     public void draw(Batch batch, float parentAlpha){
         super.draw(batch, parentAlpha);
@@ -269,23 +269,24 @@ public class InventorySlot extends Table{
             {
                 if (splitItems)
                 { 
+                    this.setZIndex(1);
                     batch.draw(texture, 
                             getX()+10, getY()+10,  
                             getWidth()-20, getHeight()-20);
-                    font.draw(batch, Integer.toString(numOfItem/2 + numOfItem%2), getX()+30, getY()+20);
-                    this.setZIndex(50);
-                    batch.draw(texture, 
-                            Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
-                            getWidth()-15, getHeight()-15);
-                    font.draw(batch, Integer.toString(numOfItem/2), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
+                    font.draw(batch, Integer.toString(numOfItem), 
+                            getX()+30, 
+                            getY()+20);
                 }
-                else{
-                    this.setZIndex(50);
-                    batch.draw(texture, 
-                            Inputs.instance.mouseX-400, 560-Inputs.instance.mouseY,  
-                            getWidth()-15, getHeight()-15);
-                    font.draw(batch, Integer.toString(numOfItem), Inputs.instance.mouseX-375, 570-Inputs.instance.mouseY);
-                }  
+                
+                this.setZIndex(50);
+                batch.draw(texture, 
+                        Inputs.instance.mouseX+drawOffsetX-(getWidth()-15)/2.0f, 
+                        drawOffsetY-Inputs.instance.mouseY+getHeight()-15,  
+                        getWidth()-15, getHeight()-15);
+
+                font.draw(batch, Integer.toString(numOfItem), 
+                        Inputs.instance.mouseX+drawOffsetX-(getWidth()-15)/2.0f+25, 
+                        drawOffsetY-Inputs.instance.mouseY+getHeight()-15+15);
             }
             else
             {
@@ -293,7 +294,9 @@ public class InventorySlot extends Table{
                 batch.draw(texture, 
                         getX()+10, getY()+10,  
                         getWidth()-20, getHeight()-20);
-                font.draw(batch, Integer.toString(numOfItem), getX()+30, getY()+20);
+                font.draw(batch, Integer.toString(numOfItem), 
+                        getX()+30, 
+                        getY()+20);
             }
         }
     } 

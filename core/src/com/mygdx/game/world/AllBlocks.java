@@ -147,6 +147,7 @@ public class AllBlocks {
         empty.textureRotation = 0;
         empty.stackable = false;
         empty.texture = null;
+        empty.isWholeBlock = false;
         blockList.add(empty);
         
         furnace = new Block();
@@ -223,6 +224,7 @@ public class AllBlocks {
         half_plank.hardness = 25;
         half_plank.textureRotation = 0;
         half_plank.stackable = true;
+        half_plank.isWholeBlock = false;
         half_plank.texture = new Texture(Gdx.files.internal("block/plank_halfblock.png"));
         blockList.add(half_plank);
         
@@ -233,6 +235,7 @@ public class AllBlocks {
         half_stone.hardness = 35;
         half_stone.textureRotation = 0;
         half_stone.stackable = true;
+        half_stone.isWholeBlock = false;
         half_stone.texture = new Texture(Gdx.files.internal("block/stone_halfblock.png"));
         blockList.add(half_stone);
         
@@ -263,6 +266,7 @@ public class AllBlocks {
         ladder.hardness = 20;
         ladder.textureRotation = 0;
         ladder.stackable = true;
+        ladder.isWholeBlock = false;
         ladder.texture = new Texture(Gdx.files.internal("block/ladder.png"));
         blockList.add(ladder);
         
@@ -326,6 +330,7 @@ public class AllBlocks {
         stone_stairs.textureRotation = 0;
         stone_stairs.isRotationAllowed = true;
         stone_stairs.stackable = true;
+        stone_stairs.isWholeBlock = false;
         stone_stairs.texture = new Texture(Gdx.files.internal("block/stone_stairs.png"));
         blockList.add(stone_stairs);
         
@@ -336,6 +341,7 @@ public class AllBlocks {
         torch.hardness = 10;
         torch.textureRotation = 0;
         torch.stackable = true;
+        torch.isWholeBlock = false;
         torch.texture = new Texture(Gdx.files.internal("block/walltorch1.gif"));//torch.png"));
         blockList.add(torch);
         
@@ -377,6 +383,7 @@ public class AllBlocks {
         wood_stairs.textureRotation = 0;
         wood_stairs.isRotationAllowed = true;
         wood_stairs.stackable = true;
+        wood_stairs.isWholeBlock = false;
         wood_stairs.texture = new Texture(Gdx.files.internal("block/wood_stairs.png"));
         blockList.add(wood_stairs);
 

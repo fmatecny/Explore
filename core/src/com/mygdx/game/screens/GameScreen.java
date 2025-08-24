@@ -69,6 +69,7 @@ public class GameScreen implements Screen{
     
     private boolean allowRotation = true;
     private boolean isFirstTimeHitInClick = true;
+    private boolean isFirstTimeMouseRight = true;
     
     private Body hitBody;
     
@@ -343,6 +344,7 @@ public class GameScreen implements Screen{
             }
             else if (Inputs.instance.mouseRight && hitBody == null)
             {
+                isFirstTimeMouseRight = false;
                 if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isBlock())
                 {
                     if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock())){
@@ -352,14 +354,20 @@ public class GameScreen implements Screen{
                     }
                 }
             }// open chest or shop
-            else if (Inputs.instance.mouseRight && hitBody != null)
+            else if (Inputs.instance.mouseRight && hitBody != null && isFirstTimeMouseRight)
             {
+                isFirstTimeMouseRight = false;
                 if (hitBody.getUserData() instanceof BlockObjectData)
                 {
                     IntVector2 v = ((BlockObjectData)hitBody.getUserData()).getPos();
                     if (map.getBlockId(v) == AllBlocks.chest.id)
                     {
                         player.getInventory().setChestPackage(map.getChestPackage(v));
+                        Inputs.instance.showInventory = true;
+                    }
+                    else if (map.getBlockId(v) == AllBlocks.furnace.id)
+                    {
+                        player.getInventory().setFurnace(map.getInvenotryFurnace(v));
                         Inputs.instance.showInventory = true;
                     }
                 }
@@ -387,6 +395,9 @@ public class GameScreen implements Screen{
             
             if ( Inputs.instance.srdco )
                 spriteBatch.draw(AllBlocks.heard, player.b2body.getPosition().x-Block.size/2, player.b2body.getPosition().y+Block.size*2, Block.size, Block.size);
+        
+            if (Inputs.instance.mouseRight == false)
+                isFirstTimeMouseRight = true;
         }       
         
         entitiesManager.manageHit();
@@ -551,11 +562,8 @@ public class GameScreen implements Screen{
                 }
             }
             
-        }
-        
-        
+        }  
     }
-    
     
     public void createStage() {
         camera = new OrthographicCamera();//MyGdxGame.width,MyGdxGame.height);
@@ -573,7 +581,7 @@ public class GameScreen implements Screen{
     public void createEntities() {
         // Create player
     	MyAssetManager.instance = new MyAssetManager();
-        player = new Player(map.getRandomGroundPosForEntity());
+        player = new Player(new Vector2(map.getKingPos().X*Block.size, map.getKingPos().Y*Block.size)/*map.getRandomGroundPosForEntity()*/);
         entitiesManager = new EntitiesManager(map.getDoorsUpPos(), map.getKnightPos(), map.getKingPos());
         entitiesManager.setPlayer(player);
     }

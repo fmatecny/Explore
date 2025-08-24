@@ -25,6 +25,7 @@ public class InventoryObjectInfo extends Table{
         this.setVisible(true);
         this.add().width(200).height(100);
         this.setBackground(Skins.skin.getDrawable("cell"));
+        this.pack();
 
     }
 

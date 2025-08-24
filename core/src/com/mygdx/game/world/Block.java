@@ -18,11 +18,12 @@ public class Block extends InventoryObject{
     public static final float size = size_in_pixels/GameScreen.PPM;
  
         
-    public int hardness;
-    public boolean blocked;
-    public boolean isRotationAllowed;
-    public int textureRotation;
-    public boolean stackable;
+    public int hardness = 99;
+    public boolean blocked = true;
+    public boolean isRotationAllowed = false;
+    public int textureRotation = 0;
+    public boolean stackable = false;
+    public boolean isWholeBlock = true;
     
     private Body body = null;
     
@@ -36,6 +37,7 @@ public class Block extends InventoryObject{
         this.isRotationAllowed = b.isRotationAllowed;
         this.stackable = b.stackable;
         this.info = b.info;
+        this.isWholeBlock = b.isWholeBlock;
     }
 
     public Block() {
