@@ -17,7 +17,7 @@ public class AllItems {
     
     private enum id
     {
-        stick, 
+        stick, glass,
         coalIngot, ironIngot, goldIngot, diamondIngot,
         bucket, waterBucket,
         ironArmor, diamondArmor
@@ -25,6 +25,7 @@ public class AllItems {
     }
     
     public static Item stick;
+    public static Item glass;
     public static Item coalIngot;
     public static Item ironIngot;
     public static Item goldIngot;
@@ -48,6 +49,13 @@ public class AllItems {
         stick.texture = new Texture(Gdx.files.internal("item/stick.png"));
         stick.maxItemInBlock = 0;
         itemList.add(stick);
+        
+        glass = new Item();
+        glass.id = id.stick.ordinal();
+        glass.info = "Glass";
+        glass.texture = new Texture(Gdx.files.internal("item/glass.png"));
+        glass.maxItemInBlock = 0;
+        itemList.add(glass);
         
         coalIngot = new Item();
         coalIngot.id = id.coalIngot.ordinal();

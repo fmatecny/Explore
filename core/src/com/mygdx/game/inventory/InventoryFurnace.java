@@ -124,8 +124,8 @@ public class InventoryFurnace extends InventoryPack{
         {
             if (ingotSlot.isEmpty())
                 return true;
-            else if (ingotSlot.getBlock() != null)
-                return ingotSlot.getBlock().id == AllBlocks.window.id;
+            else if (ingotSlot.getItem()!= null)
+                return ingotSlot.getItem().id == AllItems.glass.id;
         }
         return false;
     }
@@ -137,16 +137,16 @@ public class InventoryFurnace extends InventoryPack{
         {
             if (isSmeltPossible())
             {
-                if (progressBarBurning.isAnimating() == false && progressBarMelting.getValue() == 0)
+                if (progressBarBurning.isAnimating() == false && progressBarBurning.getValue() == 0)
                 {
-                    progressBarBurning.setAnimateDuration(32);
+                    progressBarBurning.setAnimateDuration(30);
                     progressBarBurning.setValue(100);
+                    lighterSlot.numOfItem--;
                 }
                 else if (progressBarBurning.isAnimating() == false && progressBarBurning.getValue() == 100)
                 {
                     progressBarBurning.setAnimateDuration(0);
-                    progressBarBurning.setValue(0);
-                    lighterSlot.numOfItem--;    
+                    progressBarBurning.setValue(0);    
                 }
                 
                 if (progressBarMelting.isAnimating() == false && progressBarMelting.getValue() == 0)
@@ -164,7 +164,7 @@ public class InventoryFurnace extends InventoryPack{
                     if (ingotSlot.isEmpty())
                     {
                         ingotSlot.numOfItem = 1;
-                        ingotSlot.setObject(new Block(AllBlocks.window));
+                        ingotSlot.setObject(new Item(AllItems.glass));
                     }
                     else
                     {
@@ -176,8 +176,13 @@ public class InventoryFurnace extends InventoryPack{
                 return;
             }
         }
-        progressBarBurning.setAnimateDuration(0);
-        progressBarBurning.setValue(0);
+        
+        if (progressBarBurning.isAnimating() == false && progressBarBurning.getValue() == 100)
+        {
+            progressBarBurning.setAnimateDuration(0);
+            progressBarBurning.setValue(0);
+        }
+        
         progressBarMelting.setAnimateDuration(0);
         progressBarMelting.setValue(0);
     }   

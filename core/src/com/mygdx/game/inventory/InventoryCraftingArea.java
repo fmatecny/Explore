@@ -220,7 +220,17 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftedItem.setObject(AllBlocks.furnace);
                 break;
                 
-                
+            case Constants.RECEPIE_WINDOW:
+                n = craftingSlots[0][0].numOfItem;
+                for (int x = 0; x < craftingSlots.length; x++) {
+                    for (int y = 0; y < craftingSlots[x].length; y++) {
+                        n = Math.min(n, craftingSlots[x][y].numOfItem);
+                    } 
+                }
+                craftedItem.numOfItem = n*2;
+                craftedItem.setObject(AllBlocks.window);
+                break;
+            
             case Constants.RECEPIE_STONE_STAIRS:
                 n = Math.min(craftingSlots[0][0].numOfItem, craftingSlots[0][1].numOfItem);
                 n = Math.min(n, craftingSlots[0][2].numOfItem);
@@ -360,6 +370,13 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftingSlots[2][2].numOfItem -= n;
                 break;
                 
+            case Constants.RECEPIE_WINDOW:
+                for (int x = 0; x < craftingSlots.length; x++) {
+                    for (int y = 0; y < craftingSlots[x].length; y++) {
+                        craftingSlots[x][y].numOfItem -= n/2;
+                    } 
+                }
+                break;
                 
             case Constants.RECEPIE_STONE_STAIRS:
                 craftingSlots[0][0].numOfItem -= n/4;
@@ -593,6 +610,29 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftingSlots[2][1].getBlock().id == AllBlocks.stone.id &&
                 craftingSlots[2][2].getBlock().id == AllBlocks.stone.id)
                 return Constants.RECEPIE_FURNACE;
+            }
+        else if (
+            craftingSlots[0][0].getItem()!= null &&
+            craftingSlots[0][1].getItem() != null &&
+            craftingSlots[0][2].getItem() != null &&
+            craftingSlots[1][0].getItem() != null &&
+            craftingSlots[1][1].getItem() != null &&
+            craftingSlots[1][2].getItem() != null &&
+            craftingSlots[2][0].getItem() != null &&
+            craftingSlots[2][1].getItem() != null &&
+            craftingSlots[2][2].getItem() != null
+            )
+            {
+            if (craftingSlots[0][0].getItem().id == AllItems.glass.id &&
+                craftingSlots[0][1].getItem().id == AllItems.glass.id &&
+                craftingSlots[0][2].getItem().id == AllItems.glass.id &&
+                craftingSlots[1][0].getItem().id == AllItems.glass.id &&
+                craftingSlots[1][1].getItem().id == AllItems.glass.id &&
+                craftingSlots[1][2].getItem().id == AllItems.glass.id &&
+                craftingSlots[2][0].getItem().id == AllItems.glass.id &&
+                craftingSlots[2][1].getItem().id == AllItems.glass.id &&
+                craftingSlots[2][2].getItem().id == AllItems.glass.id)
+                return Constants.RECEPIE_WINDOW;
             }
         else if (
             craftingSlots[0][0].getBlock() != null &&

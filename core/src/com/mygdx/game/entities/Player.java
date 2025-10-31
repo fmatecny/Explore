@@ -37,6 +37,10 @@ public class Player {
     private Inventory inventory;
     private HUD hud;
     private float health = 100.0f;
+    private float hunger = 0.0f;
+    private float runTime = 0;
+    private float hungerRunTime = 5;
+    
     
     private Constants.typeOfMovement currentTOM = Constants.typeOfMovement.Stand;
     private Constants.typeOfMovement lastTOM = Constants.typeOfMovement.Stand;
@@ -155,7 +159,7 @@ public class Player {
                 currentTOM = Constants.typeOfMovement.Stand;      
         }
         
-        if (Inputs.instance.run && currentTOM != Constants.typeOfMovement.Stand){
+        if (Inputs.instance.run && currentTOM != Constants.typeOfMovement.Stand && hasEnergyForRun()){
             speed *= 3;
             //currentTOM = typeOfMovement.run;
         }
@@ -240,7 +244,7 @@ public class Player {
             isJumping = true;
         }
 
-        if (Inputs.instance.run && currentTOM != Constants.typeOfMovement.Stand){
+        if (Inputs.instance.run && currentTOM != Constants.typeOfMovement.Stand && hasEnergyForRun()){
             //speed *= 2;
             currentTOM = Constants.typeOfMovement.Run;
         }
@@ -280,6 +284,21 @@ public class Player {
     
     public void draw(SpriteBatch spriteBatch){
         //hud.draw();
+        
+        health = hud.getHealthValue();
+        
+        if (health <= 0)
+            currentTOM = Constants.typeOfMovement.Die;
+
+        if (currentTOM == Constants.typeOfMovement.Run)
+        {
+            hud.setMultiplyHunger(2);
+        }
+        else
+        {
+            hud.setMultiplyHunger(1);
+        }
+        
         typeOfArmor = inventory.getTypeOfArmor();
         animations = MyAssetManager.instance.getPlayerAnimations(typeOfArmor);
         
@@ -414,5 +433,9 @@ public class Player {
     
     public boolean IsAlive() {
         return health > 0;
+    }
+    
+    private boolean hasEnergyForRun(){
+        return hud.getHungerValue() > 30;
     }
 }

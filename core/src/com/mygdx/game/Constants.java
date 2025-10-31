@@ -48,6 +48,7 @@ public final class Constants {
     public static final int RECEPIE_FURNACE = 10;
     public static final int RECEPIE_STONE_STAIRS = 11;
     public static final int RECEPIE_HALF_STONE = 12;
+    public static final int RECEPIE_WINDOW = 13;
     
     public static final int RECEPIE_STONE_AXE = 100;
     public static final int RECEPIE_IRON_AXE = 101;
