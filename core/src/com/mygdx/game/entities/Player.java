@@ -41,7 +41,6 @@ public class Player {
     private float runTime = 0;
     private float hungerRunTime = 5;
     
-    
     private Constants.typeOfMovement currentTOM = Constants.typeOfMovement.Stand;
     private Constants.typeOfMovement lastTOM = Constants.typeOfMovement.Stand;
     private Constants.typeOfDirection direction = Constants.typeOfDirection.Right;
@@ -50,11 +49,13 @@ public class Player {
     private ArrayList<ArrayList<Animation<AtlasRegion>>> animations;
     private float stateTime = 0;
 
-    private final float SCALE = 6f;
-    private float WIDTH;
-    private float HEIGHT;
+    private final float entityTextureSizeRatio = 197f/512f; //size of player in pixels/size of texture in pixels
+    private float heightInBlocks = 2f;   
+    private final float TEXTURE_SCALE = heightInBlocks/entityTextureSizeRatio;//6f;
+    private float texture_width;
+    private float texture_height;
     
-    private final float DEFAULT_SPEED = 2;//0.5f;
+    private final float DEFAULT_SPEED = 1.5f;//2;//0.5f;
     private float speed = DEFAULT_SPEED;//2/GameScreen.PPM;
     private float powerOfImpuls = 0.2f;
 
@@ -82,8 +83,8 @@ public class Player {
     private void setSize(){
         float width = animations.get(0).get(0).getKeyFrame(0).getRegionWidth();
         float height = animations.get(0).get(0).getKeyFrame(0).getRegionHeight();
-        WIDTH = ((Block.size*SCALE)/height)*width;
-        HEIGHT = Block.size*SCALE;
+        texture_width = ((Block.size_in_meters*TEXTURE_SCALE)/height)*width;
+        texture_height = Block.size_in_meters*TEXTURE_SCALE;
     }
     
     private void definePlayer(Vector2 position){
@@ -100,10 +101,9 @@ public class Player {
         fdef.density = 0.5f;
         /*PolygonShape square = new PolygonShape();
         square.setAsBox(Block.size, Block.size);*/
-        CircleShape square = new CircleShape();
-        square.setRadius(Block.size/2.0f + 2.0f/GameScreen.PPM);
+        CircleShape circle = new CircleShape();
+        circle.setRadius(Block.size_in_meters*0.45f); //+ 2.0f/GameScreen.PPM);
         fdef.filter.categoryBits = Constants.PLAYER_BIT;
-        //square.
         //fdef.filter.categoryBits = MarioBros.MARIO_BIT;
         /*fdef.filter.maskBits = MarioBros.GROUND_BIT |
                 MarioBros.COIN_BIT |
@@ -113,11 +113,11 @@ public class Player {
                 MarioBros.ENEMY_HEAD_BIT |
                 MarioBros.ITEM_BIT;*/
 
-        fdef.shape = square;
+        fdef.shape = circle;
         b2body.createFixture(fdef);//.setUserData(this);
         
-        square.setRadius(Block.size/2.0f + 4.0f/GameScreen.PPM);
-        square.setPosition(new Vector2(0, (Block.size/2.0f + 1.0f/GameScreen.PPM)*2.0f));
+        circle.setRadius(Block.size_in_meters*0.45f); //+ 4.0f/GameScreen.PPM);
+        circle.setPosition(new Vector2(0, Block.size_in_meters));//(Block.size/2.0f + 1.0f/GameScreen.PPM)*2.0f));
         b2body.createFixture(fdef);
         
         EdgeShape right = new EdgeShape();
@@ -135,7 +135,7 @@ public class Player {
         fdef.isSensor = true;
         b2body.createFixture(fdef);
         
-        square.dispose();
+        circle.dispose();
         right.dispose();
         left.dispose();
     }
@@ -173,7 +173,7 @@ public class Player {
             isShotFinished = true;
         
         if (Inputs.instance.right && b2body.getLinearVelocity().x <= speed && MyContactListener.blockOnRight==0 && 
-            b2body.getPosition().x < Constants.WIDTH_OF_MAP*Block.size-Constants.W_IN_M/2)//stop player before end of map
+            b2body.getPosition().x < Constants.WIDTH_OF_MAP*Block.size_in_meters-Constants.W_IN_M/2)//stop player before end of map
         {
             b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
             currentTOM = Constants.typeOfMovement.Walk;
@@ -239,7 +239,7 @@ public class Player {
         }
         
         if (Inputs.instance.jump && !isJumping && (!isFalling || MyContactListener.swim) && MyContactListener.climb < 2){
-            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
+            b2body.applyLinearImpulse(new Vector2(0, 0.4f), b2body.getWorldCenter(), true);
             currentTOM = Constants.typeOfMovement.Jump;
             isJumping = true;
         }
@@ -334,7 +334,13 @@ public class Player {
             printTool(spriteBatch);
         
         //print player
-        spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
+        //b2body position is in the middle of bottom circle
+        //center of body is in top of bottom circle -> center of texture is aligned also there
+        spriteBatch.draw(   currentFrame,
+                            b2body.getPosition().x - (texture_width/2),
+                            b2body.getPosition().y - texture_height/2 + Block.size_in_meters/2f,
+                            texture_width,
+                            texture_height);
         
         //print tool
         if (direction == Constants.typeOfDirection.Right)
@@ -385,7 +391,7 @@ public class Player {
             else
             	currentFrame = MyAssetManager.instance.getToolsAnimations(AllTools.typeOfTools.values()[id]).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
     			
-            spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
+            spriteBatch.draw(currentFrame, b2body.getPosition().x - (texture_width/2), b2body.getPosition().y -(texture_height/2.0f) + Block.size_in_meters/2f, texture_width, texture_height);
         }
     }
     
@@ -400,7 +406,7 @@ public class Player {
             else
             	currentFrame = MyAssetManager.instance.getPlayerArmAnimations(typeOfArmor).get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
     		
-            spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + Block.size/2f, WIDTH, HEIGHT);
+            spriteBatch.draw(currentFrame, b2body.getPosition().x - (texture_width/2), b2body.getPosition().y -(texture_height/2.0f) + Block.size_in_meters/2f, texture_width, texture_height);
         }
     }
     
@@ -437,5 +443,22 @@ public class Player {
     
     private boolean hasEnergyForRun(){
         return hud.getHungerValue() > 30;
+    }
+    
+    public void eat(){
+        if (inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getItem().isEatable)
+        {
+            float satiety = inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getItem().satiety;
+            if (satiety > 0)
+            {
+                hud.decreaseHunger(satiety);
+            }
+            else
+            {
+                hud.decreaseHealth(-satiety);
+            }
+            
+            inventory.getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
+        }
     }
 }

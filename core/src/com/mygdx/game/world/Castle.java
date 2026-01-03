@@ -126,7 +126,13 @@ public class Castle {
                     castle[i+x][j+y].blocked = !(j == h-1 && i%2 == 0); //do not set tower as blocked - otherwise floor will be in the shadow (same as roof of houses is not blocked - must be visiable)
                 }
                 else if (j < h-1)
-                {
+                {  
+                    if (i == 1)
+                    {
+                        castle[i+x][j+y] = new Block(AllBlocks.ladder);
+                        castle[i+x][j+y].blocked = false;
+                    }
+
                     castleBackground[i+x][j+y] = AllBlocks.gravel;
                 }
             } 

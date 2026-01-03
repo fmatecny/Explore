@@ -15,7 +15,7 @@ import com.mygdx.game.screens.GameScreen;
  */
 public class Block extends InventoryObject{
     public static final int size_in_pixels = 40;
-    public static final float size = size_in_pixels/GameScreen.PPM;
+    public static final float size_in_meters = size_in_pixels/GameScreen.PPM;
  
         
     public int hardness = 99;

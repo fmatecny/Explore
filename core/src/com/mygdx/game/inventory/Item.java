@@ -14,6 +14,8 @@ import com.mygdx.game.Constants;
 public class Item extends InventoryObject{
        
     public int maxItemInBlock = 0;
+    public boolean isEatable = false;
+    public float satiety = 0;
     
     public Item(Item i) {
         this.id = i.id;

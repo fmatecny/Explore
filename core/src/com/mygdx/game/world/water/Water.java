@@ -400,7 +400,7 @@ public class Water implements Disposable {
 		if (Math.abs(bodyVel) > 2.5f) {
 			for (int i = 0; i < bodyVel / 8; i++) {
 				//Vector2 pos = new Vector2(column.x(), y).add(IntersectionUtils.getRandomVector(column.getTargetHeight()));
-                                Vector2 pos = new Vector2(column.x(), y).add(IntersectionUtils.getRandomVector(2*Block.size));
+                                Vector2 pos = new Vector2(column.x(), y).add(IntersectionUtils.getRandomVector(2*Block.size_in_meters));
 
 				Vector2 vel;// = new Vector2();
 				if (rand.nextInt(4) == 0)

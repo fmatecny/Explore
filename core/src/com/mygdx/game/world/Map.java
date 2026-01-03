@@ -71,6 +71,7 @@ public class Map extends WorldObject{
     private ArrayList<IntVector2> torchsPos = new ArrayList<>();
     private ArrayList<IntVector2> doorsUpPos = new ArrayList<>();
     private ArrayList<IntVector2> knightPos = new ArrayList<>();
+    private ArrayList<IntVector2> treePos = new ArrayList<>();
     private IntVector2 kingPos = new IntVector2();
     private float stateTime = 0;
     private float stateTimeTorch = 0;
@@ -117,6 +118,7 @@ public class Map extends WorldObject{
         furnaceList.clear();
         doorsUpPos.clear();
         knightPos.clear();
+        treePos.clear();
     }
     
     public void generateMap() {
@@ -197,7 +199,7 @@ public class Map extends WorldObject{
         }
             
         
-        generateCaves();
+        //generateCaves();
     }
     
     
@@ -474,6 +476,7 @@ public class Map extends WorldObject{
     }
     
     private void createTrees(){
+        boolean treePosSet = false;
         int treeWidth = (int )(Math.random() * 5 + 4);
         int treeHeight = (int )(Math.random() * 5 + 5);
 
@@ -482,13 +485,36 @@ public class Map extends WorldObject{
 
         Tree tree = new Tree(treeWidth,treeHeight, groundIndexX, groundIndexY);
         Block[][] treeArr = tree.getTree();
+        boolean mushroomSet = !tree.hasPlant();
 
         for (int i = 0; i < treeWidth; i++) {
             for (int j = 0; j < treeHeight; j++) {
-                if (treeArr[i][j] != null && (mapArray[i+groundIndexX-treeWidth/2][j+groundIndexY] == null)){
-                    mapArray[i+groundIndexX-treeWidth/2][j+groundIndexY] = treeArr[i][j];}
+                
+                if (mapArray[i+groundIndexX-treeWidth/2][j+groundIndexY] == null)
+                {
+                    if (treeArr[i][j] != null )
+                    {
+                        mapArray[i+groundIndexX-treeWidth/2][j+groundIndexY] = treeArr[i][j];
+
+                        if (treePosSet == false)
+                        {
+                            treePosSet = true;
+                            treePos.add(new IntVector2(groundIndexX, j+groundIndexY));
+                        }
+                    }
+                    else if (i == tree.getPlantXPos() && mushroomSet == false && 
+                            mapArray[i+groundIndexX-treeWidth/2][j+groundIndexY-1] != null)
+                    {
+                        if  (mapArray[i+groundIndexX-treeWidth/2][j+groundIndexY-1].id != AllBlocks.leaf.id)
+                        {
+                            mushroomSet = true;
+                            mapArray[i+groundIndexX-treeWidth/2][j+groundIndexY] = tree.getPlant();
+                        }
+                    }
+                }
             }
         }
+        
         groundIndexX += (int )(Math.random() * 15 + treeWidth);
     
     }
@@ -613,7 +639,7 @@ public class Map extends WorldObject{
     }
     
     public void rotateBlock(Body b){
-        getBlockByIdx((int)(b.getPosition().x/Block.size),(int)(b.getPosition().y/Block.size)).textureRotation -= 90;
+        getBlockByIdx((int)(b.getPosition().x/Block.size_in_meters),(int)(b.getPosition().y/Block.size_in_meters)).textureRotation -= 90;
     }
     
     
@@ -764,8 +790,8 @@ public class Map extends WorldObject{
         
         IntVector2 v = new IntVector2();
         
-        v.X = (int)((x+(cam.x-MyGdxGame.width/2))/Block.size);
-        v.Y = (int)((MyGdxGame.height-(y-(cam.y-MyGdxGame.height/2)))/Block.size);
+        v.X = (int)((x+(cam.x-MyGdxGame.width/2))/Block.size_in_meters);
+        v.Y = (int)((MyGdxGame.height-(y-(cam.y-MyGdxGame.height/2)))/Block.size_in_meters);
         
         return v;
     
@@ -781,8 +807,8 @@ public class Map extends WorldObject{
     
     public void draw(SpriteBatch spriteBatch, Vector2 cam){
         
-        left_cam_edge = (int) (cam.x/Block.size - MyGdxGame.width/2/Block.size_in_pixels);
-        down_cam_edge = (int) (cam.y/Block.size - MyGdxGame.height/2/Block.size_in_pixels);
+        left_cam_edge = (int) (cam.x/Block.size_in_meters - MyGdxGame.width/2/Block.size_in_pixels);
+        down_cam_edge = (int) (cam.y/Block.size_in_meters - MyGdxGame.height/2/Block.size_in_pixels);
         
         left = left_cam_edge - Constants.SIZE_OF_CHUNK;
         right = left_cam_edge + (MyGdxGame.width/Block.size_in_pixels) + Constants.SIZE_OF_CHUNK;
@@ -867,7 +893,7 @@ public class Map extends WorldObject{
                     if (mapArray[i][j].isWholeBlock == false)
                     {
                         if (mapBackgroundArray[i][j] != AllBlocks.empty && mapBackgroundArray[i][j] != null)
-                            spriteBatch.draw(mapBackgroundArray[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                            spriteBatch.draw(mapBackgroundArray[i][j].texture, i*Block.size_in_meters, j*Block.size_in_meters, Block.size_in_meters, Block.size_in_meters);
                     }
                     
                     if (mapArray[i][j].id != AllBlocks.torch.id)// dont need to show torch, it will be animate
@@ -875,7 +901,7 @@ public class Map extends WorldObject{
                 }
                 else if (mapBackgroundArray[i][j] != AllBlocks.empty && mapBackgroundArray[i][j] != null)
                 {
-                    spriteBatch.draw(mapBackgroundArray[i][j].texture, i*Block.size, j*Block.size, Block.size, Block.size);
+                    spriteBatch.draw(mapBackgroundArray[i][j].texture, i*Block.size_in_meters, j*Block.size_in_meters, Block.size_in_meters, Block.size_in_meters);
                 }
             }
         }
@@ -885,7 +911,7 @@ public class Map extends WorldObject{
             stateTime += Gdx.graphics.getDeltaTime();
             TextureRegion currentFrame = breakBlockAnimation.getKeyFrame(stateTime);
             IntVector2 v = ((BlockObjectData)miningBlock.getBody().getUserData()).getPos();
-            spriteBatch.draw(currentFrame, v.X*Block.size, v.Y*Block.size, Block.size, Block.size);
+            spriteBatch.draw(currentFrame, v.X*Block.size_in_meters, v.Y*Block.size_in_meters, Block.size_in_meters, Block.size_in_meters);
             if (breakBlockAnimation.isAnimationFinished(stateTime)){
                 isMining = false; 
                 minedBlock = miningBlock;
@@ -898,7 +924,7 @@ public class Map extends WorldObject{
             stateTimeTorch += Gdx.graphics.getDeltaTime();
             TextureRegion currentFrame = torchAnimation.getKeyFrame(stateTimeTorch, true);
             for (IntVector2 torchPos : torchsPos) {
-                spriteBatch.draw(currentFrame, torchPos.X*Block.size, torchPos.Y*Block.size, Block.size, Block.size);   
+                spriteBatch.draw(currentFrame, torchPos.X*Block.size_in_meters, torchPos.Y*Block.size_in_meters, Block.size_in_meters, Block.size_in_meters);   
             }
         }
     }
@@ -906,9 +932,9 @@ public class Map extends WorldObject{
     private void drawWithRotation(SpriteBatch spriteBatch, int i, int j) {
        Block b = mapArray[i][j];
        spriteBatch.draw(b.texture, 
-                            i*Block.size, j*Block.size, 
-                            Block.size/2, Block.size/2, 
-                            Block.size, Block.size, 
+                            i*Block.size_in_meters, j*Block.size_in_meters, 
+                            Block.size_in_meters/2, Block.size_in_meters/2, 
+                            Block.size_in_meters, Block.size_in_meters, 
                             1.0f, 1.0f, 
                             b.textureRotation, 
                             0, 0, 
@@ -956,16 +982,14 @@ public class Map extends WorldObject{
    
     }
     
-    public void mining(IntVector2 v, Tool tool){
+    public void mining(IntVector2 v, int hitForce){
         if (v.equal(rectVector) == false)
             return;
         
         if ((miningBlock == null && minedBlock == null) ||
             (getBlockByIdx(v) != miningBlock) ) 
         {
-            int damage = 1;
-            if (tool != null)
-                damage = tool.damage;
+            int damage = hitForce;
             
             if (Inputs.instance.debugMode)
                 damage = 100;
@@ -1045,6 +1069,11 @@ public class Map extends WorldObject{
     public ArrayList<IntVector2> getKnightPos(){
         return knightPos;
     }
+
+    public ArrayList<IntVector2> getTreePos() {
+        return treePos;
+    }
+
     
     public IntVector2 getKingPos(){
         return kingPos;
@@ -1055,7 +1084,7 @@ public class Map extends WorldObject{
         for (int i = 0; i < mapArray[x].length; i++)
         {
             if (mapArray[x][i] == null)
-                return new Vector2(x*Block.size, i*Block.size);
+                return new Vector2(x*Block.size_in_meters, i*Block.size_in_meters);
         }
         
         return null;
@@ -1069,7 +1098,7 @@ public class Map extends WorldObject{
             if (mapArray[positionX][y-1] != null)
             {
                 if (mapArray[positionX][y-1].blocked)
-                    return new Vector2(positionX*Block.size, y*Block.size);
+                    return new Vector2(positionX*Block.size_in_meters, y*Block.size_in_meters);
             }
         }
         return new Vector2(0, 0);

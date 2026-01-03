@@ -31,7 +31,10 @@ public class AllBlocks {
        
        torch, ladder,//10,20
        
-       chest, furnace//25
+       chest, furnace,//25
+       
+       blackMushroom, amanitaMushroom//2
+       
 
     }
 
@@ -74,6 +77,8 @@ public class AllBlocks {
     public static Block chest;
     public static Block furnace;
     
+    public static Block blackMushroom;
+    public static Block amanitaMushroom;
     
     public static ArrayList<Block> blockList;
     
@@ -85,6 +90,29 @@ public class AllBlocks {
         
         heard = new Texture(Gdx.files.internal("heart.png"));
 
+        amanitaMushroom = new Block();
+        amanitaMushroom.id = t.amanitaMushroom.ordinal();
+        amanitaMushroom.info = "Amanita Mushroom";
+        amanitaMushroom.blocked = true;
+        amanitaMushroom.hardness = 2;
+        amanitaMushroom.textureRotation = 0;
+        amanitaMushroom.isRotationAllowed = false;
+        amanitaMushroom.stackable = true;
+        amanitaMushroom.texture = new Texture(Gdx.files.internal("block/amanitaMushroom.png"));
+        blockList.add(amanitaMushroom);
+
+        blackMushroom = new Block();
+        blackMushroom.id = t.blackMushroom.ordinal();
+        blackMushroom.info = "Black Mushroom";
+        blackMushroom.blocked = true;
+        blackMushroom.hardness = 2;
+        blackMushroom.textureRotation = 0;
+        blackMushroom.isRotationAllowed = false;
+        blackMushroom.stackable = true;
+        blackMushroom.texture = new Texture(Gdx.files.internal("block/blackMushroom.png"));
+        blockList.add(blackMushroom);
+        
+        
         coal = new Block();
         coal.id = t.coal.ordinal();
         coal.info = "Coal";

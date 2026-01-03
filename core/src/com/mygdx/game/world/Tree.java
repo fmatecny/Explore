@@ -5,6 +5,8 @@
  */
 package com.mygdx.game.world;
 
+import com.mygdx.game.IntVector2;
+
 /**
  *
  * @author Fery
@@ -12,6 +14,9 @@ package com.mygdx.game.world;
 public class Tree{
 
     private Block[][] tree;
+    private int rootXPos;
+    private int plantXPos;
+    private Block plant = null;
     
     public Tree(int width, int height, int x, int y) {
         
@@ -22,17 +27,15 @@ public class Tree{
     }
 
     private void createTrunk(int w, int h, int x, int y) {
-        int middle = w/2 + w%2 - 1;
+        rootXPos = w/2 + w%2 - 1;
         
-        for (int i = 0; i < w; i++) {
-            for (int j = 0; j < h/2; j++) {
-                if (i == middle)
-                {
-                    this.tree[i][j] = new Block(AllBlocks.wood);
-                    this.tree[i][j].blocked = false;
-                }
-            }
-            
+        if ((int )(Math.random() * 100) > 50 )
+            createPlant(w);
+        
+        for (int j = 0; j < h/2; j++)
+        {
+                this.tree[rootXPos][j] = new Block(AllBlocks.wood);
+                this.tree[rootXPos][j].blocked = false;
         }
     }
     
@@ -47,10 +50,33 @@ public class Tree{
         }
     }
     
-    
+    private void createPlant(int w){
+        plantXPos = (int )(Math.random() * w);
+        if (plantXPos == rootXPos )
+            plantXPos++;
+
+        plant = new Block(((int )(Math.random() * 100) > 40 ) ? AllBlocks.blackMushroom : AllBlocks.amanitaMushroom);
+        plant.blocked = false;
+    }
+
+    public int getRootXPos() {
+        return rootXPos;
+    }
 
     public Block[][] getTree() {
         return this.tree;
+    }
+
+    public int getPlantXPos() {
+        return plantXPos;
+    }
+
+    public Block getPlant() {
+        return plant;
+    }
+    
+    public boolean hasPlant(){
+        return plant != null;
     }
     
 }

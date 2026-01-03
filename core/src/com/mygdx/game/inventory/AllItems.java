@@ -20,7 +20,9 @@ public class AllItems {
         stick, glass,
         coalIngot, ironIngot, goldIngot, diamondIngot,
         bucket, waterBucket,
-        ironArmor, diamondArmor
+        ironArmor, diamondArmor,
+        
+        redApple, greenApple, blackMushroom, amanitaMushroom
         
     }
     
@@ -37,6 +39,11 @@ public class AllItems {
     public static Item ironArmor;
     public static Item diamondArmor;
 
+    public static Item redApple;
+    public static Item greenApple;
+    public static Item blackMushroom, amanitaMushroom;
+    
+    
     public static ArrayList<Item> itemList;
     
     public AllItems() {
@@ -112,6 +119,42 @@ public class AllItems {
         diamondArmor.texture = new Texture(Gdx.files.internal("item/GuardArmor.png"));
         diamondArmor.maxItemInBlock = 0;
         itemList.add(diamondArmor);
+        
+        redApple = new Item();
+        redApple.id = id.redApple.ordinal();
+        redApple.info = "Red Apple";
+        redApple.texture = new Texture(Gdx.files.internal("item/redApple.png"));
+        redApple.maxItemInBlock = 0;
+        redApple.isEatable = true;
+        redApple.satiety = 5;
+        itemList.add(redApple);
+        
+        greenApple = new Item();
+        greenApple.id = id.greenApple.ordinal();
+        greenApple.info = "Green Apple";
+        greenApple.texture = new Texture(Gdx.files.internal("item/greenApple.png"));
+        greenApple.maxItemInBlock = 0;
+        greenApple.isEatable = true;
+        greenApple.satiety = 5;
+        itemList.add(greenApple);
+        
+        blackMushroom = new Item();
+        blackMushroom.id = id.blackMushroom.ordinal();
+        blackMushroom.info = "Black Mushroom";
+        blackMushroom.texture = new Texture(Gdx.files.internal("item/blackMushroom.png"));
+        blackMushroom.maxItemInBlock = 0;
+        blackMushroom.isEatable = true;
+        blackMushroom.satiety = 5;
+        itemList.add(blackMushroom);
+        
+        amanitaMushroom = new Item();
+        amanitaMushroom.id = id.amanitaMushroom.ordinal();
+        amanitaMushroom.info = "Amanita Mushroom";
+        amanitaMushroom.texture = new Texture(Gdx.files.internal("item/amanitaMushroom.png"));
+        amanitaMushroom.maxItemInBlock = 0;
+        amanitaMushroom.isEatable = true;
+        amanitaMushroom.satiety = -25;
+        itemList.add(amanitaMushroom);
     }
     
     public static Item getItemById(int id){

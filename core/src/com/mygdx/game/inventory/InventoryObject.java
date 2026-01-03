@@ -16,6 +16,5 @@ public abstract class InventoryObject {
     public int id;
     public Texture texture;
     public String info = "";
-
-    
+   
 }

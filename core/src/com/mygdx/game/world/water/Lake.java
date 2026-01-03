@@ -36,10 +36,10 @@ public class Lake {
             }
             
             water.createBody(GameScreen.world, 
-                            xIdx*Block.size + Block.size*width/2.0f, 
-                            yIdx*Block.size - Block.size*height + y*Block.size - Block.size/2.0f, 
-                            widthOfWater*Block.size, 
-                            Block.size); //world, x, y, width, height
+                            xIdx*Block.size_in_meters + Block.size_in_meters*width/2.0f, 
+                            yIdx*Block.size_in_meters - Block.size_in_meters*height + y*Block.size_in_meters - Block.size_in_meters/2.0f, 
+                            widthOfWater*Block.size_in_meters, 
+                            Block.size_in_meters); //world, x, y, width, height
             water.setX(xIdx + width/2 - widthOfWater/2);
             water.setY(yIdx-1 - height  + y);
             waterList.add(water);

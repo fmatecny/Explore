@@ -13,7 +13,7 @@ import com.badlogic.gdx.Gdx;
  */
 public final class Constants {
 
-    public static final int WIDTH_OF_MAP = 700;
+    public static final int WIDTH_OF_MAP = 1500;
     public static final int HEIGHT_OF_MAP = 150;
     public static final int HEIGHT_OF_SKY = 30;
     public static final int SIZE_OF_CHUNK = 16;
@@ -76,7 +76,7 @@ public final class Constants {
     public static enum typeOfDirection { Left, Right };
     public static enum typeOfMovement { Stand, Walk, Run, Jump, Slash, Hit, Die };
     public static enum typeOfArmor { Default, Leather, Iron, Diamond };
-    public static enum typeOfEntity{ villager, girl, smith, golem, skeleton, knight, king };
+    public static enum typeOfEntity{ villager, girl, smith, golem, skeleton, knight, king, squirrel };
     
     private Constants() {
     }

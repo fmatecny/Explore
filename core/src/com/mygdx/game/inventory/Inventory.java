@@ -216,6 +216,45 @@ public class Inventory implements Disposable{
                 else
                     return inventoryPackage.addObject(AllItems.diamondIngot);
             }
+            if (block.id == AllBlocks.leaf.id)
+            {
+                //add leaf to inventory
+                //if it is failed then leave
+                //if not, add also apple to inventory
+                if (addObjectToInvenotryBar(block) == false)
+                {
+                    if (inventoryPackage.addObject(block) == false)
+                        return false;
+                }
+                
+                //add apple to inventory bar
+                if ((int) (Math.random() * 100) > 70)
+                {
+                    // red or green apple - 50:50
+                    Item apple = ((int) (Math.random() * 100) > 50) ? AllItems.redApple : AllItems.greenApple;
+                    //if it is failed, try to add it to inventory package
+                    if (addObjectToInvenotryBar(apple))
+                        return true;
+
+                    //ignor return value - if add to inventoryPackage failed, just continue without apple
+                    inventoryPackage.addObject(apple);
+                }
+                return true;
+            }
+            if (block.id == AllBlocks.blackMushroom.id)
+            {
+                if (addObjectToInvenotryBar(AllItems.blackMushroom))
+                    return true;
+                else
+                    return inventoryPackage.addObject(AllItems.blackMushroom);
+            }
+            if (block.id == AllBlocks.amanitaMushroom.id)
+            {
+                if (addObjectToInvenotryBar(AllItems.amanitaMushroom))
+                    return true;
+                else
+                    return inventoryPackage.addObject(AllItems.amanitaMushroom);
+            }
             if (addObjectToInvenotryBar(block))
                 return true;
             else

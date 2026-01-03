@@ -32,8 +32,8 @@ public abstract class Entity implements EntityIfc{
     
     protected int id;
     protected int demage = 2;
-    private float speed = 1.0f;
-    private float powerOfImpuls = 0.2f;
+    protected float speed = 1.0f;
+    protected float powerOfImpuls = 0.2f;
     private final float dazedTimeout = 0.8f;
     private float currentDazedTimeout = 0;
     private boolean isDazed = false;
@@ -45,10 +45,12 @@ public abstract class Entity implements EntityIfc{
     private int timeMove = (int )(Math.random() * 40) + 10;
     private int timeToState = (int )(Math.random() * 100) + 100;
     
-    protected float WIDTH;
-    protected float HEIGHT;
-    private float SCALE = 6f;
-    private float heightOffset = Block.size/2f;
+    private final float entityTextureSizeRatio = 197f/512f;
+    private float heightInBlocks = 2f;   
+    protected float texture_width;
+    protected float texture_height;
+    private float TEXTURE_SCALE = heightInBlocks/entityTextureSizeRatio;
+    private float heightOffset = Block.size_in_meters/2f;
 
     protected Constants.typeOfMovement currentTOM = Constants.typeOfMovement.Stand;
     protected Constants.typeOfMovement lastTOM = Constants.typeOfMovement.Stand;
@@ -72,7 +74,19 @@ public abstract class Entity implements EntityIfc{
         this.id = id;
         this.typeOfEntity = typeOfEntity;
         defineBody(x, y);
-        housePos = new Vector2(x*Block.size, y*Block.size);
+        housePos = new Vector2(x*Block.size_in_meters, y*Block.size_in_meters);
+        System.out.println("id= " + id + " | HousePos = " + housePos);
+        animations = MyAssetManager.instance.getEntityAnimations(this.typeOfEntity);
+        setSize();
+    }
+    
+    
+    public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity, float scale) {
+        this.TEXTURE_SCALE = scale;
+        this.id = id;
+        this.typeOfEntity = typeOfEntity;
+        defineBody(x, y);
+        housePos = new Vector2(x*Block.size_in_meters, y*Block.size_in_meters);
         System.out.println("id= " + id + " | HousePos = " + housePos);
         animations = MyAssetManager.instance.getEntityAnimations(this.typeOfEntity);
         setSize();
@@ -88,7 +102,7 @@ public abstract class Entity implements EntityIfc{
     
     private void defineBody(float x, float y){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(x*Block.size, y*Block.size);
+        bdef.position.set(x*Block.size_in_meters, y*Block.size_in_meters);
         bdef.type = BodyDef.BodyType.DynamicBody;
         b2body = GameScreen.world.createBody(bdef);
         b2body.setUserData(id);
@@ -97,15 +111,15 @@ public abstract class Entity implements EntityIfc{
         FixtureDef fdef = new FixtureDef();
        
         CircleShape square = new CircleShape();
-        square.setRadius(Block.size/2.0f + 2.0f/GameScreen.PPM);
+        square.setRadius(Block.size_in_meters*0.45f);
 
         fdef.shape = square;
         fdef.filter.categoryBits = Constants.ENTITY_BIT;
         fdef.filter.maskBits = Constants.BLOCK_BIT;
         b2body.createFixture(fdef);//.setUserData(this);
         
-        square.setRadius(Block.size/2.0f + 4.0f/GameScreen.PPM);
-        square.setPosition(new Vector2(0, (Block.size/2.0f + 1.0f/GameScreen.PPM)*2.0f));
+        square.setRadius(Block.size_in_meters*0.45f);
+        square.setPosition(new Vector2(0, Block.size_in_meters));
         b2body.createFixture(fdef);
 
         EdgeShape right = new EdgeShape();
@@ -131,8 +145,8 @@ public abstract class Entity implements EntityIfc{
     private void setSize(){
         float width = animations.get(0).get(0).getKeyFrame(0).getRegionWidth();
         float height = animations.get(0).get(0).getKeyFrame(0).getRegionHeight();
-        WIDTH = ((Block.size*SCALE)/height)*width;
-        HEIGHT = Block.size*SCALE;
+        texture_width = ((Block.size_in_meters*TEXTURE_SCALE)/height)*width;
+        texture_height = Block.size_in_meters*TEXTURE_SCALE;
     }
     
     @Override
@@ -178,7 +192,7 @@ public abstract class Entity implements EntityIfc{
         else
         {
             if (doRight() && b2body.getLinearVelocity().x <= speed &&
-                b2body.getPosition().x < Constants.WIDTH_OF_MAP*Block.size-Constants.W_IN_M/2)
+                b2body.getPosition().x < Constants.WIDTH_OF_MAP*Block.size_in_meters-Constants.W_IN_M/2)
             {
                 b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
                 currentTOM = Constants.typeOfMovement.Walk;
@@ -263,20 +277,21 @@ public abstract class Entity implements EntityIfc{
             currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
         //currentFrame.flip(currentFrame.isFlipX() != leftDirection, false);
         
-        spriteBatch.draw(currentFrame, b2body.getPosition().x - (WIDTH/2), b2body.getPosition().y -(HEIGHT/2.0f) + heightOffset, WIDTH, HEIGHT);
-        /*o = new TextureRegion(currentFrame);
-        o.flip(true, false);
-        spriteBatch.draw(o, b2body.getPosition().x - Block.size*2, b2body.getPosition().y -(Block.size/2.0f + 11.0f/GameScreen.PPM)*2.0f, WIDTH, HEIGHT);
-        */
+        spriteBatch.draw(currentFrame,
+                            b2body.getPosition().x - (texture_width/2),
+                            b2body.getPosition().y -(texture_height/2.0f) + heightOffset,
+                            texture_width,
+                            texture_height);
+
         lastTOM = currentTOM;
     }
     
-    private boolean doLeft(){ 
+    protected boolean doLeft(){ 
         return counter < timeMove;
     }
     
     
-    private boolean doRight(){
+    protected boolean doRight(){
         
         if (counter > 2*timeMove + 2*timeToState)
             counter = 0;
@@ -294,9 +309,9 @@ public abstract class Entity implements EntityIfc{
         float positionOffset;
         
         if (goToHouse)
-            positionOffset = 0.3f*Block.size;
+            positionOffset = 0.3f*Block.size_in_meters;
         else
-            positionOffset = 1.5f*Block.size;
+            positionOffset = 1.5f*Block.size_in_meters;
         
         if (x-positionOffset > b2body.getPosition().x && b2body.getLinearVelocity().x <= speed){
             b2body.applyLinearImpulse(new Vector2(powerOfImpuls, 0), b2body.getWorldCenter(), true);
@@ -326,7 +341,11 @@ public abstract class Entity implements EntityIfc{
     
     public float getSpeed() {
         return speed;
-    } 
+    }
+    
+    protected float setSpeed(float speed) {
+        return this.speed = speed;
+    }
     
     /**
      *
@@ -351,12 +370,12 @@ public abstract class Entity implements EntityIfc{
     }
     
     public void changeScale(float s){
-        SCALE = s;
+        TEXTURE_SCALE = s;
         
         float width = animations.get(0).get(0).getKeyFrame(0).getRegionWidth();
         float height = animations.get(0).get(0).getKeyFrame(0).getRegionHeight();
-        WIDTH = ((Block.size*SCALE)/height)*width;
-        HEIGHT = Block.size*SCALE;
+        texture_width = ((Block.size_in_meters*TEXTURE_SCALE)/height)*width;
+        texture_height = Block.size_in_meters*TEXTURE_SCALE;
     }
     
     public void setHeightOffset(float offset) {

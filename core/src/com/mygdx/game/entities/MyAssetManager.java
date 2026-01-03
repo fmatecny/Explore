@@ -67,11 +67,19 @@ public class MyAssetManager {
         for (int i = 0; i < typeOfDirection.values().length; i++) 
         {
             for (int j = 0; j < typeOfMovement.values().length; j++) 
-            { 
-                if (j == typeOfMovement.Stand.ordinal())
-                    animationsOneDir.add(j, new Animation<>(0.1f, textureAtlas[i][j].getRegions()));
+            {
+                if (path.contains("squirrel"))
+                {
+                    animationsOneDir.add(j, new Animation<>(0.08f, textureAtlas[i][j].getRegions()));  
+                }
                 else
-                    animationsOneDir.add(j, new Animation<>(0.03f, textureAtlas[i][j].getRegions()));  
+                {
+                    if (j == typeOfMovement.Stand.ordinal())
+                        animationsOneDir.add(j, new Animation<>(0.1f, textureAtlas[i][j].getRegions()));
+                    else
+                        animationsOneDir.add(j, new Animation<>(0.03f, textureAtlas[i][j].getRegions())); 
+                }
+ 
             }
             animations.add(new ArrayList<Animation<AtlasRegion>>(animationsOneDir));
             animationsOneDir.clear();

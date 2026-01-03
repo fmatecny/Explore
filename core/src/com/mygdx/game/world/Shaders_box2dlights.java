@@ -28,6 +28,9 @@ public class Shaders_box2dlights {
     private ArrayList<PointLight> torchLightList;
     
     private Color color;
+    private final float lightSoftnessLength_sun = 0.5f;
+    private final float lightSoftnessLength_torch = 0.5f;
+    private final float lightSoftnessLength_player = 0.5f;
     
     
     public Shaders_box2dlights() {
@@ -41,9 +44,9 @@ public class Shaders_box2dlights {
         
         //set degree to -89f or -91f to shows light (it seems like bug)
         //degree can be set to -90f when viewport is bigger - see bellow calling setCombinedMatrix
-        sun =  new DirectionalLight(rayHandler, 620, color, -90f);
+        sun =  new DirectionalLight(rayHandler, 2000, color, -90f);
         sun.setSoft(true);
-        sun.setSoftnessLength(1f);
+        sun.setSoftnessLength(lightSoftnessLength_sun);
         sun.setStaticLight(false);
         sun.setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
         
@@ -59,15 +62,8 @@ public class Shaders_box2dlights {
                                     currentHour);
             sun.setColor(color);
         }
-            
-        
-        /*if (currentHour >= 4 && currentHour <= 22)
-            sun.setDirection((float)map(4, 22, -15, -165, currentHour));
-        else if (currentHour > 22 && currentHour <= 24)
-            sun.setDirection((float)map(22, 24, -15, -65, currentHour));
-        else if (currentHour >= 0 && currentHour < 4)
-            sun.setDirection((float)map(0, 4, -65, -165, currentHour));*/
-           
+
+
         if (currentHour >= Constants.SUNSET_HOUR && currentHour <= Constants.SUNSET_HOUR + Constants.SUNSET_DURATION)
         {
             color.a = map(  Constants.SUNSET_HOUR, Constants.SUNSET_HOUR + Constants.SUNSET_DURATION,
@@ -107,7 +103,7 @@ public class Shaders_box2dlights {
     public void lightTorch(Player player) {
         if(myLight == null){
             myLight = new PointLight(rayHandler, 100, Color.BLACK, 5, 10, 30);
-            myLight.setSoftnessLength(0.5f);
+            myLight.setSoftnessLength(lightSoftnessLength_player);
             myLight.setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
             myLight.attachToBody(player.b2body, 0.5f, 0.5f);
         }
@@ -131,7 +127,7 @@ public class Shaders_box2dlights {
         //System.out.println("setTorchLight: index: " + i + ", x: " + x + ", y: " + y);
         
         torchLightList.add(i, new PointLight(rayHandler, 100, Color.BLACK, 5, x, y));
-        torchLightList.get(i).setSoftnessLength(0.5f);
+        torchLightList.get(i).setSoftnessLength(lightSoftnessLength_torch);
         torchLightList.get(i).setContactFilter((short)1, (short)1, (short)Constants.BLOCK_BIT);
     }
 
@@ -152,7 +148,7 @@ public class Shaders_box2dlights {
     }
     
     private float centerPosOfBlock(float c){
-        return (int)(c*GameScreen.PPM/Block.size_in_pixels) * Block.size + Block.size/2.0f;
+        return (int)(c*GameScreen.PPM/Block.size_in_pixels) * Block.size_in_meters + Block.size_in_meters/2.0f;
     }
     
 }

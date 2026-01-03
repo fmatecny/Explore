@@ -31,16 +31,19 @@ public class EntitiesManager {
     private ArrayList<Entity> smithList;
     private ArrayList<Entity> knightList;
     private ArrayList<Entity> hostileList;
+    private ArrayList<Entity> squirrelList;
     private King king;
+    private Squirrel squirrel;
    
     
-    public EntitiesManager(ArrayList<IntVector2> housesPos, ArrayList<IntVector2> knightPositions, IntVector2 kingPos) {
+    public EntitiesManager(ArrayList<IntVector2> housesPos, ArrayList<IntVector2> knightPositions, IntVector2 kingPos, ArrayList<IntVector2> treePositions) {
         entityList = new ArrayList<ArrayList<Entity>>();
         villagerList = new ArrayList<>();
         girlList = new ArrayList<>();
         smithList = new ArrayList<>();
         hostileList = new ArrayList<>();
         knightList = new ArrayList<>();
+        squirrelList = new ArrayList<>();
         
         for (int i = 0; i < housesPos.size(); i++) 
         {
@@ -87,12 +90,26 @@ public class EntitiesManager {
         }
         king = new King(id, kingPos.X, kingPos.Y);
         knightList.add(king);
+        id++;
         
+        for (int i = 0; i < treePositions.size() - 1; i++) {
+            System.err.println("x" + treePositions.get(i).X + "x+1" + treePositions.get(i+1).X);
+            if ( treePositions.get(i+1).X - treePositions.get(i).X < 10)
+            {
+                squirrel = new Squirrel(id, treePositions.get(i).X, treePositions.get(i).Y);
+                squirrelList.add(squirrel);
+                id++;
+                i++;
+            }
+                
+        }
+ 
         entityList.add(villagerList);
         entityList.add(girlList);
         entityList.add(smithList);
         entityList.add(hostileList);
-        entityList.add(knightList);     
+        entityList.add(knightList);  
+        entityList.add(squirrelList);
     }
         
     private Entity getEntityById(int id){
@@ -207,13 +224,13 @@ public class EntitiesManager {
     public void findNearestEntity() {    
         Entity nearestEntity = null;
         float minDst;
-        float dst = 1000;
+        float dst = 1000f;
         boolean followPlayer = false;
         //if distance between player and golem is 11blocks and less - golem will follow player
         for (Entity hostile : hostileList) 
         {
-            minDst = 50*Block.size;
-            if (hostile.b2body.getPosition().dst(player.b2body.getPosition()) <= 11*Block.size && player.IsAlive())
+            minDst = 50*Block.size_in_meters;
+            if (hostile.b2body.getPosition().dst(player.b2body.getPosition()) <= 11*Block.size_in_meters && player.IsAlive())
             {
                 hostile.followBody(player.b2body);
                 followPlayer = true;   
@@ -226,7 +243,7 @@ public class EntitiesManager {
                     if (entity instanceof Golem == false && entity instanceof Skeleton == false) //except hostile mobs
                     {
                         dst = hostile.b2body.getPosition().dst(entity.b2body.getPosition());
-                        if (dst <= 11*Block.size && dst < minDst && entity.IsAlive() && entity.b2body.isActive())
+                        if (dst <= 11*Block.size_in_meters && dst < minDst && entity.IsAlive() && entity.b2body.isActive())
                         {
                             if (followPlayer == false)
                             {
@@ -235,15 +252,32 @@ public class EntitiesManager {
                             }
                             entity.goToHouse();
                         }
-                        else if (dst > 15*Block.size && entity.IsAlive() && entity.isInHouse())
+                        else if (dst > 15*Block.size_in_meters && entity.IsAlive() && entity.isInHouse())
                         {
-                            entity.goOutOfHouse();
+                            if (entity instanceof Squirrel == false)
+                            {
+                                entity.goOutOfHouse();
+                            }                         
                         }
                     }
                 }
             }
             if (followPlayer == false)
                 hostile.followEntity(nearestEntity);
+        }
+        
+        for (Entity squirrel : squirrelList) 
+        {
+            dst = squirrel.b2body.getPosition().dst(player.b2body.getPosition());
+            if (dst <= 5f*Block.size_in_meters && player.IsAlive())
+            {
+                squirrel.goToHouse();
+                //squirrel.followBody(player.b2body);  
+            }                        
+            else if (dst > 10f*Block.size_in_meters && squirrel.IsAlive() && squirrel.isInHouse())
+            {
+                squirrel.goOutOfHouse();
+            }
         }
     }
     

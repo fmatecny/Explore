@@ -30,7 +30,10 @@ public class HUD {
     private float maxHungryTime = 5;
     private float multiplyHunger = 1;
     private float noFoodTime = 0;
-    private float maxNoFoodTime = 100;
+    private final float maxNoFoodTime = 30;
+    
+    private float delatHealingTime = 0;
+    private final float healingTime = 10;
 
     public HUD() {
         
@@ -77,7 +80,7 @@ public class HUD {
         if (noFoodTime >= maxNoFoodTime)
         {
             noFoodTime = 0;
-            decreaseHunger(5);
+            increaseHunger(5);
         }
         
         if (isHungry())
@@ -88,6 +91,19 @@ public class HUD {
             hungryTime = 0;
             decreaseHealth(5);
         }
+        
+        // heal when food is minimum on 80%
+        if (hasDemage() && getHungerValue() >= 80)
+        {
+            delatHealingTime += Gdx.graphics.getDeltaTime();
+        }
+        
+        if (delatHealingTime >= healingTime)
+        {
+            delatHealingTime = 0;
+            increaseHealth(5);
+        }
+        
 
         stagePlayerHud.draw();
     }
@@ -99,8 +115,20 @@ public class HUD {
             this.healthBar.setValue(health);
     }
 
+    public boolean hasDemage(){
+        return this.healthBar.getValue() < this.healthBar.getMaxValue();
+    }
+    
     public void decreaseHunger(float amount) {
-        float hungerValue = this.hungerBar.getValue()+amount;
+        float hungerValue = this.hungerBar.getValue() - amount;
+        if (hungerValue < 0)
+            hungerValue = 0;
+        
+        this.hungerBar.setValue(hungerValue);
+    }
+    
+    public void increaseHunger(float amount) {
+        float hungerValue = this.hungerBar.getValue() + amount;
         if (hungerValue > 100)
             hungerValue = 100;
         
@@ -120,9 +148,17 @@ public class HUD {
     }
     
     public void decreaseHealth(float amount) {
-        float healthValue = this.healthBar.getValue()-amount;
+        float healthValue = this.healthBar.getValue() - amount;
         if (healthValue < 0)
             healthValue = 0;
+
+        this.healthBar.setValue(healthValue);
+    }
+
+    public void increaseHealth(float amount) {
+        float healthValue = this.healthBar.getValue() + amount;
+        if (healthValue > 100)
+            healthValue = 100;
         
         this.healthBar.setValue(healthValue);
     }

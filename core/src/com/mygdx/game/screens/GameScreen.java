@@ -230,7 +230,7 @@ public class GameScreen implements Screen{
                 spawnGolemHour = currentHour + Math.random() * 1.5f + 0.2f;
             else if (abs(spawnGolemHour - currentHour) < 0.2f)
             {
-                float xOffset = (float)(Math.random() * 10 + 5)+player.b2body.getPosition().x/Block.size;
+                float xOffset = (float)(Math.random() * 10 + 5)+player.b2body.getPosition().x/Block.size_in_meters;
                 entitiesManager.spawnHostileEntity(map.getFreePosition((int)(xOffset)));
                 spawnGolemHour = -1;
             }
@@ -285,7 +285,7 @@ public class GameScreen implements Screen{
                 world.rayCast(callback_IsEntity, player.b2body.getPosition().x,player.b2body.getPosition().y, v3.x,v3.y);
                 if (entityBody != null)
                 {
-                    if (isEntity && player.b2body.getPosition().dst(entityBody.getPosition()) < 2.5*Block.size )
+                    if (isEntity && player.b2body.getPosition().dst(entityBody.getPosition()) < 2.5*Block.size_in_meters )
                     {
                         System.out.println("hiting of enemie with id = " + (int)entityBody.getUserData());
                         entitiesManager.playerHitEntity(entityBody);
@@ -317,7 +317,7 @@ public class GameScreen implements Screen{
                     if (map.getBlockByIdx(v) != null)
                     {
                         //map.getBlock(v.X, v.Y).textureRotation = 0;
-                        map.mining(v, player.getToolInUsed());
+                        map.mining(v, player.getHitForce());
                         player.isMining = true;
                         if (map.isMiningDone())
                         {
@@ -344,14 +344,20 @@ public class GameScreen implements Screen{
             }
             else if (Inputs.instance.mouseRight && hitBody == null)
             {
-                isFirstTimeMouseRight = false;
                 if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isBlock())
                 {
+                    isFirstTimeMouseRight = false;
                     if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock())){
                         if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.torch.id)
                             shaders_box2dlights.setTorchLight(v3.x,v3.y);
                         player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
                     }
+                }
+                else if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].isItem() && isFirstTimeMouseRight)
+                {
+                    isFirstTimeMouseRight = false;
+                    //eat
+                    player.eat();
                 }
             }// open chest or shop
             else if (Inputs.instance.mouseRight && hitBody != null && isFirstTimeMouseRight)
@@ -379,7 +385,7 @@ public class GameScreen implements Screen{
                     world.rayCast(callback_IsEntity, player.b2body.getPosition().x,player.b2body.getPosition().y, v3.x,v3.y);
                     if (entityBody != null)
                     {
-                        if (isEntity && player.b2body.getPosition().dst(entityBody.getPosition()) < 5*Block.size )
+                        if (isEntity && player.b2body.getPosition().dst(entityBody.getPosition()) < 5*Block.size_in_meters )
                         {
                             System.out.println("Open shop of entity with id = " + (int)entityBody.getUserData());
                             player.getInventory().setShop(entitiesManager.getEntityShopById((int)entityBody.getUserData()));
@@ -394,7 +400,7 @@ public class GameScreen implements Screen{
             }
             
             if ( Inputs.instance.srdco )
-                spriteBatch.draw(AllBlocks.heard, player.b2body.getPosition().x-Block.size/2, player.b2body.getPosition().y+Block.size*2, Block.size, Block.size);
+                spriteBatch.draw(AllBlocks.heard, player.b2body.getPosition().x-Block.size_in_meters/2, player.b2body.getPosition().y+Block.size_in_meters*2, Block.size_in_meters, Block.size_in_meters);
         
             if (Inputs.instance.mouseRight == false)
                 isFirstTimeMouseRight = true;
@@ -558,7 +564,7 @@ public class GameScreen implements Screen{
             for (int y = 0; y < Constants.HEIGHT_OF_MAP; y++) {
                 if (map.getBlockByIdx(x, y) != null){
                     if (map.getBlockId(x, y) == AllBlocks.torch.id)
-                        shaders_box2dlights.setTorchLight(x*Block.size,y*Block.size);  
+                        shaders_box2dlights.setTorchLight(x*Block.size_in_meters,y*Block.size_in_meters);  
                 }
             }
             
@@ -581,8 +587,8 @@ public class GameScreen implements Screen{
     public void createEntities() {
         // Create player
     	MyAssetManager.instance = new MyAssetManager();
-        player = new Player(new Vector2(map.getKingPos().X*Block.size, map.getKingPos().Y*Block.size)/*map.getRandomGroundPosForEntity()*/);
-        entitiesManager = new EntitiesManager(map.getDoorsUpPos(), map.getKnightPos(), map.getKingPos());
+        player = new Player(new Vector2(map.getKingPos().X*Block.size_in_meters, map.getKingPos().Y*Block.size_in_meters)/*map.getRandomGroundPosForEntity()*/);
+        entitiesManager = new EntitiesManager(map.getDoorsUpPos(), map.getKnightPos(), map.getKingPos(), map.getTreePos());
         entitiesManager.setPlayer(player);
     }
     

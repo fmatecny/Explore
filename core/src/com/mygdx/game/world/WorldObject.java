@@ -28,14 +28,14 @@ public abstract class WorldObject {
         bodyDef.type = BodyDef.BodyType.StaticBody;
 
         // Set our body's starting position in the world
-        bodyDef.position.set(x*Block.size+Block.size/2, y*Block.size+Block.size/2);
+        bodyDef.position.set(x*Block.size_in_meters+Block.size_in_meters/2, y*Block.size_in_meters+Block.size_in_meters/2);
 
         // Create our body in the world using our body definition
         Body body = world.createBody(bodyDef);
         
         // Create a circle shape and set its radius to 6
         PolygonShape square = new PolygonShape();
-        square.setAsBox(Block.size/2.0f, Block.size/2.0f);
+        square.setAsBox(Block.size_in_meters/2.0f, Block.size_in_meters/2.0f);
 
         // Create a fixture definition to apply our shape to
         FixtureDef fixtureDef = new FixtureDef();
