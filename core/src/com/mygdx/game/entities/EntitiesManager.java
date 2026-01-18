@@ -26,12 +26,9 @@ public class EntitiesManager {
     
     private ArrayList<ArrayList<Entity>> entityList;
     
-    private ArrayList<Entity> villagerList;
-    private ArrayList<Entity> girlList;
-    private ArrayList<Entity> smithList;
-    private ArrayList<Entity> knightList;
+    private ArrayList<Entity> villagerList, girlList, smithList, knightList;
     private ArrayList<Entity> hostileList;
-    private ArrayList<Entity> squirrelList;
+    private ArrayList<Entity> squirrelList, sheepList, waspList;
     private King king;
     private Squirrel squirrel;
    
@@ -44,6 +41,8 @@ public class EntitiesManager {
         hostileList = new ArrayList<>();
         knightList = new ArrayList<>();
         squirrelList = new ArrayList<>();
+        sheepList = new ArrayList<>();
+        waspList = new ArrayList<>();
         
         for (int i = 0; i < housesPos.size(); i++) 
         {
@@ -58,6 +57,13 @@ public class EntitiesManager {
             {
                 villagerList.add(new Villager(id, housesPos.get(i).X, housesPos.get(i).Y));
                 id++;
+                
+                sheepList.add(new Sheep(id, housesPos.get(i).X, housesPos.get(i).Y, 1.6f/(166f/216f) ));
+                id++;
+                
+                waspList.add(new Wasp(id, housesPos.get(i).X, housesPos.get(i).Y, 1.2f/(87f/205f) ));
+                id++;
+                
                 if ((int )(Math.random() * 100) > 80 )
                 {
                     girlList.add(new Girl(id, housesPos.get(i).X, housesPos.get(i).Y));
@@ -103,6 +109,8 @@ public class EntitiesManager {
             }
                 
         }
+        
+        
  
         entityList.add(villagerList);
         entityList.add(girlList);
@@ -110,6 +118,8 @@ public class EntitiesManager {
         entityList.add(hostileList);
         entityList.add(knightList);  
         entityList.add(squirrelList);
+        entityList.add(sheepList);
+        entityList.add(waspList);
     }
         
     private Entity getEntityById(int id){

@@ -42,8 +42,8 @@ public abstract class Entity implements EntityIfc{
     private Entity followedEntity = null;
     private Body followedBody = null;
     private long counter = 20;
-    private int timeMove = (int )(Math.random() * 40) + 10;
-    private int timeToState = (int )(Math.random() * 100) + 100;
+    protected int timeMove = (int )(Math.random() * 300) + 10;
+    private int timeToState = (int )(Math.random() * 300) + 100;
     
     private final float entityTextureSizeRatio = 197f/512f;
     private float heightInBlocks = 2f;   
@@ -68,6 +68,9 @@ public abstract class Entity implements EntityIfc{
     private InventoryShop inventoryShop = null;
     private Constants.typeOfEntity typeOfEntity;
 
+    protected boolean isQuadruped = false;
+    
+    
     public Entity(){}
 
     public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity) {
@@ -82,6 +85,18 @@ public abstract class Entity implements EntityIfc{
     
     
     public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity, float scale) {
+        this.TEXTURE_SCALE = scale;
+        this.id = id;
+        this.typeOfEntity = typeOfEntity;
+        defineBody(x, y);
+        housePos = new Vector2(x*Block.size_in_meters, y*Block.size_in_meters);
+        System.out.println("id= " + id + " | HousePos = " + housePos);
+        animations = MyAssetManager.instance.getEntityAnimations(this.typeOfEntity);
+        setSize();
+    }
+    
+    public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity, float scale, boolean isQuadruped) {
+        isQuadruped = isQuadruped;
         this.TEXTURE_SCALE = scale;
         this.id = id;
         this.typeOfEntity = typeOfEntity;
@@ -119,7 +134,10 @@ public abstract class Entity implements EntityIfc{
         b2body.createFixture(fdef);//.setUserData(this);
         
         square.setRadius(Block.size_in_meters*0.45f);
-        square.setPosition(new Vector2(0, Block.size_in_meters));
+        if (isQuadruped)
+            square.setPosition(new Vector2(Block.size_in_meters, 0));
+        else
+            square.setPosition(new Vector2(0, Block.size_in_meters));
         b2body.createFixture(fdef);
 
         EdgeShape right = new EdgeShape();
