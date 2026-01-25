@@ -29,7 +29,7 @@ public class AllBlocks {
        
        door, door_down, door_up, window,//25,10
        
-       torch, ladder,//10,20
+       torch, campfire, ladder,//10,20
        
        chest, furnace,//25
        
@@ -71,7 +71,7 @@ public class AllBlocks {
     public static Block stone_stairs;
     public static Block half_stone;
     
-    public static Block torch;
+    public static Block torch, campfire;
     public static Block ladder;
     
     public static Block chest;
@@ -112,6 +112,17 @@ public class AllBlocks {
         blackMushroom.texture = new Texture(Gdx.files.internal("block/blackMushroom.png"));
         blockList.add(blackMushroom);
         
+        campfire = new Block();
+        campfire.id = t.campfire.ordinal();
+        campfire.info = "Campfire";
+        campfire.blocked = false;
+        campfire.hardness = 40;
+        campfire.textureRotation = 0;
+        campfire.isRotationAllowed = false;
+        campfire.stackable = false;
+        campfire.texture = new Texture(Gdx.files.internal("block/campfire.png"));
+        blockList.add(campfire);
+
         
         coal = new Block();
         coal.id = t.coal.ordinal();

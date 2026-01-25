@@ -323,7 +323,7 @@ public class GameScreen implements Screen{
                         {
                             if (player.getInventory().addObjectToInvenotry(map.getBlockByIdx(v)))
                             {
-                                if (map.getBlockId(v) == AllBlocks.torch.id)
+                                if ((map.getBlockId(v) == AllBlocks.torch.id) || (map.getBlockId(v) == AllBlocks.campfire.id))
                                     shaders_box2dlights.removeTorchLightFromPos(v3.x, v3.y);
                                 map.removeBlock(v.X, v.Y);
                             }
@@ -348,7 +348,8 @@ public class GameScreen implements Screen{
                 {
                     isFirstTimeMouseRight = false;
                     if (map.addBodyToIdx((int)(v3.x*100.0f/40.0f), (int)(v3.y*100.0f/40.0f), player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock())){
-                        if (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.torch.id)
+                        if ((player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.torch.id) ||
+                            (player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].getBlock().id == AllBlocks.campfire.id))
                             shaders_box2dlights.setTorchLight(v3.x,v3.y);
                         player.getInventory().getInventoryBarHUD().inventoryBar[Inputs.instance.scrollIdx].numOfItem--;
                     }
@@ -563,7 +564,7 @@ public class GameScreen implements Screen{
         for (int x = 0; x < Constants.WIDTH_OF_MAP; x++) {
             for (int y = 0; y < Constants.HEIGHT_OF_MAP; y++) {
                 if (map.getBlockByIdx(x, y) != null){
-                    if (map.getBlockId(x, y) == AllBlocks.torch.id)
+                    if ((map.getBlockId(x, y) == AllBlocks.torch.id) || (map.getBlockId(x, y) == AllBlocks.campfire.id))
                         shaders_box2dlights.setTorchLight(x*Block.size_in_meters,y*Block.size_in_meters);  
                 }
             }

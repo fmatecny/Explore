@@ -66,15 +66,16 @@ public class Map extends WorldObject{
     private TextureAtlas textureAtlas;
     private Animation<AtlasRegion> breakBlockAnimation;
     
-    private TextureAtlas textureTorchAtlas;
-    private Animation<AtlasRegion> torchAnimation;
+    private TextureAtlas textureTorchAtlas, textureCampfireAtlas;
+    private Animation<AtlasRegion> torchAnimation, campfireAnimation;
     private ArrayList<IntVector2> torchsPos = new ArrayList<>();
+    private ArrayList<IntVector2> campfiresPos = new ArrayList<>();
     private ArrayList<IntVector2> doorsUpPos = new ArrayList<>();
     private ArrayList<IntVector2> knightPos = new ArrayList<>();
     private ArrayList<IntVector2> treePos = new ArrayList<>();
     private IntVector2 kingPos = new IntVector2();
     private float stateTime = 0;
-    private float stateTimeTorch = 0;
+    private float stateTimeTorch, stateTimeCampfire = 0;
     
     private boolean isMining = false;
     private Block miningBlock = null;
@@ -97,6 +98,8 @@ public class Map extends WorldObject{
         breakBlockAnimation = new Animation<>(0.5f, textureAtlas.getRegions());
         textureTorchAtlas = new TextureAtlas("block/walltorch.txt");
         torchAnimation = new Animation<>(0.1f, textureTorchAtlas.getRegions());
+        textureCampfireAtlas = new TextureAtlas("block/campfireSprite.txt");
+        campfireAnimation = new Animation<>(0.1f, textureCampfireAtlas.getRegions());
     }
     
     
@@ -531,7 +534,7 @@ public class Map extends WorldObject{
 
         for (Water water : waterList) {
             
-            if (water.hasWaves())
+            if (water.hasWaves() && water.x > 0)
             {
                 if (mapArray[water.x-1][water.y] == null)
                 {
@@ -716,6 +719,16 @@ public class Map extends WorldObject{
                 }
             }
             
+            if (mapArray[x][y].id == AllBlocks.campfire.id)
+            {
+                for (IntVector2 camfirePos : campfiresPos) {
+                    if (camfirePos.X == x && camfirePos.Y == y){
+                        campfiresPos.remove(camfirePos);
+                        break;
+                    }
+                }
+            }
+            
             if (mapArray[x][y].id == AllBlocks.chest.id)
             {
                 for (Chest chest : chestList) {
@@ -743,7 +756,10 @@ public class Map extends WorldObject{
     
     public boolean addBodyToIdx(int x, int y, Block b){
         //if block is on background or front, torch is always on background
-        b.blocked = !Inputs.instance.control_left && b.id != AllBlocks.torch.id && b.id != AllBlocks.ladder.id;
+        b.blocked = !Inputs.instance.control_left && 
+                    b.id != AllBlocks.torch.id && 
+                    b.id != AllBlocks.campfire.id && 
+                    b.id != AllBlocks.ladder.id;
         
         //create new body beacuse in Inventar is only one body 
         if (b.id == AllBlocks.door.id || b.id == AllBlocks.door_up.id || b.id == AllBlocks.door_down.id)
@@ -761,6 +777,8 @@ public class Map extends WorldObject{
         
         if (b.id == AllBlocks.torch.id)
             torchsPos.add(new IntVector2(x, y));
+        if (b.id == AllBlocks.campfire.id)
+            campfiresPos.add(new IntVector2(x, y));
         else if (b.id == AllBlocks.chest.id)
             chestList.add(new Chest(x, y));
         else if (b.id == AllBlocks.furnace.id)
@@ -925,6 +943,16 @@ public class Map extends WorldObject{
             TextureRegion currentFrame = torchAnimation.getKeyFrame(stateTimeTorch, true);
             for (IntVector2 torchPos : torchsPos) {
                 spriteBatch.draw(currentFrame, torchPos.X*Block.size_in_meters, torchPos.Y*Block.size_in_meters, Block.size_in_meters, Block.size_in_meters);   
+            }
+        }
+        
+        if (campfiresPos.isEmpty() && stateTimeCampfire != 0){
+            stateTimeCampfire = 0;}
+        else{
+            stateTimeCampfire += Gdx.graphics.getDeltaTime();
+            TextureRegion currentFrame = campfireAnimation.getKeyFrame(stateTimeCampfire, true);
+            for (IntVector2 camfirePos : campfiresPos) {
+                spriteBatch.draw(currentFrame, camfirePos.X*Block.size_in_meters, camfirePos.Y*Block.size_in_meters, Block.size_in_meters, Block.size_in_meters);   
             }
         }
     }

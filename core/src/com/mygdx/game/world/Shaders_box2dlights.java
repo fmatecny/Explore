@@ -8,6 +8,7 @@ package com.mygdx.game.world;
 import box2dLight.DirectionalLight;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.mygdx.game.Constants;
 import com.mygdx.game.entities.Player;
@@ -32,6 +33,8 @@ public class Shaders_box2dlights {
     private final float lightSoftnessLength_torch = 0.5f;
     private final float lightSoftnessLength_player = 0.5f;
     
+    //private float stateTimeLight = 0;
+    //private boolean doBrighter = true;
     
     public Shaders_box2dlights() {
         color = new Color(0, 0, 0, Constants.ALPHA_MAX);
@@ -76,6 +79,35 @@ public class Shaders_box2dlights {
     
     
     public void updateRayHandler(){
+        
+        /*
+        changing of brightnes
+        if (stateTimeLight > 0.5f)
+            doBrighter = false;
+        
+        if (stateTimeLight < 0)
+            doBrighter = true;
+        
+        
+        if (stateTimeLight < 0.5f && doBrighter)
+        {
+            stateTimeLight += Gdx.graphics.getDeltaTime()*2;
+        }
+        else
+        {
+            stateTimeLight -= Gdx.graphics.getDeltaTime()*2;
+        }
+        
+        System.err.println("light = " + (4+stateTimeLight));
+        
+        for (int i = 0; i < torchLightList.size(); i++) 
+        {
+            torchLightList.get(i).setDistance(4.5f + stateTimeLight);
+        }
+  */
+        
+
+
         //DirectionalLight is limitated by screen size dependent values which are set or updated when setCombinedMatric is called
         //so we need to increase viewport height 
         //to keep blocks on top (above player - e.g when player mine big "well") included in shader calculation

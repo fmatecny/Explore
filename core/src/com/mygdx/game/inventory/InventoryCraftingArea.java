@@ -176,6 +176,17 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftedItem.numOfItem = n;
                 craftedItem.setObject(AllBlocks.torch);
                 break;
+                
+            case Constants.RECEPIE_CAMPFIRE:
+                n = craftingSlots[0][0].numOfItem;
+                for (int x = 0; x < craftingSlots.length; x++) {
+                    for (int y = 0; y < craftingSlots[x].length; y++) {
+                        n = Math.min(n, craftingSlots[x][y].numOfItem);
+                    } 
+                }
+                craftedItem.numOfItem = n;
+                craftedItem.setObject(AllBlocks.campfire);
+                break;
              
             case Constants.RECEPIE_LADDER:
                 n = Math.min(craftingSlots[0][0].numOfItem, craftingSlots[0][1].numOfItem);
@@ -340,7 +351,15 @@ public class InventoryCraftingArea extends InventoryPack{
                 craftingSlots[1][1].numOfItem -= n;
                 craftingSlots[1][2].numOfItem -= n;
                 break;
-            
+
+            case Constants.RECEPIE_CAMPFIRE:
+                for (int x = 0; x < craftingSlots.length; x++) {
+                    for (int y = 0; y < craftingSlots[x].length; y++) {
+                        craftingSlots[x][y].numOfItem -= n;
+                    } 
+                }
+                break;               
+                
             case Constants.RECEPIE_LADDER:
                 craftingSlots[0][0].numOfItem -= n;
                 craftingSlots[0][1].numOfItem -= n;
@@ -540,6 +559,29 @@ public class InventoryCraftingArea extends InventoryPack{
             if (craftingSlots[1][1].getItem().id == AllItems.coalIngot.id &&
                 craftingSlots[1][2].getItem().id == AllItems.stick.id)
                 return Constants.RECEPIE_TORCH;
+            }
+        else if (
+            craftingSlots[0][0].getBlock()!= null &&
+            craftingSlots[0][1].getBlock() != null &&
+            craftingSlots[0][2].getBlock() != null &&
+            craftingSlots[1][0].getBlock() != null &&
+            craftingSlots[1][1].getItem() != null &&
+            craftingSlots[1][2].getBlock() != null &&
+            craftingSlots[2][0].getBlock() != null &&
+            craftingSlots[2][1].getBlock() != null &&
+            craftingSlots[2][2].getBlock() != null
+            )
+            {
+            if (craftingSlots[0][0].getBlock().id == AllBlocks.plank.id &&
+                craftingSlots[0][1].getBlock().id == AllBlocks.plank.id &&
+                craftingSlots[0][2].getBlock().id == AllBlocks.plank.id &&
+                craftingSlots[1][0].getBlock().id == AllBlocks.plank.id &&
+                craftingSlots[1][1].getItem().id == AllItems.coalIngot.id &&
+                craftingSlots[1][2].getBlock().id == AllBlocks.plank.id &&
+                craftingSlots[2][0].getBlock().id == AllBlocks.plank.id &&
+                craftingSlots[2][1].getBlock().id == AllBlocks.plank.id &&
+                craftingSlots[2][2].getBlock().id == AllBlocks.plank.id)
+                return Constants.RECEPIE_CAMPFIRE;
             }
         else if (
             craftingSlots[0][0].getItem() != null &&

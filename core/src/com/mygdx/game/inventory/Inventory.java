@@ -172,6 +172,14 @@ public class Inventory implements Disposable{
         return true;
     }
     
+    public boolean addObjectToInvenotry(Item item){
+        if (addObjectToInvenotryBar(item))
+          return true;
+        else
+          return inventoryPackage.addObject(item);
+    }
+    
+    
     public boolean addObjectToInvenotry(Block block){
         if (block != null)
         {

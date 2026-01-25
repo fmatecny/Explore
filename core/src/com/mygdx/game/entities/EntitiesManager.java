@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.mygdx.game.Constants;
 import com.mygdx.game.IntVector2;
+import com.mygdx.game.inventory.AllItems;
 import com.mygdx.game.inventory.InventoryShop;
 import com.mygdx.game.world.Block;
 import java.util.ArrayList;
@@ -49,24 +50,42 @@ public class EntitiesManager {
             //generate smith
             if ((int )(Math.random() * 100) > 90 )
             {
-                smithList.add(new Smith(id, housesPos.get(0).X+6, housesPos.get(0).Y));
+                //smithList.add(new Smith.Builder().buildid, housesPos.get(0).X+6, housesPos.get(0).Y));
+                smithList.add(new Smith.Builder().
+                        setX(housesPos.get(0).X+6).
+                        setY(housesPos.get(0).Y).
+                        build(id));
                 id++;
             }
             //generate villager
             else
             {
-                villagerList.add(new Villager(id, housesPos.get(i).X, housesPos.get(i).Y));
+                villagerList.add(new Villager.Builder().
+                        setX(housesPos.get(i).X).
+                        setY(housesPos.get(i).Y).
+                        build(id));
                 id++;
                 
-                sheepList.add(new Sheep(id, housesPos.get(i).X, housesPos.get(i).Y, 1.6f/(166f/216f) ));
+                sheepList.add(new Sheep.Builder().
+                        setX(housesPos.get(i).X).
+                        setY(housesPos.get(i).Y).
+                        build(id));
                 id++;
                 
-                waspList.add(new Wasp(id, housesPos.get(i).X, housesPos.get(i).Y, 1.2f/(87f/205f) ));
+                waspList.add(new Wasp.Builder().
+                        setX(housesPos.get(i).X).
+                        setY(housesPos.get(i).Y).
+                        build(id));
+                //waspList.add(new Wasp(id, housesPos.get(i).X, housesPos.get(i).Y, 1.2f/(87f/205f) ));
                 id++;
                 
                 if ((int )(Math.random() * 100) > 80 )
                 {
-                    girlList.add(new Girl(id, housesPos.get(i).X, housesPos.get(i).Y));
+                    girlList.add(new Girl.Builder().
+                        setX(housesPos.get(i).X).
+                        setY(housesPos.get(i).Y).
+                        build(id));
+                    //girlList.add(new Girl(id, housesPos.get(i).X, housesPos.get(i).Y));
                     id++;
                 } 
             }
@@ -75,7 +94,8 @@ public class EntitiesManager {
         Golem golem;
         for (int i = 0; i < 3; i++) 
         {
-            golem = new Golem(id, 0f, 0f);
+            //golem = new Golem(id, 0f, 0f);
+            golem = new Golem.Builder().build(id);
             golem.b2body.setActive(false);
             hostileList.add(golem);
             id++;
@@ -84,17 +104,25 @@ public class EntitiesManager {
         Skeleton skeleton;
         for (int i = 0; i < 3; i++) 
         {
-            skeleton = new Skeleton(id, 0f, 0f);
+            skeleton = new Skeleton.Builder().build(id);
             skeleton.b2body.setActive(false);
             hostileList.add(skeleton);
             id++;
         }
         
         for (IntVector2 knightPos : knightPositions) {
-            knightList.add(new Knight(id, knightPos.X, knightPos.Y));
+            //knightList.add(new Knight(id, knightPos.X, knightPos.Y));
+            knightList.add(new Knight.Builder().
+                        setX(knightPos.X).
+                        setY(knightPos.Y).
+                        build(id));
             id++;
         }
-        king = new King(id, kingPos.X, kingPos.Y);
+        //king = new King(id, kingPos.X, kingPos.Y);
+        king = new King.Builder().
+                        setX(kingPos.X).
+                        setY(kingPos.Y).
+                        build(id);
         knightList.add(king);
         id++;
         
@@ -102,7 +130,10 @@ public class EntitiesManager {
             System.err.println("x" + treePositions.get(i).X + "x+1" + treePositions.get(i+1).X);
             if ( treePositions.get(i+1).X - treePositions.get(i).X < 10)
             {
-                squirrel = new Squirrel(id, treePositions.get(i).X, treePositions.get(i).Y);
+                squirrel = new Squirrel.Builder().
+                        setX(treePositions.get(i).X).
+                        setY(treePositions.get(i).Y).
+                        build(id);
                 squirrelList.add(squirrel);
                 id++;
                 i++;
@@ -179,6 +210,11 @@ public class EntitiesManager {
                 Entity e = getEntityById((int)hitEntityBody.getUserData());
                 e.hit(player.getHitForce());
                 e.followBody(player.b2body);
+                
+                if (e.IsAlive() == false && e.getTypeOfEntity() == Constants.typeOfEntity.sheep)
+                {
+                    player.getInventory().addObjectToInvenotry(AllItems.rawMeat);
+                }
             }
         }
     }

@@ -43,13 +43,13 @@ public abstract class Entity implements EntityIfc{
     private Body followedBody = null;
     private long counter = 20;
     protected int timeMove = (int )(Math.random() * 300) + 10;
-    private int timeToState = (int )(Math.random() * 300) + 100;
+    protected int timeToState = (int )(Math.random() * 300) + 100;
     
-    private final float entityTextureSizeRatio = 197f/512f;
-    private float heightInBlocks = 2f;   
+    protected float entityTextureSizeRatio = 0;
+    protected float heightInBlocks = 0;   
     protected float texture_width;
     protected float texture_height;
-    private float TEXTURE_SCALE = heightInBlocks/entityTextureSizeRatio;
+    private float TEXTURE_SCALE = 1;
     private float heightOffset = Block.size_in_meters/2f;
 
     protected Constants.typeOfMovement currentTOM = Constants.typeOfMovement.Stand;
@@ -67,44 +67,82 @@ public abstract class Entity implements EntityIfc{
     
     private InventoryShop inventoryShop = null;
     private Constants.typeOfEntity typeOfEntity;
-
-    protected boolean isQuadruped = false;
     
     
-    public Entity(){}
-
-    public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity) {
-        this.id = id;
-        this.typeOfEntity = typeOfEntity;
-        defineBody(x, y);
-        housePos = new Vector2(x*Block.size_in_meters, y*Block.size_in_meters);
-        System.out.println("id= " + id + " | HousePos = " + housePos);
+    public Entity(Builder builder){
+        this.id = builder.id;
+        this.typeOfEntity = builder.typeOfEntity;
+        this.entityTextureSizeRatio = builder.entityTextureSizeRatio;
+        this.heightInBlocks = builder.heightInBlocks;
+        
+        housePos = new Vector2(builder.getX()*Block.size_in_meters, builder.getY()*Block.size_in_meters);
+        System.out.println(typeOfEntity.name() + " id = " + id + " | HousePos = " + housePos);
+        
         animations = MyAssetManager.instance.getEntityAnimations(this.typeOfEntity);
-        setSize();
     }
-    
-    
-    public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity, float scale) {
-        this.TEXTURE_SCALE = scale;
-        this.id = id;
-        this.typeOfEntity = typeOfEntity;
-        defineBody(x, y);
-        housePos = new Vector2(x*Block.size_in_meters, y*Block.size_in_meters);
-        System.out.println("id= " + id + " | HousePos = " + housePos);
-        animations = MyAssetManager.instance.getEntityAnimations(this.typeOfEntity);
-        setSize();
-    }
-    
-    public Entity(int id, float x, float y, Constants.typeOfEntity typeOfEntity, float scale, boolean isQuadruped) {
-        isQuadruped = isQuadruped;
-        this.TEXTURE_SCALE = scale;
-        this.id = id;
-        this.typeOfEntity = typeOfEntity;
-        defineBody(x, y);
-        housePos = new Vector2(x*Block.size_in_meters, y*Block.size_in_meters);
-        System.out.println("id= " + id + " | HousePos = " + housePos);
-        animations = MyAssetManager.instance.getEntityAnimations(this.typeOfEntity);
-        setSize();
+
+    public static abstract class Builder<T extends Builder<T>>
+    {
+        private int id;
+        private float x;
+        private float y;
+        private Constants.typeOfEntity typeOfEntity;
+        private float scale;
+        private float entityTextureSizeRatio;
+        private float heightInBlocks;
+
+        public Builder(){
+            this.id = 0;
+            this.x = 0;
+            this.y = 0;
+            this.scale = 0;
+            this.entityTextureSizeRatio = 0;
+            this.heightInBlocks = 0;
+            System.err.println("Builder()heightInBlocks" + heightInBlocks);
+        }
+        
+        protected T setId(int id){
+            this.id = id;
+            return self();
+        } 
+        
+        public T setX(float x) {
+            this.x = x;
+            return self();
+        }
+
+        public T setY(float y) {
+            this.y = y;
+            return self();
+        }
+        
+        public T setScale(float scale) {
+            this.scale = scale;
+            return self();
+        }
+
+        protected void setTypeOfEntity(Constants.typeOfEntity typeOfEntity) {
+            this.typeOfEntity = typeOfEntity;
+        }
+
+        protected void setEntityTextureSizeRatio(float entityTextureSizeRatio) {
+            this.entityTextureSizeRatio = entityTextureSizeRatio;
+        }
+
+        protected void setHeightInBlocks(float heightInBlocks) {
+            this.heightInBlocks = heightInBlocks;
+        }
+        
+        public float getX() {
+            return x;
+        }
+
+        public float getY() {
+            return y;
+        }
+
+        protected abstract T self();
+        public abstract Entity build(int id);
     }
     
     public void createInventoryShop(){
@@ -115,7 +153,9 @@ public abstract class Entity implements EntityIfc{
         return inventoryShop;
     }
     
-    private void defineBody(float x, float y){
+    abstract protected void defineBody(float x, float y);
+    
+    /*protected void defineBody(float x, float y){
         BodyDef bdef = new BodyDef();
         bdef.position.set(x*Block.size_in_meters, y*Block.size_in_meters);
         bdef.type = BodyDef.BodyType.DynamicBody;
@@ -158,9 +198,10 @@ public abstract class Entity implements EntityIfc{
         square.dispose();
         right.dispose();
         left.dispose();
-    }
+    }*/
     
-    private void setSize(){
+    protected void setSize(){
+        TEXTURE_SCALE = heightInBlocks/entityTextureSizeRatio;
         float width = animations.get(0).get(0).getKeyFrame(0).getRegionWidth();
         float height = animations.get(0).get(0).getKeyFrame(0).getRegionHeight();
         texture_width = ((Block.size_in_meters*TEXTURE_SCALE)/height)*width;
@@ -291,6 +332,9 @@ public abstract class Entity implements EntityIfc{
         
         if (currentTOM == Constants.typeOfMovement.Die || currentTOM == Constants.typeOfMovement.Slash)
             currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, false);
+        else if (currentTOM == Constants.typeOfMovement.Jump)
+            currentFrame = animations.get(direction.ordinal()).get(Constants.typeOfMovement.Stand.ordinal()).getKeyFrame(0.0f);
+
         else
             currentFrame = animations.get(direction.ordinal()).get(currentTOM.ordinal()).getKeyFrame(stateTime, true);
         //currentFrame.flip(currentFrame.isFlipX() != leftDirection, false);
@@ -459,6 +503,12 @@ public abstract class Entity implements EntityIfc{
     public void setSpawned(boolean spawned){
         this.spawned = spawned;
     }
+
+    public Constants.typeOfEntity getTypeOfEntity() {
+        return typeOfEntity;
+    }
+    
+    
 }
 
 

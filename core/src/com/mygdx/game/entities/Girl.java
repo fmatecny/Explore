@@ -10,10 +10,29 @@ import com.mygdx.game.Constants;
  *
  * @author Krtkosaurus
  */
-public class Girl extends Entity{
+public class Girl extends EntityBipedal{
 
-    public Girl(int id, float x, float y) {
+    /*public Girl(int id, float x, float y) {
         super(id, x, y, Constants.typeOfEntity.girl); 
         System.out.println("Girl " + id + " has position " + x + "|" + y);
+    }*/
+    public Girl(Builder b) {
+        super(b); 
+    }
+    
+    public static class Builder extends Entity.Builder<Builder>{
+
+        @Override
+        public Girl build(int id) {
+            this.setTypeOfEntity(Constants.typeOfEntity.girl);
+            this.setId(id);
+            return new Girl(this);
+        }
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+    
     }
 }

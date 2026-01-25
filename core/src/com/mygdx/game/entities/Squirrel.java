@@ -15,12 +15,29 @@ import java.util.AbstractMap;
  *
  * @author Fery
  */
-public class Squirrel extends Entity{
+public class Squirrel extends EntityQuadruped{
+
+    public Squirrel(Builder b) {
+        super(b);
+    }
     
-    public Squirrel(int id, float x, float y) {
+    /*public Squirrel(int id, float x, float y) {
         super(id, x, y, Constants.typeOfEntity.squirrel, 2f);
         this.setSpeed(1.5f);
         this.setHeightOffset(0.0f);
         System.out.println("Squirrel " + id + " has position " + x + "|" + y);
+    }*/
+    public static class Builder extends Entity.Builder<Builder>{
+        @Override
+        public Squirrel build(int id) {
+            this.setTypeOfEntity(Constants.typeOfEntity.squirrel);
+            this.setId(id);
+            return new Squirrel(this);
+        }
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
     }
 }

@@ -22,7 +22,8 @@ public class AllItems {
         bucket, waterBucket,
         ironArmor, diamondArmor,
         
-        redApple, greenApple, blackMushroom, amanitaMushroom
+        redApple, greenApple, blackMushroom, amanitaMushroom,
+        rawFish, roastFish, rawMeat, roastMeat
         
     }
     
@@ -39,9 +40,9 @@ public class AllItems {
     public static Item ironArmor;
     public static Item diamondArmor;
 
-    public static Item redApple;
-    public static Item greenApple;
+    public static Item redApple, greenApple;
     public static Item blackMushroom, amanitaMushroom;
+    public static Item rawFish, roastFish, rawMeat, roastMeat;
     
     
     public static ArrayList<Item> itemList;
@@ -155,6 +156,42 @@ public class AllItems {
         amanitaMushroom.isEatable = true;
         amanitaMushroom.satiety = -25;
         itemList.add(amanitaMushroom);
+        
+        rawFish = new Item();
+        rawFish.id = id.rawFish.ordinal();
+        rawFish.info = "Raw Fish";
+        rawFish.texture = new Texture(Gdx.files.internal("item/RawFish.png"));
+        rawFish.maxItemInBlock = 0;
+        rawFish.isEatable = true;
+        rawFish.satiety = 10;
+        itemList.add(rawFish);
+        
+        roastFish = new Item();
+        roastFish.id = id.roastFish.ordinal();
+        roastFish.info = "Roast Fish";
+        roastFish.texture = new Texture(Gdx.files.internal("item/RoastFish.png"));
+        roastFish.maxItemInBlock = 0;
+        roastFish.isEatable = true;
+        roastFish.satiety = 20;
+        itemList.add(roastFish);
+        
+        rawMeat = new Item();
+        rawMeat.id = id.rawMeat.ordinal();
+        rawMeat.info = "Raw Meat";
+        rawMeat.texture = new Texture(Gdx.files.internal("item/RawMeat.png"));
+        rawMeat.maxItemInBlock = 0;
+        rawMeat.isEatable = true;
+        rawMeat.satiety = 15;
+        itemList.add(rawMeat);
+        
+        roastMeat = new Item();
+        roastMeat.id = id.roastMeat.ordinal();
+        roastMeat.info = "Roast Meat";
+        roastMeat.texture = new Texture(Gdx.files.internal("item/RoastMeat.png"));
+        roastMeat.maxItemInBlock = 0;
+        roastMeat.isEatable = true;
+        roastMeat.satiety = 30;
+        itemList.add(roastMeat);
     }
     
     public static Item getItemById(int id){
